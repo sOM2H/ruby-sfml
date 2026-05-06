@@ -1,11 +1,27 @@
 RSpec.describe SFML::Font do
+  describe ".default" do
+    it "loads the bundled DejaVu Sans" do
+      expect(described_class.default).to be_a(described_class)
+    end
+
+    it "memoizes the same instance across calls" do
+      expect(described_class.default).to be(described_class.default)
+    end
+  end
+
   describe ".find" do
-    it "locates DejaVuSans on this system" do
-      font = described_class.find("DejaVuSans")
-      expect(font).to be_a(described_class)
+    # Point SEARCH_PATHS at the bundled-font directory so this test is
+    # platform-independent — system font availability differs wildly on
+    # macOS / Linux / Windows runners.
+    let(:bundled_dir) { File.expand_path("../../../lib/sfml/assets/fonts", __dir__) }
+
+    it "finds a font by basename in a configured directory" do
+      stub_const("#{described_class}::SEARCH_PATHS", [bundled_dir])
+      expect(described_class.find("DejaVuSans")).to be_a(described_class)
     end
 
     it "returns nil when no match exists" do
+      stub_const("#{described_class}::SEARCH_PATHS", [bundled_dir])
       expect(described_class.find("definitely-not-a-real-font-12345")).to be_nil
     end
   end
@@ -19,7 +35,7 @@ RSpec.describe SFML::Font do
 
   describe "smooth flag" do
     it "is settable" do
-      font = described_class.find("DejaVuSans")
+      font = described_class.default
       font.smooth = false
       expect(font.smooth?).to be false
       font.smooth = true

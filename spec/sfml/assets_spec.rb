@@ -1,8 +1,12 @@
 RSpec.describe SFML::Assets do
-  let(:assets_dir) { File.expand_path("../../examples/assets", __dir__) }
+  let(:assets_dir)        { File.expand_path("../../examples/assets",       __dir__) }
+  let(:bundled_fonts_dir) { File.expand_path("../../lib/sfml/assets/fonts", __dir__) }
 
   before do
-    described_class.search_paths = [assets_dir]
+    # Include both the example asset dir (for blip.wav) and our bundled
+    # fonts dir (for DejaVuSans.ttf) so these specs don't depend on what
+    # the host system happens to have installed.
+    described_class.search_paths = [assets_dir, bundled_fonts_dir]
     described_class.clear
   end
 
@@ -21,7 +25,7 @@ RSpec.describe SFML::Assets do
   end
 
   describe ".font" do
-    it "falls back to system fonts when not in search paths" do
+    it "loads a font from a configured search path" do
       font = described_class.font("DejaVuSans")
       expect(font).to be_a(SFML::Font)
     end
@@ -30,6 +34,15 @@ RSpec.describe SFML::Assets do
       a = described_class.font("DejaVuSans")
       b = described_class.font("DejaVuSans")
       expect(a).to be(b)
+    end
+
+    it "falls back to system fonts via Font.find when not in search paths" do
+      described_class.search_paths = ["/tmp/definitely-not-a-real-asset-dir"]
+      described_class.clear
+      # Stub Font.find so the system layout doesn't matter.
+      stub = SFML::Font.default
+      allow(SFML::Font).to receive(:find).with("DejaVuSans").and_return(stub)
+      expect(described_class.font("DejaVuSans")).to be(stub)
     end
   end
 

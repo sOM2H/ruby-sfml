@@ -20,8 +20,9 @@ BALL_BASE_SPEED    = 380.0
 
 window = SFML::RenderWindow.new(WIDTH, HEIGHT, "Pong", framerate: 60)
 
-# Default search root is `<dir of script>/assets/`, which fits this layout.
-font   = SFML::Assets.font("DejaVuSans")
+# Default search root is `<dir of script>/assets/`. Font.default is the
+# bundled DejaVu Sans, so we don't need a system install of the font.
+font   = SFML::Font.default
 bounce = SFML::Sound.new(SFML::Assets.sound("blip"), volume: 30)
 
 def make_paddle(x)

@@ -1,5 +1,5 @@
 RSpec.describe SFML::Text do
-  let(:font) { SFML::Font.find("DejaVuSans") || skip("no DejaVuSans on this system") }
+  let(:font) { SFML::Font.default }
 
   it "round-trips its string through CSFML" do
     text = described_class.new(font, "hello")

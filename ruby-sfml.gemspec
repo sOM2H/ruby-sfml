@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir[
     "lib/**/*.rb",
+    "lib/sfml/assets/**/*",
     "ext/**/*.rb",
     "README.md",
     "LICENSE.txt",

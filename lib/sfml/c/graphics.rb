@@ -54,6 +54,12 @@ module SFML
       attach_function :sfRenderWindow_drawText,
                       [:render_window_t, :text_t, :render_states_t], :void
 
+      # Mouse position queries relative to a render-window.
+      attach_function :sfMouse_getPositionRenderWindow,
+                      [:render_window_t], System::Vector2i.by_value
+      attach_function :sfMouse_setPositionRenderWindow,
+                      [System::Vector2i.by_value, :render_window_t], :void
+
       # ---- Texture ----
       attach_function :sfTexture_createFromFile, [:string, :pointer], :texture_t
       attach_function :sfTexture_destroy,        [:texture_t], :void

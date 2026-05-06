@@ -102,7 +102,13 @@ module SFML
       attach_function :sfVideoMode_getDesktopMode, [], VideoMode.by_value
 
       attach_function :sfKeyboard_isKeyPressed, [:int], :bool
+
+      # Mouse: position queries here use a sfWindow*. Pass NULL to get
+      # desktop-relative coordinates. The render-window variants live in
+      # SFML::C::Graphics (different shared library).
       attach_function :sfMouse_isButtonPressed, [:int], :bool
+      attach_function :sfMouse_getPosition,     [:pointer], System::Vector2i.by_value
+      attach_function :sfMouse_setPosition,     [System::Vector2i.by_value, :pointer], :void
     end
   end
 end

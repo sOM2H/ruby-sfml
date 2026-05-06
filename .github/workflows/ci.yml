@@ -19,11 +19,60 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install CSFML (Linux)
+      # Ubuntu LTS only ships CSFML 2.5 in its package repos as of 24.04, and
+      # ruby-sfml targets CSFML 3.x. Build SFML 3 + CSFML 3 from source.
+      # Cached so subsequent CI runs skip the ~5 min compile.
+      - name: Cache CSFML 3 install (Linux)
         if: runner.os == 'Linux'
+        id: csfml-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/csfml-3
+          key: csfml-3.0.0-${{ runner.os }}-${{ matrix.ruby }}-v1
+
+      - name: Install build dependencies (Linux)
+        if: runner.os == 'Linux' && steps.csfml-cache.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcsfml-dev
+          sudo apt-get install -y \
+            cmake g++ git \
+            libfreetype-dev libopenal-dev libvorbis-dev libflac-dev \
+            libxrandr-dev libxcursor-dev libudev-dev \
+            libxi-dev libxinerama-dev libgl1-mesa-dev
+
+      - name: Build SFML 3 + CSFML 3 from source (Linux)
+        if: runner.os == 'Linux' && steps.csfml-cache.outputs.cache-hit != 'true'
+        run: |
+          PREFIX="$HOME/.local/csfml-3"
+          mkdir -p "$PREFIX"
+
+          git clone --depth 1 --branch 3.0.0 https://github.com/SFML/SFML.git /tmp/sfml
+          cmake -S /tmp/sfml -B /tmp/sfml/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+            -DBUILD_SHARED_LIBS=ON \
+            -DSFML_BUILD_EXAMPLES=OFF \
+            -DSFML_BUILD_DOC=OFF
+          cmake --build /tmp/sfml/build -j$(nproc)
+          cmake --install /tmp/sfml/build
+
+          git clone --depth 1 --branch 3.0.0 https://github.com/SFML/CSFML.git /tmp/csfml
+          cmake -S /tmp/csfml -B /tmp/csfml/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+            -DCMAKE_PREFIX_PATH="$PREFIX" \
+            -DBUILD_SHARED_LIBS=ON
+          cmake --build /tmp/csfml/build -j$(nproc)
+          cmake --install /tmp/csfml/build
+
+      - name: Expose CSFML 3 to subsequent steps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          PREFIX="$HOME/.local/csfml-3"
+          echo "LD_LIBRARY_PATH=$PREFIX/lib:${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+          echo "LIBRARY_PATH=$PREFIX/lib:${LIBRARY_PATH:-}"       >> "$GITHUB_ENV"
+          echo "CPATH=$PREFIX/include:${CPATH:-}"                 >> "$GITHUB_ENV"
+          echo "PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}" >> "$GITHUB_ENV"
 
       - name: Install CSFML (macOS)
         if: runner.os == 'macOS'

@@ -13,7 +13,10 @@ module SFML
   # Type-specific fields are also reachable as plain methods (`event.code`,
   # `event.position`) for the cases when pattern matching is overkill.
   class Event
-    MOUSE_BUTTONS = %i[left right middle x_button1 x_button2].freeze
+    # Order matches sfMouseButton in CSFML 3: left, right, middle,
+    # extra1, extra2. (CSFML 2 called the last two x_button1/x_button2,
+    # but SFML 3 dropped the X-button terminology.)
+    MOUSE_BUTTONS = %i[left right middle extra1 extra2].freeze
     MOUSE_WHEELS  = %i[vertical horizontal].freeze
 
     attr_reader :type, :data

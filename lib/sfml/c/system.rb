@@ -1,0 +1,43 @@
+module SFML
+  module C
+    module System
+      extend FFI::Library
+
+      ffi_lib LIB_CANDIDATES[:system]
+
+      class Time < FFI::Struct
+        layout :microseconds, :int64
+      end
+
+      class Vector2f < FFI::Struct
+        layout :x, :float, :y, :float
+      end
+
+      class Vector2i < FFI::Struct
+        layout :x, :int32, :y, :int32
+      end
+
+      class Vector2u < FFI::Struct
+        layout :x, :uint32, :y, :uint32
+      end
+
+      class Vector3f < FFI::Struct
+        layout :x, :float, :y, :float, :z, :float
+      end
+
+      typedef :pointer, :clock_t
+
+      attach_function :sfClock_create,         [],            :clock_t
+      attach_function :sfClock_copy,           [:clock_t],    :clock_t
+      attach_function :sfClock_destroy,        [:clock_t],    :void
+      attach_function :sfClock_getElapsedTime, [:clock_t],    Time.by_value
+      attach_function :sfClock_isRunning,      [:clock_t],    :bool
+      attach_function :sfClock_start,          [:clock_t],    :void
+      attach_function :sfClock_stop,           [:clock_t],    :void
+      attach_function :sfClock_restart,        [:clock_t],    Time.by_value
+      attach_function :sfClock_reset,          [:clock_t],    Time.by_value
+
+      attach_function :sfSleep,                [Time.by_value], :void
+    end
+  end
+end

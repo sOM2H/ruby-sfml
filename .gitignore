@@ -1,0 +1,17 @@
+*.gem
+*.rbc
+.bundle/
+.rspec_status
+.ruby-version
+.ruby-gemset
+Gemfile.lock
+coverage/
+doc/
+pkg/
+tmp/
+vendor/bundle/
+ext/**/Makefile
+ext/**/mkmf.log
+ext/**/*.o
+ext/**/*.so
+ext/**/*.bundle

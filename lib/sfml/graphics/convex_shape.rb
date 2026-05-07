@@ -73,8 +73,8 @@ module SFML
       C::Graphics.sfConvexShape_setOutlineThickness(@handle, t.to_f)
     end
 
-    def draw_on(window_handle) # :nodoc:
-      C::Graphics.sfRenderWindow_drawConvexShape(window_handle, @handle, nil)
+    def draw_on(target) # :nodoc:
+      target._draw_native(:ConvexShape, @handle)
     end
 
     attr_reader :handle # :nodoc:

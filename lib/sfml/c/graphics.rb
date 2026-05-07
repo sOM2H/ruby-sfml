@@ -38,6 +38,7 @@ module SFML
       attach_function :sfRenderWindow_setSize,                [:render_window_t, System::Vector2u.by_value], :void
 
       typedef :pointer, :texture_t
+      typedef :pointer, :render_texture_t
       typedef :pointer, :sprite_t
       typedef :pointer, :circle_shape_t
       typedef :pointer, :rectangle_shape_t
@@ -235,6 +236,37 @@ module SFML
       attach_function :sfVertexArray_setPrimitiveType,  [:vertex_array_t, :int], :void
       attach_function :sfVertexArray_getPrimitiveType,  [:vertex_array_t], :int
       attach_function :sfVertexArray_getBounds,         [:vertex_array_t], FloatRect.by_value
+
+      # ---- RenderTexture ----
+      attach_function :sfRenderTexture_create,          [System::Vector2u.by_value, :pointer], :render_texture_t
+      attach_function :sfRenderTexture_destroy,         [:render_texture_t], :void
+      attach_function :sfRenderTexture_getSize,         [:render_texture_t], System::Vector2u.by_value
+      attach_function :sfRenderTexture_setActive,       [:render_texture_t, :bool], :bool
+      attach_function :sfRenderTexture_display,         [:render_texture_t], :void
+      attach_function :sfRenderTexture_clear,           [:render_texture_t, Color.by_value], :void
+      attach_function :sfRenderTexture_setView,         [:render_texture_t, :view_t], :void
+      attach_function :sfRenderTexture_getView,         [:render_texture_t], :view_t
+      attach_function :sfRenderTexture_getDefaultView,  [:render_texture_t], :view_t
+      attach_function :sfRenderTexture_getTexture,      [:render_texture_t], :texture_t
+      attach_function :sfRenderTexture_setSmooth,       [:render_texture_t, :bool], :void
+      attach_function :sfRenderTexture_isSmooth,        [:render_texture_t], :bool
+      attach_function :sfRenderTexture_setRepeated,     [:render_texture_t, :bool], :void
+      attach_function :sfRenderTexture_isRepeated,      [:render_texture_t], :bool
+
+      attach_function :sfRenderTexture_mapPixelToCoords,
+                      [:render_texture_t, System::Vector2i.by_value, :view_t],
+                      System::Vector2f.by_value
+      attach_function :sfRenderTexture_mapCoordsToPixel,
+                      [:render_texture_t, System::Vector2f.by_value, :view_t],
+                      System::Vector2i.by_value
+
+      # Mirror sfRenderWindow_drawXxx for textures.
+      attach_function :sfRenderTexture_drawSprite,          [:render_texture_t, :sprite_t,           :render_states_t], :void
+      attach_function :sfRenderTexture_drawCircleShape,     [:render_texture_t, :circle_shape_t,     :render_states_t], :void
+      attach_function :sfRenderTexture_drawRectangleShape,  [:render_texture_t, :rectangle_shape_t,  :render_states_t], :void
+      attach_function :sfRenderTexture_drawConvexShape,     [:render_texture_t, :convex_shape_t,     :render_states_t], :void
+      attach_function :sfRenderTexture_drawText,            [:render_texture_t, :text_t,             :render_states_t], :void
+      attach_function :sfRenderTexture_drawVertexArray,     [:render_texture_t, :vertex_array_t,     :render_states_t], :void
 
       # ---- Font ----
       attach_function :sfFont_createFromFile, [:string], :font_t

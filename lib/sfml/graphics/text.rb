@@ -135,8 +135,8 @@ module SFML
       Rect.from_native(C::Graphics.sfText_getGlobalBounds(@handle))
     end
 
-    def draw_on(window_handle) # :nodoc:
-      C::Graphics.sfRenderWindow_drawText(window_handle, @handle, nil)
+    def draw_on(target) # :nodoc:
+      target._draw_native(:Text, @handle)
     end
 
     attr_reader :handle # :nodoc:

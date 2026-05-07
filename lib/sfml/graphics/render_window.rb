@@ -15,6 +15,9 @@ module SFML
   #     window.display
   #   end
   class RenderWindow
+    include Graphics::RenderTarget
+    CSFML_PREFIX = :sfRenderWindow
+
     DEFAULT_STYLE = C::Window::Style::DEFAULT
 
     # The first form takes (width, height, title, **opts).
@@ -71,25 +74,6 @@ module SFML
       self
     end
 
-    def clear(color = Color::BLACK)
-      C::Graphics.sfRenderWindow_clear(@handle, color.to_native)
-      self
-    end
-
-    # Draw any object that responds to #draw_on. Sprite, CircleShape,
-    # RectangleShape and Text all do. Polymorphic dispatch instead of a
-    # type-switch keeps the door open for user-defined drawables (e.g. a
-    # composite scene node that calls window.draw on each child).
-    def draw(drawable)
-      drawable.draw_on(@handle)
-      self
-    end
-
-    def display
-      C::Graphics.sfRenderWindow_display(@handle)
-      self
-    end
-
     def title=(value)
       C::Graphics.sfRenderWindow_setTitle(@handle, value.to_s)
     end
@@ -105,58 +89,6 @@ module SFML
     def size
       v = C::Graphics.sfRenderWindow_getSize(@handle)
       Vector2.new(v[:x], v[:y])
-    end
-
-    # Set the camera that subsequent draws will be rendered through.
-    # The window keeps a Ruby reference so the View object's lifetime
-    # spans at least until the next view= call.
-    def view=(view)
-      raise ArgumentError, "RenderWindow#view= requires a SFML::View" unless view.is_a?(View)
-      C::Graphics.sfRenderWindow_setView(@handle, view.handle)
-      @view = view
-    end
-
-    # The window's currently active view. Returned as an owned copy —
-    # mutating it does NOT affect the window until you reassign with
-    # `window.view = my_view`.
-    def view
-      View.from_borrowed(C::Graphics.sfRenderWindow_getView(@handle))
-    end
-
-    # The default 1:1 view that matches the window in pixel coordinates.
-    # Useful as `window.view = window.default_view` to restore the
-    # un-cameraed state for HUD drawing.
-    #
-    # Memoised: returning a fresh View per call is a footgun — calling
-    # this in a render loop would pile up sfView_copy allocations that
-    # only get freed at process exit, where the cleanup races with
-    # RenderWindow's GL context teardown and crashes CSFML.
-    def default_view
-      @default_view ||= View.from_borrowed(C::Graphics.sfRenderWindow_getDefaultView(@handle))
-    end
-
-    # Convert a window-pixel point to world coordinates through the
-    # current view (or `view:` argument if given). Use it to figure out
-    # what the mouse is hovering over after the camera has moved.
-    def map_pixel_to_coords(pixel, view: nil)
-      vec = C::System::Vector2i.new
-      px, py = pixel.is_a?(Vector2) ? [pixel.x, pixel.y] : pixel
-      vec[:x] = Integer(px); vec[:y] = Integer(py)
-
-      v_handle = view ? view.handle : C::Graphics.sfRenderWindow_getView(@handle)
-      result = C::Graphics.sfRenderWindow_mapPixelToCoords(@handle, vec, v_handle)
-      Vector2.new(result[:x], result[:y])
-    end
-
-    # Reverse: world coordinate → window pixel.
-    def map_coords_to_pixel(coord, view: nil)
-      vec = C::System::Vector2f.new
-      cx, cy = coord.is_a?(Vector2) ? [coord.x, coord.y] : coord
-      vec[:x] = cx.to_f; vec[:y] = cy.to_f
-
-      v_handle = view ? view.handle : C::Graphics.sfRenderWindow_getView(@handle)
-      result = C::Graphics.sfRenderWindow_mapCoordsToPixel(@handle, vec, v_handle)
-      Vector2.new(result[:x], result[:y])
     end
 
     # Convenience driver loop. Yields the per-frame delta (SFML::Time) and

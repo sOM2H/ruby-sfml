@@ -32,13 +32,23 @@ at_exit do
     else                            1
     end
 
-  # 2. Quiet the audio thread before anything else — OpenAL holds onto
+  # 2. If we're exiting because of an unhandled exception, print it
+  #    ourselves — `exit!` below skips Ruby's terminal exception
+  #    reporter, so without this the user sees a silent exit instead
+  #    of the stack trace they'd normally get.
+  if $! && !$!.is_a?(SystemExit)
+    err = $!
+    warn "#{err.backtrace.first}: #{err.message} (#{err.class})"
+    err.backtrace.drop(1).each { |line| warn "\tfrom #{line}" }
+  end
+
+  # 3. Quiet the audio thread before anything else — OpenAL holds onto
   #    sample buffers and crashes if Ruby starts freeing them while
   #    a Sound/Music is mid-loop.
   ObjectSpace.each_object(SFML::Sound) { |s| s.stop rescue nil } if defined?(SFML::Sound)
   ObjectSpace.each_object(SFML::Music) { |m| m.stop rescue nil } if defined?(SFML::Music)
 
-  # 3. Bypass Ruby's natural finalizer pass entirely. Process memory is
+  # 4. Bypass Ruby's natural finalizer pass entirely. Process memory is
   #    about to be reclaimed by the kernel anyway, and Ruby's
   #    non-deterministic destruction order races with CSFML's GL/audio
   #    internals — segfaulting inside libopenal/libGL is the typical

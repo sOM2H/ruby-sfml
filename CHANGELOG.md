@@ -8,6 +8,12 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+### Fixed
+- `at_exit` hook now writes the unhandled exception (message, class,
+  backtrace) to stderr before calling `exit!`. Previously `exit!`
+  short-circuited Ruby's terminal exception reporter, so an error in
+  `setup` or any other top-level user code looked like a silent exit.
+
 ## [3.0.0.0] — initial release
 
 First public cut. Targets **CSFML 3.0.0** (released March 2025) and

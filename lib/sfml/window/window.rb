@@ -153,6 +153,30 @@ module SFML
       C::Window.sfWindow_setMaximumSize(@handle, _vec2u_or_nil(value))
     end
 
+    # OS-specific native handle for the underlying window — `HWND` on
+    # Windows, `NSView*` on macOS, X11 `Window` xid on Linux.
+    # Returns an FFI::Pointer; cast or read as the platform expects.
+    def native_handle
+      C::Window.sfWindow_getNativeHandle(@handle)
+    end
+
+    # Wrap an existing OS-level window. `handle` is a platform native
+    # handle (Integer address or FFI::Pointer). Useful when SFML is
+    # being embedded inside another framework (Qt, Gtk, raw Win32,
+    # Cocoa NSView). The framework owns the window's lifecycle; SFML
+    # only renders into it.
+    def self.from_handle(handle)
+      ptr = handle.is_a?(FFI::Pointer) ? handle : FFI::Pointer.new(:void, Integer(handle))
+      raw = C::Window.sfWindow_createFromHandle(ptr, nil)
+      raise Error, "sfWindow_createFromHandle returned NULL" if raw.null?
+
+      win = allocate
+      win.instance_variable_set(:@handle,
+        FFI::AutoPointer.new(raw, C::Window.method(:sfWindow_destroy)))
+      win.instance_variable_set(:@event_buffer, C::Window::Event.new)
+      win
+    end
+
     attr_reader :handle # :nodoc:
 
     private

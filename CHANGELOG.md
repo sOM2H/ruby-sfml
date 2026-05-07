@@ -31,6 +31,13 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `Window.from_handle` / `RenderWindow.from_handle` — wrap an
+  existing OS-level window (HWND, NSView*, X11 Window xid). The
+  outside framework owns the window's lifecycle; SFML just renders
+  into it. Pair with `#native_handle` to interop in the other
+  direction. Wraps `sfWindow_createFromHandle` /
+  `sfRenderWindow_createFromHandle` and the matching
+  `getNativeHandle` getters.
 - `SFML::SoundStream` — procedural audio source. Subclass it and
   override `#on_get_data` to return an Array of `Int16` PCM samples
   (or `nil` to stop); optionally override `#on_seek(time)` to

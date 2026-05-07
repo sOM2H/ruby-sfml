@@ -17,6 +17,15 @@ RSpec.describe SFML::RenderWindow do
     end
   end
 
+  describe "#native_handle" do
+    it "returns a non-null FFI::Pointer" do
+      win = described_class.new(320, 240, "native handle")
+      expect(win.native_handle).to be_a(FFI::Pointer)
+      expect(win.native_handle.null?).to be false
+      win.close
+    end
+  end
+
   describe "#minimum_size= / #maximum_size=" do
     it "accepts a [w, h] array, a Vector2, and nil without raising" do
       win = described_class.new(640, 480, "size limits spec")

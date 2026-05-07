@@ -216,6 +216,13 @@ module SFML
       # NULL pointer clears the limit. Pass a Vector2u* to set it.
       attach_function :sfWindow_setMinimumSize, [:raw_window_t, :pointer], :void
       attach_function :sfWindow_setMaximumSize, [:raw_window_t, :pointer], :void
+
+      # Embed into an existing platform window. The first argument is
+      # an OS-specific native handle (HWND on Windows, NSView* on
+      # macOS, Window XID on X11). Pass NULL for the ContextSettings
+      # to use defaults.
+      attach_function :sfWindow_createFromHandle, [:pointer, :pointer], :raw_window_t
+      attach_function :sfWindow_getNativeHandle,  [:raw_window_t], :pointer
     end
   end
 end

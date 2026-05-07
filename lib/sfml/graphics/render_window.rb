@@ -136,6 +136,28 @@ module SFML
       C::Graphics.sfRenderWindow_setMaximumSize(@handle, _vec2u_or_nil(value))
     end
 
+    # OS-specific native handle for the underlying window — `HWND` on
+    # Windows, `NSView*` on macOS, X11 `Window` xid on Linux.
+    def native_handle
+      C::Graphics.sfRenderWindow_getNativeHandle(@handle)
+    end
+
+    # Wrap an existing OS-level window. `handle` is a platform native
+    # handle (Integer address or FFI::Pointer). Useful for embedding
+    # the renderer inside another framework's window (Qt, Gtk, raw
+    # Win32, NSView).
+    def self.from_handle(handle)
+      ptr = handle.is_a?(FFI::Pointer) ? handle : FFI::Pointer.new(:void, Integer(handle))
+      raw = C::Graphics.sfRenderWindow_createFromHandle(ptr, nil)
+      raise Error, "sfRenderWindow_createFromHandle returned NULL" if raw.null?
+
+      win = allocate
+      win.instance_variable_set(:@handle,
+        FFI::AutoPointer.new(raw, C::Graphics.method(:sfRenderWindow_destroy)))
+      win.instance_variable_set(:@event_buffer, C::Window::Event.new)
+      win
+    end
+
     # Convenience driver loop. Yields the per-frame delta (SFML::Time) and
     # auto-pumps events + display. The block is responsible for #clear and
     # any drawing.

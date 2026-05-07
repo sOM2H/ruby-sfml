@@ -12,6 +12,13 @@ module SFML
       # sfSoundStatus = { sfStopped, sfPaused, sfPlaying } in that order.
       STATUSES = %i[stopped paused playing].freeze
 
+      # Plain-old-data struct that mirrors sfSoundSourceCone.
+      class SoundSourceCone < FFI::Struct
+        layout :inner_angle, :float,
+               :outer_angle, :float,
+               :outer_gain,  :float
+      end
+
       # ---- SoundBuffer ----
       attach_function :sfSoundBuffer_createFromFile, [:string], :sound_buffer_t
       attach_function :sfSoundBuffer_destroy,        [:sound_buffer_t], :void
@@ -46,6 +53,17 @@ module SFML
       attach_function :sfSound_isRelativeToListener,  [:sound_t], :bool
       attach_function :sfSound_setPlayingOffset,      [:sound_t, System::Time.by_value], :void
       attach_function :sfSound_getPlayingOffset,      [:sound_t], System::Time.by_value
+      attach_function :sfSound_setVelocity,           [:sound_t, System::Vector3f.by_value], :void
+      attach_function :sfSound_getVelocity,           [:sound_t], System::Vector3f.by_value
+      attach_function :sfSound_setDopplerFactor,      [:sound_t, :float], :void
+      attach_function :sfSound_getDopplerFactor,      [:sound_t], :float
+      attach_function :sfSound_setDirection,          [:sound_t, System::Vector3f.by_value], :void
+      attach_function :sfSound_getDirection,          [:sound_t], System::Vector3f.by_value
+      attach_function :sfSound_setCone,               [:sound_t, SoundSourceCone.by_value], :void
+      attach_function :sfSound_getCone,               [:sound_t], SoundSourceCone.by_value
+      # void(*)(const float* in, unsigned int* in_count, float* out, unsigned int* out_count, unsigned int channels, void* userData)
+      callback :sf_effect_processor, [:pointer, :pointer, :pointer, :pointer, :uint32, :pointer], :void
+      attach_function :sfSound_setEffectProcessor,    [:sound_t, :sf_effect_processor, :pointer], :void
 
       # ---- Music ----
       attach_function :sfMusic_createFromFile, [:string], :music_t
@@ -72,6 +90,15 @@ module SFML
       attach_function :sfMusic_isRelativeToListener,  [:music_t], :bool
       attach_function :sfMusic_setPlayingOffset,      [:music_t, System::Time.by_value], :void
       attach_function :sfMusic_getPlayingOffset,      [:music_t], System::Time.by_value
+      attach_function :sfMusic_setVelocity,           [:music_t, System::Vector3f.by_value], :void
+      attach_function :sfMusic_getVelocity,           [:music_t], System::Vector3f.by_value
+      attach_function :sfMusic_setDopplerFactor,      [:music_t, :float], :void
+      attach_function :sfMusic_getDopplerFactor,      [:music_t], :float
+      attach_function :sfMusic_setDirection,          [:music_t, System::Vector3f.by_value], :void
+      attach_function :sfMusic_getDirection,          [:music_t], System::Vector3f.by_value
+      attach_function :sfMusic_setCone,               [:music_t, SoundSourceCone.by_value], :void
+      attach_function :sfMusic_getCone,               [:music_t], SoundSourceCone.by_value
+      attach_function :sfMusic_setEffectProcessor,    [:music_t, :sf_effect_processor, :pointer], :void
 
       # ---- SoundStream ----
       # Custom audio source — fills a chunk via a Ruby callback that

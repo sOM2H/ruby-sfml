@@ -43,4 +43,24 @@ RSpec.describe SFML::Music do
       expect(music.playing_offset.as_milliseconds).to be_within(2).of(30)
     end
   end
+
+  describe "directional 3D audio" do
+    let(:music) { described_class.load(fixture) }
+
+    it "round-trips velocity, doppler_factor, direction" do
+      music.velocity        = [2.0, 0.0, -1.0]
+      music.doppler_factor  = 0.75
+      music.direction       = [1.0, 0.0, 0.0]
+      expect(music.velocity).to       eq(SFML::Vector3[2, 0, -1])
+      expect(music.doppler_factor).to be_within(1e-5).of(0.75)
+      expect(music.direction).to      eq(SFML::Vector3[1, 0, 0])
+    end
+
+    it "round-trips cone" do
+      music.cone = SFML::SoundCone.new(inner_angle: 60, outer_angle: 180, outer_gain: 0.5)
+      expect(music.cone.inner_angle).to eq(60.0)
+      expect(music.cone.outer_angle).to eq(180.0)
+      expect(music.cone.outer_gain).to  eq(0.5)
+    end
+  end
 end

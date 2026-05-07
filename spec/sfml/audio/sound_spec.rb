@@ -49,6 +49,55 @@ RSpec.describe SFML::Sound do
     end
   end
 
+  describe "directional 3D audio" do
+    let(:sound) { described_class.new(buffer, volume: 0) }
+
+    it "round-trips velocity" do
+      sound.velocity = [1.5, -2, 0.5]
+      expect(sound.velocity).to eq(SFML::Vector3[1.5, -2.0, 0.5])
+    end
+
+    it "round-trips doppler_factor" do
+      sound.doppler_factor = 1.3
+      expect(sound.doppler_factor).to be_within(1e-5).of(1.3)
+    end
+
+    it "round-trips direction" do
+      sound.direction = [0, 0, -1]
+      expect(sound.direction).to eq(SFML::Vector3[0, 0, -1])
+    end
+
+    it "round-trips cone via SoundCone" do
+      cone = SFML::SoundCone.new(inner_angle: 30.0, outer_angle: 90.0, outer_gain: 0.25)
+      sound.cone = cone
+      expect(sound.cone).to eq(cone)
+    end
+
+    it "accepts a Hash for cone=" do
+      sound.cone = {inner_angle: 45.0, outer_angle: 120.0, outer_gain: 0.1}
+      expect(sound.cone.inner_angle).to eq(45.0)
+      expect(sound.cone.outer_angle).to eq(120.0)
+      expect(sound.cone.outer_gain).to be_within(1e-5).of(0.1)
+    end
+
+    it "rejects junk for cone=" do
+      expect { sound.cone = "nope" }.to raise_error(ArgumentError, /SoundCone or Hash/)
+    end
+  end
+
+  describe "#effect_processor=" do
+    let(:sound) { described_class.new(buffer, volume: 0) }
+
+    it "accepts a callable without raising" do
+      expect { sound.effect_processor = ->(s, _c) { s } }.not_to raise_error
+    end
+
+    it "accepts nil to clear the processor" do
+      sound.effect_processor = ->(s, _c) { s }
+      expect { sound.effect_processor = nil }.not_to raise_error
+    end
+  end
+
   describe "#playing_offset=" do
     let(:sound) { described_class.new(buffer, volume: 0) }
 

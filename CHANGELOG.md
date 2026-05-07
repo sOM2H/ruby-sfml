@@ -31,6 +31,16 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- 3D-audio polish for `Sound` and `Music` — now expose `velocity`,
+  `doppler_factor`, `direction`, and `cone` (via the new
+  `SFML::SoundCone` value class — `inner_angle`, `outer_angle`,
+  `outer_gain`). Cone setter accepts both a `SoundCone` and a
+  Hash. Plus `effect_processor=` for installing a real-time DSP
+  Ruby callable on the audio thread (`->(samples, channels) {
+  ... }`); pass `nil` to remove it. The DSP path is documented as
+  Ruby+GVL-limited and best for very light effects only. Wraps
+  the corresponding `sfSound_*` and `sfMusic_*` setters/getters
+  plus `setEffectProcessor`.
 - `SFML::VertexBuffer` — GPU-resident vertex buffer (VBO). Same
   shape as `VertexArray` but vertices live on the GPU, so a draw
   call ships only an OpenGL handle instead of re-uploading every

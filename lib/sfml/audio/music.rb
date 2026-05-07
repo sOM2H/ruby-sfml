@@ -43,6 +43,56 @@ module SFML
       C::Audio.sfMusic_setPlayingOffset(@handle, t.to_native)
     end
 
+    # 3D velocity, Doppler factor, direction, cone — see Sound for
+    # the same methods on the simpler buffered source.
+    def velocity
+      v = C::Audio.sfMusic_getVelocity(@handle)
+      Vector3.new(v[:x], v[:y], v[:z])
+    end
+
+    def velocity=(value)
+      vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
+      packed = C::System::Vector3f.new
+      packed[:x] = vec.x.to_f; packed[:y] = vec.y.to_f; packed[:z] = vec.z.to_f
+      C::Audio.sfMusic_setVelocity(@handle, packed)
+    end
+
+    def doppler_factor    = C::Audio.sfMusic_getDopplerFactor(@handle)
+    def doppler_factor=(v) C::Audio.sfMusic_setDopplerFactor(@handle, v.to_f); end
+
+    def direction
+      v = C::Audio.sfMusic_getDirection(@handle)
+      Vector3.new(v[:x], v[:y], v[:z])
+    end
+
+    def direction=(value)
+      vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
+      packed = C::System::Vector3f.new
+      packed[:x] = vec.x.to_f; packed[:y] = vec.y.to_f; packed[:z] = vec.z.to_f
+      C::Audio.sfMusic_setDirection(@handle, packed)
+    end
+
+    def cone
+      SoundCone.from_native(C::Audio.sfMusic_getCone(@handle))
+    end
+
+    def cone=(value)
+      cone =
+        case value
+        when SoundCone then value
+        when Hash      then SoundCone.new(**value)
+        else
+          raise ArgumentError, "Music#cone= expects SoundCone or Hash; got #{value.class}"
+        end
+      C::Audio.sfMusic_setCone(@handle, cone.to_native)
+    end
+
+    # See Sound#effect_processor= — same audio-thread DSP callback.
+    def effect_processor=(callable)
+      @effect_cb = callable.nil? ? nil : Audio._build_effect_processor(callable)
+      C::Audio.sfMusic_setEffectProcessor(@handle, @effect_cb, nil)
+    end
+
     # Cached on the Ruby side; see Sound#looping? for the why.
     def looping?
       @looping

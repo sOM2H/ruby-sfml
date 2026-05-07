@@ -31,6 +31,17 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `SFML::Network::Ftp` — CSFML's FTP client wrapped as idiomatic Ruby:
+  `connect`, `login` / `login_anonymous`, `working_directory`,
+  `directory_listing`, `change_directory`, `parent_directory`,
+  `create_directory`, `delete_directory`, `rename_file`,
+  `delete_file`, `download`, `upload`, `send_command`, `keep_alive`,
+  `disconnect`. Each call returns a `Response` (or
+  `DirectoryResponse` / `ListingResponse`) with `#ok?`, `#status`,
+  `#status_symbol`, `#message`, plus `#directory` or `#names`
+  where applicable. Network calls release the GVL.
+  Same caveat as Http — Ruby stdlib `Net::FTP` is the better choice
+  in production.
 - `SFML::Network::Http` — CSFML's HTTP/1.x client in idiomatic Ruby
   form. `Http.new(host, port:)` plus `#send_request(method:, uri:,
   fields:, body:, http_version:, timeout:)` returns an `Http::Response`

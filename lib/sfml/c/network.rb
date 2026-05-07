@@ -111,6 +111,54 @@ module SFML
                       [:http_t, :http_request_t, System::Time.by_value],
                       :http_response_t,
                       blocking: true
+
+      # ---- FTP ----
+      typedef :pointer, :ftp_t
+      typedef :pointer, :ftp_response_t
+      typedef :pointer, :ftp_dir_response_t
+      typedef :pointer, :ftp_listing_response_t
+
+      # Order matches sfFtpTransferMode.
+      FTP_TRANSFER_MODES = %i[binary ascii ebcdic].freeze
+
+      attach_function :sfFtpResponse_destroy,    [:ftp_response_t], :void
+      attach_function :sfFtpResponse_isOk,       [:ftp_response_t], :bool
+      attach_function :sfFtpResponse_getStatus,  [:ftp_response_t], :int
+      attach_function :sfFtpResponse_getMessage, [:ftp_response_t], :string
+
+      attach_function :sfFtpDirectoryResponse_destroy,      [:ftp_dir_response_t], :void
+      attach_function :sfFtpDirectoryResponse_isOk,         [:ftp_dir_response_t], :bool
+      attach_function :sfFtpDirectoryResponse_getStatus,    [:ftp_dir_response_t], :int
+      attach_function :sfFtpDirectoryResponse_getMessage,   [:ftp_dir_response_t], :string
+      attach_function :sfFtpDirectoryResponse_getDirectory, [:ftp_dir_response_t], :string
+
+      attach_function :sfFtpListingResponse_destroy,    [:ftp_listing_response_t], :void
+      attach_function :sfFtpListingResponse_isOk,       [:ftp_listing_response_t], :bool
+      attach_function :sfFtpListingResponse_getStatus,  [:ftp_listing_response_t], :int
+      attach_function :sfFtpListingResponse_getMessage, [:ftp_listing_response_t], :string
+      attach_function :sfFtpListingResponse_getCount,   [:ftp_listing_response_t], :size_t
+      attach_function :sfFtpListingResponse_getName,    [:ftp_listing_response_t, :size_t], :string
+
+      attach_function :sfFtp_create,                [], :ftp_t
+      attach_function :sfFtp_destroy,               [:ftp_t], :void
+      attach_function :sfFtp_connect,
+                      [:ftp_t, IpAddress.by_value, :uint16, System::Time.by_value],
+                      :ftp_response_t, blocking: true
+      attach_function :sfFtp_loginAnonymous,        [:ftp_t], :ftp_response_t,    blocking: true
+      attach_function :sfFtp_login,                 [:ftp_t, :string, :string], :ftp_response_t, blocking: true
+      attach_function :sfFtp_disconnect,            [:ftp_t], :ftp_response_t,    blocking: true
+      attach_function :sfFtp_keepAlive,             [:ftp_t], :ftp_response_t,    blocking: true
+      attach_function :sfFtp_getWorkingDirectory,   [:ftp_t], :ftp_dir_response_t, blocking: true
+      attach_function :sfFtp_getDirectoryListing,   [:ftp_t, :string], :ftp_listing_response_t, blocking: true
+      attach_function :sfFtp_changeDirectory,       [:ftp_t, :string], :ftp_response_t, blocking: true
+      attach_function :sfFtp_parentDirectory,       [:ftp_t], :ftp_response_t,    blocking: true
+      attach_function :sfFtp_createDirectory,       [:ftp_t, :string], :ftp_dir_response_t, blocking: true
+      attach_function :sfFtp_deleteDirectory,       [:ftp_t, :string], :ftp_response_t, blocking: true
+      attach_function :sfFtp_renameFile,            [:ftp_t, :string, :string], :ftp_response_t, blocking: true
+      attach_function :sfFtp_deleteFile,            [:ftp_t, :string], :ftp_response_t, blocking: true
+      attach_function :sfFtp_download,              [:ftp_t, :string, :string, :int], :ftp_response_t, blocking: true
+      attach_function :sfFtp_upload,                [:ftp_t, :string, :string, :int, :bool], :ftp_response_t, blocking: true
+      attach_function :sfFtp_sendCommand,           [:ftp_t, :string, :string], :ftp_response_t, blocking: true
     end
   end
 end

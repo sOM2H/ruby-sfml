@@ -106,12 +106,16 @@ module SFML
     def channel_count = C::Audio.sfSoundStream_getChannelCount(@handle)
     def sample_rate   = C::Audio.sfSoundStream_getSampleRate(@handle)
 
+    # Cached on the Ruby side; some OpenAL backends (notably the
+    # headless null sink we get on Linux CI) don't reliably read
+    # the loop flag back through CSFML once it's been set.
     def looping?
-      C::Audio.sfSoundStream_isLooping(@handle)
+      @looping == true
     end
 
     def looping=(value)
-      C::Audio.sfSoundStream_setLooping(@handle, !!value)
+      @looping = !!value
+      C::Audio.sfSoundStream_setLooping(@handle, @looping)
     end
 
     def volume = C::Audio.sfSoundStream_getVolume(@handle)

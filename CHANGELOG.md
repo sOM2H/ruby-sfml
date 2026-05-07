@@ -20,6 +20,12 @@ ruby-sfml's own patch level.
   data: URLs, or piping into other image-processing libraries. Wraps
   `sfImage_saveToMemory` plus the `sfBuffer_*` helpers in
   libcsfml-system.
+- Shader array uniforms — `shader[:positions] = [[x, y], ...]` and
+  similar for vec3 / vec4 arrays; also accepts `Vector2` / `Vector3`
+  elements interchangeably. New explicit `Shader#set_float_array` for
+  `uniform float arr[N];` (which can't be inferred via `[]=` because
+  it'd collide with the vec3 case). Wraps the
+  `sfShader_set{Float,Vec2,Vec3,Vec4}UniformArray` family.
 
 ### Fixed
 - `at_exit` hook now writes the unhandled exception (message, class,

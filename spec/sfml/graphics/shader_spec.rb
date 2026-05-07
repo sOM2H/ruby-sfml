@@ -109,6 +109,66 @@ RSpec.describe SFML::Shader do
     end
   end
 
+  describe "array uniforms" do
+    let(:array_fragment) do
+      <<~GLSL
+        uniform float weights[4];
+        uniform vec2  positions[3];
+        uniform vec3  colors[2];
+        uniform vec4  rects[2];
+        void main() {
+          float w = weights[0] + weights[3];
+          vec2  p = positions[0] + positions[2];
+          vec3  c = colors[0] + colors[1];
+          vec4  r = rects[0] + rects[1];
+          gl_FragColor = vec4(w + p.x, c.y, r.z, 1.0);
+        }
+      GLSL
+    end
+
+    let(:shader) { described_class.from_source(fragment: array_fragment) }
+
+    before { skip "no GLSL on this runner" unless described_class.available? }
+
+    it "sets a vec2 array via [[x, y], ...]" do
+      expect { shader[:positions] = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]] }.not_to raise_error
+    end
+
+    it "sets a vec3 array via [[x, y, z], ...]" do
+      expect { shader[:colors] = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]] }.not_to raise_error
+    end
+
+    it "sets a vec4 array via [[x, y, z, w], ...]" do
+      expect { shader[:rects] = [[0.0, 0.0, 1.0, 1.0], [0.5, 0.5, 0.7, 0.7]] }.not_to raise_error
+    end
+
+    it "accepts Vector2 elements interchangeably with [x, y]" do
+      expect {
+        shader[:positions] = [SFML::Vector2[1.0, 2.0], SFML::Vector2[3.0, 4.0], SFML::Vector2[5.0, 6.0]]
+      }.not_to raise_error
+    end
+
+    it "accepts Vector3 elements interchangeably with [x, y, z]" do
+      expect {
+        shader[:colors] = [SFML::Vector3[0.1, 0.2, 0.3], SFML::Vector3[0.4, 0.5, 0.6]]
+      }.not_to raise_error
+    end
+
+    it "rejects empty array" do
+      expect { shader[:positions] = [] }
+        .to raise_error(ArgumentError, /must not be empty/)
+    end
+
+    it "rejects mixed-length elements" do
+      expect { shader[:positions] = [[1.0, 2.0], [3.0, 4.0, 5.0]] }
+        .to raise_error(ArgumentError, /same length/)
+    end
+
+    it "#set_float_array writes a uniform float[]" do
+      expect { shader.set_float_array(:weights, [0.1, 0.2, 0.3, 0.4]) }.not_to raise_error
+    end
+  end
+
   describe "#set_int" do
     it "writes an integer uniform" do
       skip "no GLSL on this runner" unless described_class.available?

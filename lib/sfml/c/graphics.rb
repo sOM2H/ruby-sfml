@@ -376,6 +376,14 @@ module SFML
       attach_function :sfShader_setTextureUniform,[:shader_t, :string, :texture_t], :void
       attach_function :sfShader_setCurrentTextureUniform, [:shader_t, :string], :void
 
+      # Bulk array uniform setters. The array argument is a packed
+      # buffer of N elements (N×{1,2,3,4} floats); the length argument
+      # is the *element* count, not the float count.
+      attach_function :sfShader_setFloatUniformArray, [:shader_t, :string, :pointer, :size_t], :void
+      attach_function :sfShader_setVec2UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
+      attach_function :sfShader_setVec3UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
+      attach_function :sfShader_setVec4UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
+
       # ---- Font ----
       attach_function :sfFont_createFromFile, [:string], :font_t
       attach_function :sfFont_destroy,        [:font_t], :void

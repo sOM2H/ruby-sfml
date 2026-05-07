@@ -28,8 +28,17 @@ module SFML
   #   [a, b, c]                  → vec3
   #   [a, b, c, d]               → vec4
   #
-  # Need an int / bvec / matrix / array uniform? Use the explicit setters
-  # (#set_int, #set_ivec2, etc.) — they exist for completeness.
+  # Array uniforms (`uniform vec2 positions[8];` and friends):
+  #   [[x, y], [x, y], ...]      → vec2[]
+  #   [[x, y, z], ...]           → vec3[]
+  #   [[x, y, z, w], ...]        → vec4[]
+  #   [Vector2[a, b], ...]       → vec2[]   (also accepts Vector2 / Vector3)
+  #
+  # Float arrays (`uniform float weights[N];`) are ambiguous with vec3
+  # at length 3, so use the explicit `#set_float_array` setter.
+  #
+  # Need an int / bvec / matrix uniform? Use `#set_int`, `#set_ivec2`,
+  # etc. — they exist for completeness.
   class Shader
     # Class-level: is GLSL available on the current GPU at all?
     def self.available?
@@ -85,16 +94,23 @@ module SFML
       when :current_texture
         C::Graphics.sfShader_setCurrentTextureUniform(@handle, n)
       when Array
-        case value.length
-        when 2 then self[name] = Vector2.new(*value)
-        when 3 then self[name] = Vector3.new(*value)
-        when 4
-          v = C::Graphics::GlslVec4.new
-          v[:x] = value[0].to_f; v[:y] = value[1].to_f
-          v[:z] = value[2].to_f; v[:w] = value[3].to_f
-          C::Graphics.sfShader_setVec4Uniform(@handle, n, v)
+        raise ArgumentError, "Shader uniform array must not be empty" if value.empty?
+
+        first = value.first
+        if first.is_a?(Array) || first.is_a?(Vector2) || first.is_a?(Vector3)
+          _set_vec_array_uniform(n, value)
         else
-          raise ArgumentError, "Shader uniform array must be length 2, 3, or 4 (got #{value.length})"
+          case value.length
+          when 2 then self[name] = Vector2.new(*value)
+          when 3 then self[name] = Vector3.new(*value)
+          when 4
+            v = C::Graphics::GlslVec4.new
+            v[:x] = value[0].to_f; v[:y] = value[1].to_f
+            v[:z] = value[2].to_f; v[:w] = value[3].to_f
+            C::Graphics.sfShader_setVec4Uniform(@handle, n, v)
+          else
+            raise ArgumentError, "Shader uniform array must be length 2, 3, or 4 (got #{value.length})"
+          end
         end
       else
         raise ArgumentError,
@@ -114,7 +130,51 @@ module SFML
       C::Graphics.sfShader_setIvec2Uniform(@handle, name.to_s, v)
     end
 
+    # Set a `uniform float arr[N];` from a plain Ruby array of numbers.
+    # Float arrays can't be inferred via `[]=` because they'd collide
+    # with the vec3 case at length 3.
+    def set_float_array(name, values)
+      buf = FFI::MemoryPointer.new(:float, values.length)
+      buf.write_array_of_float(values.map(&:to_f))
+      C::Graphics.sfShader_setFloatUniformArray(@handle, name.to_s, buf, values.length)
+    end
+
     attr_reader :handle # :nodoc:
+
+    private
+
+    # Detect the inner length (2/3/4), pack a contiguous float buffer,
+    # and dispatch to the matching CSFML setVec*UniformArray.
+    def _set_vec_array_uniform(name, elements)
+      raise ArgumentError, "uniform array must not be empty" if elements.empty?
+
+      flat = elements.flat_map do |el|
+        case el
+        when Vector2 then [el.x.to_f, el.y.to_f]
+        when Vector3 then [el.x.to_f, el.y.to_f, el.z.to_f]
+        when Array   then el.map(&:to_f)
+        else
+          raise ArgumentError, "uniform array element must be Array/Vector2/Vector3 (got #{el.class})"
+        end
+      end
+
+      stride = flat.length / elements.length
+      raise ArgumentError, "uniform array elements must all be the same length" \
+        unless flat.length == stride * elements.length
+
+      buf = FFI::MemoryPointer.new(:float, flat.length)
+      buf.write_array_of_float(flat)
+
+      case stride
+      when 2 then C::Graphics.sfShader_setVec2UniformArray(@handle, name, buf, elements.length)
+      when 3 then C::Graphics.sfShader_setVec3UniformArray(@handle, name, buf, elements.length)
+      when 4 then C::Graphics.sfShader_setVec4UniformArray(@handle, name, buf, elements.length)
+      else
+        raise ArgumentError, "uniform array elements must be length 2, 3, or 4 (got #{stride})"
+      end
+    end
+
+    public
 
     # @!visibility private
     def self._wrap(ptr)

@@ -41,11 +41,19 @@ module SFML
       typedef :pointer, :sprite_t
       typedef :pointer, :circle_shape_t
       typedef :pointer, :rectangle_shape_t
+      typedef :pointer, :convex_shape_t
       typedef :pointer, :font_t
       typedef :pointer, :text_t
       typedef :pointer, :view_t
       typedef :pointer, :image_t
+      typedef :pointer, :vertex_array_t
       typedef :pointer, :render_states_t
+
+      class Vertex < FFI::Struct
+        layout :position,   System::Vector2f,
+               :color,      Color,
+               :tex_coords, System::Vector2f
+      end
 
       attach_function :sfRenderWindow_drawSprite,
                       [:render_window_t, :sprite_t, :render_states_t], :void
@@ -53,8 +61,12 @@ module SFML
                       [:render_window_t, :circle_shape_t, :render_states_t], :void
       attach_function :sfRenderWindow_drawRectangleShape,
                       [:render_window_t, :rectangle_shape_t, :render_states_t], :void
+      attach_function :sfRenderWindow_drawConvexShape,
+                      [:render_window_t, :convex_shape_t, :render_states_t], :void
       attach_function :sfRenderWindow_drawText,
                       [:render_window_t, :text_t, :render_states_t], :void
+      attach_function :sfRenderWindow_drawVertexArray,
+                      [:render_window_t, :vertex_array_t, :render_states_t], :void
 
       # Mouse position queries relative to a render-window.
       attach_function :sfMouse_getPositionRenderWindow,
@@ -186,6 +198,43 @@ module SFML
       attach_function :sfRectangleShape_move,               [:rectangle_shape_t, System::Vector2f.by_value], :void
       attach_function :sfRectangleShape_rotate,             [:rectangle_shape_t, :float], :void
       attach_function :sfRectangleShape_scale,              [:rectangle_shape_t, System::Vector2f.by_value], :void
+
+      # ---- ConvexShape ----
+      attach_function :sfConvexShape_create,                [], :convex_shape_t
+      attach_function :sfConvexShape_destroy,               [:convex_shape_t], :void
+      attach_function :sfConvexShape_setPointCount,         [:convex_shape_t, :size_t], :void
+      attach_function :sfConvexShape_getPointCount,         [:convex_shape_t], :size_t
+      attach_function :sfConvexShape_setPoint,              [:convex_shape_t, :size_t, System::Vector2f.by_value], :void
+      attach_function :sfConvexShape_getPoint,              [:convex_shape_t, :size_t], System::Vector2f.by_value
+      attach_function :sfConvexShape_setFillColor,          [:convex_shape_t, Color.by_value], :void
+      attach_function :sfConvexShape_getFillColor,          [:convex_shape_t], Color.by_value
+      attach_function :sfConvexShape_setOutlineColor,       [:convex_shape_t, Color.by_value], :void
+      attach_function :sfConvexShape_getOutlineColor,       [:convex_shape_t], Color.by_value
+      attach_function :sfConvexShape_setOutlineThickness,   [:convex_shape_t, :float], :void
+      attach_function :sfConvexShape_getOutlineThickness,   [:convex_shape_t], :float
+      attach_function :sfConvexShape_setPosition,           [:convex_shape_t, System::Vector2f.by_value], :void
+      attach_function :sfConvexShape_getPosition,           [:convex_shape_t], System::Vector2f.by_value
+      attach_function :sfConvexShape_setRotation,           [:convex_shape_t, :float], :void
+      attach_function :sfConvexShape_getRotation,           [:convex_shape_t], :float
+      attach_function :sfConvexShape_setScale,              [:convex_shape_t, System::Vector2f.by_value], :void
+      attach_function :sfConvexShape_getScale,              [:convex_shape_t], System::Vector2f.by_value
+      attach_function :sfConvexShape_setOrigin,             [:convex_shape_t, System::Vector2f.by_value], :void
+      attach_function :sfConvexShape_getOrigin,             [:convex_shape_t], System::Vector2f.by_value
+      attach_function :sfConvexShape_move,                  [:convex_shape_t, System::Vector2f.by_value], :void
+      attach_function :sfConvexShape_rotate,                [:convex_shape_t, :float], :void
+      attach_function :sfConvexShape_scale,                 [:convex_shape_t, System::Vector2f.by_value], :void
+
+      # ---- VertexArray ----
+      attach_function :sfVertexArray_create,            [], :vertex_array_t
+      attach_function :sfVertexArray_destroy,           [:vertex_array_t], :void
+      attach_function :sfVertexArray_getVertexCount,    [:vertex_array_t], :size_t
+      attach_function :sfVertexArray_getVertex,         [:vertex_array_t, :size_t], :pointer
+      attach_function :sfVertexArray_clear,             [:vertex_array_t], :void
+      attach_function :sfVertexArray_resize,            [:vertex_array_t, :size_t], :void
+      attach_function :sfVertexArray_append,            [:vertex_array_t, Vertex.by_value], :void
+      attach_function :sfVertexArray_setPrimitiveType,  [:vertex_array_t, :int], :void
+      attach_function :sfVertexArray_getPrimitiveType,  [:vertex_array_t], :int
+      attach_function :sfVertexArray_getBounds,         [:vertex_array_t], FloatRect.by_value
 
       # ---- Font ----
       attach_function :sfFont_createFromFile, [:string], :font_t

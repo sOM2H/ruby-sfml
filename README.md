@@ -70,8 +70,8 @@ end
 | Area     | Classes                                                      |
 | -------- | ------------------------------------------------------------ |
 | System   | `Vector2`, `Vector3`, `Rect`, `Time`, `Clock`                |
-| Window   | `RenderWindow`, `VideoMode`, `Event`, `Keyboard`             |
-| Graphics | `Color`, `Texture`, `Sprite`, `CircleShape`, `RectangleShape`, `Font`, `Text` |
+| Window   | `RenderWindow`, `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick` |
+| Graphics | `Color`, `Image`, `Texture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View` |
 | Audio    | `SoundBuffer`, `Sound`, `Music`                              |
 | Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
 
@@ -99,6 +99,7 @@ bundle exec ruby examples/<NN_name>/<name>.rb
 | 08  | [joystick_demo](examples/08_joystick_demo/joystick_demo.rb)                    | Live gamepad inspector (axes, buttons, connect/disconnect)          |
 | 09  | [image_viewer](examples/09_image_viewer/image_viewer.rb)                       | Load a PNG, mutate the `Image`, re-upload to `Texture` on a key     |
 | 10  | [pixel_paint](examples/10_pixel_paint/pixel_paint.rb)                          | Paint into a CPU `Image`, blit to GPU `Texture` each dirty frame    |
+| 11  | [particles](examples/11_particles/particles.rb)                                | Thousands of points in one draw call via `VertexArray` + `ConvexShape` ground |
 
 ## Architecture
 

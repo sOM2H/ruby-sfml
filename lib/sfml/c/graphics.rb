@@ -157,6 +157,10 @@ module SFML
       attach_function :sfView_zoom,           [:view_t, :float], :void
 
       # RenderWindow ↔ View bridge
+      attach_function :sfRenderWindow_setMouseCursor,        [:render_window_t, :pointer], :void
+      attach_function :sfRenderWindow_setMouseCursorVisible, [:render_window_t, :bool], :void
+      attach_function :sfRenderWindow_setMouseCursorGrabbed, [:render_window_t, :bool], :void
+
       attach_function :sfRenderWindow_setView,        [:render_window_t, :view_t], :void
       attach_function :sfRenderWindow_getView,        [:render_window_t], :view_t
       attach_function :sfRenderWindow_getDefaultView, [:render_window_t], :view_t

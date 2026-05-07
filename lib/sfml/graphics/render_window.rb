@@ -78,6 +78,27 @@ module SFML
       C::Graphics.sfRenderWindow_setTitle(@handle, value.to_s)
     end
 
+    # Apply a SFML::Cursor as the visible mouse pointer over this
+    # window. Keeps a Ruby reference so the Cursor object's lifetime
+    # spans at least until the next assignment.
+    def cursor=(cursor)
+      raise ArgumentError, "RenderWindow#cursor= requires a SFML::Cursor" unless cursor.is_a?(Cursor)
+      C::Graphics.sfRenderWindow_setMouseCursor(@handle, cursor.handle)
+      @cursor = cursor
+    end
+
+    # Toggle the OS mouse pointer's visibility while it's over the window.
+    def cursor_visible=(visible)
+      C::Graphics.sfRenderWindow_setMouseCursorVisible(@handle, visible ? true : false)
+    end
+
+    # Lock the mouse pointer inside the window's client area while
+    # focused — useful for FPS-style games or when dragging widgets
+    # that need pixel-precise input.
+    def cursor_grabbed=(grabbed)
+      C::Graphics.sfRenderWindow_setMouseCursorGrabbed(@handle, grabbed ? true : false)
+    end
+
     def framerate_limit=(value)
       C::Graphics.sfRenderWindow_setFramerateLimit(@handle, Integer(value))
     end

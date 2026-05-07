@@ -128,6 +128,19 @@ module SFML
       attach_function :sfMouse_getPosition,     [:pointer], System::Vector2i.by_value
       attach_function :sfMouse_setPosition,     [System::Vector2i.by_value, :pointer], :void
 
+      # ---- Cursor ----
+      typedef :pointer, :cursor_t
+
+      attach_function :sfCursor_createFromPixels, [:pointer, System::Vector2u.by_value, System::Vector2u.by_value], :cursor_t
+      attach_function :sfCursor_createFromSystem, [:int], :cursor_t
+      attach_function :sfCursor_destroy,          [:cursor_t], :void
+
+      # ---- Clipboard ----
+      attach_function :sfClipboard_getString,        [], :string
+      attach_function :sfClipboard_setString,        [:string], :void
+      attach_function :sfClipboard_getUnicodeString, [], :pointer
+      attach_function :sfClipboard_setUnicodeString, [:pointer], :void
+
       # ---- Joystick ----
       class JoystickIdentification < FFI::Struct
         layout :name,       :pointer,  # const char*

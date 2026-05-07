@@ -19,6 +19,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # System libraries (audio codecs, X11, OpenGL, etc.) must be present
+      # at every run — even when the CSFML build itself is restored from
+      # cache, libcsfml-audio.so still dynamically links libvorbisenc.so.2
+      # and friends. xvfb gives the headless runner an X server so SFML's
+      # window creation succeeds.
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake g++ git \
+            libfreetype-dev libopenal-dev libvorbis-dev libflac-dev \
+            libxrandr-dev libxcursor-dev libudev-dev \
+            libxi-dev libxinerama-dev libgl1-mesa-dev \
+            xvfb
+
       # Ubuntu LTS only ships CSFML 2.5 in its package repos as of 24.04, and
       # ruby-sfml targets CSFML 3.x. Build SFML 3 + CSFML 3 from source.
       # Cached so subsequent CI runs skip the ~5 min compile.
@@ -29,16 +45,6 @@ jobs:
         with:
           path: ~/.local/csfml-3
           key: csfml-3.0.0-${{ runner.os }}-${{ matrix.ruby }}-v1
-
-      - name: Install build dependencies (Linux)
-        if: runner.os == 'Linux' && steps.csfml-cache.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            cmake g++ git \
-            libfreetype-dev libopenal-dev libvorbis-dev libflac-dev \
-            libxrandr-dev libxcursor-dev libudev-dev \
-            libxi-dev libxinerama-dev libgl1-mesa-dev
 
       - name: Build SFML 3 + CSFML 3 from source (Linux)
         if: runner.os == 'Linux' && steps.csfml-cache.outputs.cache-hit != 'true'
@@ -77,12 +83,6 @@ jobs:
       - name: Install CSFML (macOS)
         if: runner.os == 'macOS'
         run: brew install csfml
-
-      # SFML opens an X11 display for things like sfVideoMode_getDesktopMode.
-      # GitHub's Linux runners are headless, so wrap the test run in xvfb.
-      - name: Install xvfb (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install -y xvfb
 
       - uses: ruby/setup-ruby@v1
         with:

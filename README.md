@@ -71,7 +71,7 @@ end
 | -------- | ------------------------------------------------------------ |
 | System   | `Vector2`, `Vector3`, `Rect`, `Time`, `Clock`                |
 | Window   | `RenderWindow`, `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick` |
-| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View` |
+| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View`, `BlendMode`, `RenderStates` |
 | Audio    | `SoundBuffer`, `Sound`, `Music`                              |
 | Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
 
@@ -101,6 +101,7 @@ bundle exec ruby examples/<NN_name>/<name>.rb
 | 10  | [pixel_paint](examples/10_pixel_paint/pixel_paint.rb)                          | Paint into a CPU `Image`, blit to GPU `Texture` each dirty frame    |
 | 11  | [particles](examples/11_particles/particles.rb)                                | Thousands of points in one draw call via `VertexArray` + `ConvexShape` ground |
 | 12  | [render_texture](examples/12_render_texture/render_texture.rb)                 | Off-screen `RenderTexture` for trail / motion-blur effects        |
+| 13  | [tilemap](examples/13_tilemap/tilemap.rb)                                      | Textured `VertexArray` tilemap + additive `BlendMode` torch       |
 
 ## Architecture
 

@@ -53,8 +53,8 @@ module SFML
       C::Graphics.sfRectangleShape_setOutlineThickness(@handle, t.to_f)
     end
 
-    def draw_on(target) # :nodoc:
-      target._draw_native(:RectangleShape, @handle)
+    def draw_on(target, states_ptr = nil) # :nodoc:
+      target._draw_native(:RectangleShape, @handle, states_ptr)
     end
 
     attr_reader :handle # :nodoc:

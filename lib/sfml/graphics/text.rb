@@ -135,8 +135,8 @@ module SFML
       Rect.from_native(C::Graphics.sfText_getGlobalBounds(@handle))
     end
 
-    def draw_on(target) # :nodoc:
-      target._draw_native(:Text, @handle)
+    def draw_on(target, states_ptr = nil) # :nodoc:
+      target._draw_native(:Text, @handle, states_ptr)
     end
 
     attr_reader :handle # :nodoc:

@@ -25,10 +25,23 @@ module SFML
         self
       end
 
-      # Polymorphic draw: any drawable with a #draw_on(target) method.
-      # Built-in drawables call back into target._draw_native.
-      def draw(drawable)
-        drawable.draw_on(self)
+      # Polymorphic draw: any drawable with a #draw_on(target, [states])
+      # method. Built-in drawables call back into target._draw_native.
+      #
+      # Pass shortcut kwargs to apply render states without instantiating
+      # SFML::RenderStates yourself:
+      #
+      #   window.draw(va,    texture: tile_texture)
+      #   window.draw(glow,  blend_mode: SFML::BlendMode::ADD)
+      #   window.draw(thing, texture: tex, blend_mode: SFML::BlendMode::ADD)
+      #
+      # Or pass a pre-built object for re-use across calls:
+      #
+      #   window.draw(thing, render_states: shared_states)
+      def draw(drawable, render_states: nil, **opts)
+        states     = render_states || RenderStates.from_draw_opts(opts)
+        states_ptr = states&.to_native_pointer
+        drawable.draw_on(self, states_ptr)
         self
       end
 
@@ -36,11 +49,11 @@ module SFML
       # Invoke the right CSFML draw function for this target + drawable
       # kind. `kind` is the suffix after `draw`: e.g. :CircleShape →
       # sfRenderWindow_drawCircleShape on a window, sfRenderTexture_drawCircleShape
-      # on a texture.
-      def _draw_native(kind, drawable_handle)
+      # on a texture. `states_ptr` may be nil for default render states.
+      def _draw_native(kind, drawable_handle, states_ptr = nil)
         C::Graphics.public_send(
           :"#{self.class::CSFML_PREFIX}_draw#{kind}",
-          @handle, drawable_handle, nil,
+          @handle, drawable_handle, states_ptr,
         )
       end
 

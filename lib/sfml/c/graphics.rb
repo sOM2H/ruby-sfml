@@ -17,6 +17,54 @@ module SFML
         layout :position, System::Vector2i, :size, System::Vector2i
       end
 
+      # Render-state plumbing. The struct shapes mirror CSFML 3 exactly so
+      # we can construct sfRenderStates by populating fields from kwargs
+      # and passing the buffer pointer to sfRenderWindow_drawXxx.
+      class BlendMode < FFI::Struct
+        layout :color_src_factor, :int,
+               :color_dst_factor, :int,
+               :color_equation,   :int,
+               :alpha_src_factor, :int,
+               :alpha_dst_factor, :int,
+               :alpha_equation,   :int
+      end
+
+      class StencilValue < FFI::Struct
+        layout :value, :uint32
+      end
+
+      class StencilMode < FFI::Struct
+        layout :comparison,        :int,
+               :update_operation,  :int,
+               :reference,         StencilValue,
+               :mask,              StencilValue,
+               :only_write_mask,   :bool
+      end
+
+      class Transform < FFI::Struct
+        layout :matrix, [:float, 9]
+      end
+
+      class RenderStates < FFI::Struct
+        layout :blend_mode,      BlendMode,
+               :stencil_mode,    StencilMode,
+               :transform,       Transform,
+               :coordinate_type, :int,
+               :texture,         :pointer,
+               :shader,          :pointer
+      end
+
+      # CSFML exposes default-initialised values as global constants.
+      # We read them at load time and copy from them when building Ruby
+      # RenderStates / BlendMode to avoid hand-coding the SFML defaults.
+      attach_variable :sfBlendAlpha,           BlendMode
+      attach_variable :sfBlendAdd,             BlendMode
+      attach_variable :sfBlendMultiply,        BlendMode
+      attach_variable :sfBlendMin,             BlendMode
+      attach_variable :sfBlendMax,             BlendMode
+      attach_variable :sfBlendNone,            BlendMode
+      attach_variable :sfRenderStates_default, RenderStates
+
       typedef :pointer, :render_window_t
 
       # See CSFML/Graphics/RenderWindow.h. We pass NULL for sfContextSettings

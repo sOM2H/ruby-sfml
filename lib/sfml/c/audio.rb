@@ -73,6 +73,49 @@ module SFML
       attach_function :sfMusic_setPlayingOffset,      [:music_t, System::Time.by_value], :void
       attach_function :sfMusic_getPlayingOffset,      [:music_t], System::Time.by_value
 
+      # ---- SoundStream ----
+      # Custom audio source — fills a chunk via a Ruby callback that
+      # CSFML invokes from the audio thread. Beware: that callback
+      # has to acquire the GVL to run any Ruby code, so don't do
+      # heavy work there. Generate samples and return.
+      typedef :pointer, :sound_stream_t
+
+      class SoundStreamChunk < FFI::Struct
+        layout :samples,      :pointer,
+               :sample_count, :uint32
+      end
+
+      callback :sound_stream_get_data, [:pointer, :pointer], :bool
+      callback :sound_stream_seek,     [System::Time.by_value, :pointer], :void
+
+      attach_function :sfSoundStream_create,
+                      [:sound_stream_get_data, :sound_stream_seek,
+                       :uint32, :uint32, :pointer, :size_t, :pointer],
+                      :sound_stream_t
+      attach_function :sfSoundStream_destroy,           [:sound_stream_t], :void
+      attach_function :sfSoundStream_play,              [:sound_stream_t], :void
+      attach_function :sfSoundStream_pause,             [:sound_stream_t], :void
+      attach_function :sfSoundStream_stop,              [:sound_stream_t], :void
+      attach_function :sfSoundStream_getChannelCount,   [:sound_stream_t], :uint32
+      attach_function :sfSoundStream_getSampleRate,     [:sound_stream_t], :uint32
+      attach_function :sfSoundStream_getStatus,         [:sound_stream_t], :int
+      attach_function :sfSoundStream_setPlayingOffset,  [:sound_stream_t, System::Time.by_value], :void
+      attach_function :sfSoundStream_getPlayingOffset,  [:sound_stream_t], System::Time.by_value
+      attach_function :sfSoundStream_setLooping,        [:sound_stream_t, :bool], :void
+      attach_function :sfSoundStream_isLooping,         [:sound_stream_t], :bool
+      attach_function :sfSoundStream_setVolume,         [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getVolume,         [:sound_stream_t], :float
+      attach_function :sfSoundStream_setPitch,          [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getPitch,          [:sound_stream_t], :float
+      attach_function :sfSoundStream_setPosition,       [:sound_stream_t, System::Vector3f.by_value], :void
+      attach_function :sfSoundStream_getPosition,       [:sound_stream_t], System::Vector3f.by_value
+      attach_function :sfSoundStream_setMinDistance,    [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getMinDistance,    [:sound_stream_t], :float
+      attach_function :sfSoundStream_setAttenuation,    [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getAttenuation,    [:sound_stream_t], :float
+      attach_function :sfSoundStream_setRelativeToListener, [:sound_stream_t, :bool], :void
+      attach_function :sfSoundStream_isRelativeToListener,  [:sound_stream_t], :bool
+
       # ---- SoundBufferRecorder ----
       # The simple "record into a SoundBuffer" path. Raw sfSoundRecorder
       # (callback-based) and sfSoundStream (custom audio source via

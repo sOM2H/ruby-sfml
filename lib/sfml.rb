@@ -47,6 +47,11 @@ at_exit do
   #    a Sound/Music is mid-loop.
   ObjectSpace.each_object(SFML::Sound) { |s| s.stop rescue nil } if defined?(SFML::Sound)
   ObjectSpace.each_object(SFML::Music) { |m| m.stop rescue nil } if defined?(SFML::Music)
+  # SoundStream isn't stopped from this hook on purpose — by the time
+  # at_exit runs, finalizer ordering can have already destroyed
+  # the underlying CSFML stream, and CSFML asserts on a stale handle.
+  # Either explicitly #stop your SoundStream before exit, or rely on
+  # exit!() below to skip the audio thread's natural teardown.
 
   # 4. Bypass Ruby's natural finalizer pass entirely. Process memory is
   #    about to be reclaimed by the kernel anyway, and Ruby's
@@ -103,6 +108,7 @@ require "sfml/audio/music"
 require "sfml/audio/listener"
 require "sfml/audio/sound_recorder"
 require "sfml/audio/sound_buffer_recorder"
+require "sfml/audio/sound_stream"
 require "sfml/network/ip_address"
 require "sfml/network/tcp_socket"
 require "sfml/network/tcp_listener"

@@ -31,6 +31,15 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `SFML::SoundStream` — procedural audio source. Subclass it and
+  override `#on_get_data` to return an Array of `Int16` PCM samples
+  (or `nil` to stop); optionally override `#on_seek(time)` to
+  support `playing_offset=`. Same playback / 3D-positional API as
+  `Sound` and `Music` (volume, pitch, looping, position,
+  attenuation, min_distance, relative_to_listener). Wraps the full
+  `sfSoundStream_*` family. Includes example
+  [23_sound_stream](examples/23_sound_stream/sound_stream.rb) — a
+  real-time sine synth with arrow-key pitch / volume control.
 - `SFML::Network::SocketSelector` — multiplex many sockets onto one
   blocking `wait`. `add` / `remove` / `clear` / `wait(timeout:)`
   / `ready?(socket)`. Polymorphic across `TcpListener`, `TcpSocket`,

@@ -31,6 +31,13 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `SFML::Sensor` polling module — `available?(type)`, `enable(type)`,
+  `disable(type)`, `value(type)` for the six sensor types
+  (`:accelerometer`, `:gyroscope`, `:magnetometer`, `:gravity`,
+  `:user_acceleration`, `:orientation`). The `:sensor_changed` event
+  variant now decodes its `sensor:` and `value:` payloads. Wraps
+  `sfSensor_isAvailable` / `sfSensor_setEnabled` /
+  `sfSensor_getValue`.
 - `SFML::Touch` polling module — `down?(finger)` and
   `position(finger, relative_to: window)`. Touch event variants
   (`:touch_began`, `:touch_moved`, `:touch_ended`) now decode their

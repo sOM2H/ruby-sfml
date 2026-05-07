@@ -172,6 +172,21 @@ module SFML
       attach_function :sfTouch_isDown,        [:uint32], :bool
       attach_function :sfTouch_getPosition,   [:uint32, :pointer], System::Vector2i.by_value
 
+      # ---- Sensor ----
+      # Order matches sfSensorType in CSFML 3.
+      SENSOR_TYPES = %i[
+        accelerometer
+        gyroscope
+        magnetometer
+        gravity
+        user_acceleration
+        orientation
+      ].freeze
+
+      attach_function :sfSensor_isAvailable,  [:int], :bool
+      attach_function :sfSensor_setEnabled,   [:int, :bool], :void
+      attach_function :sfSensor_getValue,     [:int], System::Vector3f.by_value
+
       # ---- Bare Window (no rendering) ----
       # SFML 3 splits sf::Window (pure window + GL context) from
       # sf::RenderWindow (window + 2D batcher). The bare variant is

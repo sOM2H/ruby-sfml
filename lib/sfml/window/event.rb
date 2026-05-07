@@ -129,6 +129,13 @@ module SFML
           position: Vector2.new(t[:position][:x], t[:position][:y]),
         }
 
+      when :sensor_changed
+        s = C::Window::SensorEvent.new(ptr)
+        {
+          sensor: Sensor::TYPES[s[:sensor]] || :unknown,
+          value:  Vector3.new(s[:value][:x], s[:value][:y], s[:value][:z]),
+        }
+
       else
         EMPTY
       end

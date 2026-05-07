@@ -11,6 +11,7 @@ module SFML
 
       m = allocate
       m.send(:_take_ownership, ptr)
+      m.instance_variable_set(:@looping, false)
       m.volume  = opts[:volume]  if opts.key?(:volume)
       m.pitch   = opts[:pitch]   if opts.key?(:pitch)
       m.looping = opts[:looping] if opts.key?(:looping)
@@ -28,12 +29,14 @@ module SFML
 
     def duration = Time.from_native(C::Audio.sfMusic_getDuration(@handle))
 
+    # Cached on the Ruby side; see Sound#looping? for the why.
     def looping?
-      C::Audio.sfMusic_isLooping(@handle) != 0
+      @looping
     end
 
     def looping=(value)
-      C::Audio.sfMusic_setLooping(@handle, value ? 1 : 0)
+      @looping = value ? true : false
+      C::Audio.sfMusic_setLooping(@handle, @looping)
     end
 
     def volume = C::Audio.sfMusic_getVolume(@handle)

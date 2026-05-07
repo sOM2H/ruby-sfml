@@ -174,8 +174,12 @@ module SFML
       # ---- Text ----
       attach_function :sfText_create,             [:font_t], :text_t
       attach_function :sfText_destroy,            [:text_t], :void
-      attach_function :sfText_setString,          [:text_t, :string], :void
-      attach_function :sfText_getString,          [:text_t], :string
+      # CSFML 3's sfText_setString takes a Latin-1 char*, so a multi-byte
+      # UTF-8 string would render each byte as a separate (garbage) glyph.
+      # We always go through the Unicode (UTF-32 / sfChar32*) variant,
+      # converting to/from Ruby UTF-8 in the high-level wrapper.
+      attach_function :sfText_setUnicodeString,   [:text_t, :pointer], :void
+      attach_function :sfText_getUnicodeString,   [:text_t], :pointer
       attach_function :sfText_setFont,            [:text_t, :font_t], :void
       attach_function :sfText_setCharacterSize,   [:text_t, :uint32], :void
       attach_function :sfText_getCharacterSize,   [:text_t], :uint32

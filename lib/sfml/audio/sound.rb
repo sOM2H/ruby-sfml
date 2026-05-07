@@ -12,7 +12,12 @@ module SFML
       ptr = C::Audio.sfSound_create(buffer.handle)
       raise Error, "sfSound_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Audio.method(:sfSound_destroy))
-      @buffer = buffer # keep alive
+      @buffer  = buffer # keep alive
+      # @looping mirrors the loop flag because SFML 3's isLooping reads
+      # through an OpenAL source that may be unallocated on systems
+      # without an audio device (some CI runners). Caching on the Ruby
+      # side keeps observable behaviour deterministic regardless.
+      @looping = false
 
       self.volume  = volume
       self.pitch   = pitch
@@ -37,11 +42,12 @@ module SFML
     def stopped?    = status == :stopped
 
     def looping?
-      C::Audio.sfSound_isLooping(@handle) != 0
+      @looping
     end
 
     def looping=(value)
-      C::Audio.sfSound_setLooping(@handle, value ? 1 : 0)
+      @looping = value ? true : false
+      C::Audio.sfSound_setLooping(@handle, @looping)
     end
 
     def volume      = C::Audio.sfSound_getVolume(@handle)

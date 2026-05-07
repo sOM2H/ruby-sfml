@@ -51,10 +51,30 @@ module SFML
       @font = new_font
     end
 
-    def string = C::Graphics.sfText_getString(@handle)
+    # Read the current string back as Ruby UTF-8. CSFML returns a pointer
+    # to a null-terminated sfChar32 (UTF-32) array; we walk it until the
+    # zero terminator and pack the codepoints back into a UTF-8 String.
+    def string
+      ptr = C::Graphics.sfText_getUnicodeString(@handle)
+      return "" if ptr.null?
+
+      codepoints = []
+      offset = 0
+      loop do
+        cp = ptr.get_uint32(offset)
+        break if cp.zero?
+        codepoints << cp
+        offset += 4
+      end
+      codepoints.pack("U*")
+    end
 
     def string=(value)
-      C::Graphics.sfText_setString(@handle, value.to_s)
+      str = value.to_s.encode("UTF-8")
+      cps = str.unpack("U*")  # array of integer codepoints
+      buf = FFI::MemoryPointer.new(:uint32, cps.length + 1)
+      buf.write_array_of_uint32(cps + [0])
+      C::Graphics.sfText_setUnicodeString(@handle, buf)
     end
 
     def character_size = C::Graphics.sfText_getCharacterSize(@handle)

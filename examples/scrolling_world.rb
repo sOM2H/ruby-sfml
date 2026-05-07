@@ -67,8 +67,22 @@ clock = SFML::Clock.new
 drag_anchor_world = nil   # set when RMB held: the world point that should
                           # stay locked under the cursor while dragging
 
+# FPS counter: count frames over a rolling window and refresh the
+# displayed value every 0.25s. Avoids the jitter of `1 / dt` per frame.
+fps             = 0
+fps_frames      = 0
+fps_window_secs = 0.0
+
 while window.open?
   dt = clock.restart.as_seconds
+
+  fps_frames      += 1
+  fps_window_secs += dt
+  if fps_window_secs >= 0.25
+    fps             = (fps_frames / fps_window_secs).round
+    fps_frames      = 0
+    fps_window_secs = 0.0
+  end
 
   window.each_event do |event|
     case event
@@ -114,7 +128,8 @@ while window.open?
   # Where is the mouse pointing in world coordinates?
   mouse_world = window.map_pixel_to_coords(SFML::Mouse.position(window), view: camera)
 
-  hud.string = "camera: (#{camera.center.x.round}, #{camera.center.y.round})  " \
+  hud.string = "fps: #{fps}  •  " \
+               "camera: (#{camera.center.x.round}, #{camera.center.y.round})  •  " \
                "zoom: #{(WINDOW_W / camera.size.x).round(2)}x\n" \
                "mouse in world: (#{mouse_world.x.round}, #{mouse_world.y.round})\n" \
                "WASD/arrows pan  •  RMB drag pans  •  wheel zooms  •  +/- centred zoom  •  Esc quits"

@@ -15,6 +15,7 @@ module SFML
       # ---- SoundBuffer ----
       attach_function :sfSoundBuffer_createFromFile, [:string], :sound_buffer_t
       attach_function :sfSoundBuffer_destroy,        [:sound_buffer_t], :void
+      attach_function :sfSoundBuffer_saveToFile,     [:sound_buffer_t, :string], :bool
       attach_function :sfSoundBuffer_getDuration,    [:sound_buffer_t], System::Time.by_value
       attach_function :sfSoundBuffer_getSampleRate,  [:sound_buffer_t], :uint32
       attach_function :sfSoundBuffer_getChannelCount,[:sound_buffer_t], :uint32
@@ -67,6 +68,29 @@ module SFML
       attach_function :sfMusic_getAttenuation,        [:music_t], :float
       attach_function :sfMusic_setRelativeToListener, [:music_t, :bool], :void
       attach_function :sfMusic_isRelativeToListener,  [:music_t], :bool
+
+      # ---- SoundBufferRecorder ----
+      # The simple "record into a SoundBuffer" path. Raw sfSoundRecorder
+      # (callback-based) and sfSoundStream (custom audio source via
+      # callbacks) need Ruby callbacks running on the SFML audio thread —
+      # not worth the complexity for a niche feature.
+      typedef :pointer, :sound_buffer_recorder_t
+
+      attach_function :sfSoundBufferRecorder_create,           [], :sound_buffer_recorder_t
+      attach_function :sfSoundBufferRecorder_destroy,          [:sound_buffer_recorder_t], :void
+      attach_function :sfSoundBufferRecorder_start,            [:sound_buffer_recorder_t, :uint32], :bool
+      attach_function :sfSoundBufferRecorder_stop,             [:sound_buffer_recorder_t], :void
+      attach_function :sfSoundBufferRecorder_getSampleRate,    [:sound_buffer_recorder_t], :uint32
+      attach_function :sfSoundBufferRecorder_getBuffer,        [:sound_buffer_recorder_t], :sound_buffer_t
+      attach_function :sfSoundBufferRecorder_setDevice,        [:sound_buffer_recorder_t, :string], :bool
+      attach_function :sfSoundBufferRecorder_getDevice,        [:sound_buffer_recorder_t], :string
+      attach_function :sfSoundBufferRecorder_setChannelCount,  [:sound_buffer_recorder_t, :uint32], :void
+      attach_function :sfSoundBufferRecorder_getChannelCount,  [:sound_buffer_recorder_t], :uint32
+
+      # SoundRecorder static helpers — query mic availability and devices.
+      attach_function :sfSoundRecorder_isAvailable,            [], :bool
+      attach_function :sfSoundRecorder_getDefaultDevice,       [], :string
+      attach_function :sfSoundRecorder_getAvailableDevices,    [:pointer], :pointer
 
       # ---- Listener (the "ear" — global, no handle) ----
       attach_function :sfListener_setGlobalVolume, [:float], :void

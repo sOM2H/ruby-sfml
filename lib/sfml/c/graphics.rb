@@ -64,6 +64,18 @@ module SFML
       attach_variable :sfBlendMax,             BlendMode
       attach_variable :sfBlendNone,            BlendMode
       attach_variable :sfRenderStates_default, RenderStates
+      attach_variable :sfTransform_Identity,   Transform
+
+      attach_function :sfTransform_combine,           [:pointer, :pointer], :void
+      attach_function :sfTransform_translate,         [:pointer, System::Vector2f.by_value], :void
+      attach_function :sfTransform_rotate,            [:pointer, :float], :void
+      attach_function :sfTransform_rotateWithCenter,  [:pointer, :float, System::Vector2f.by_value], :void
+      attach_function :sfTransform_scale,             [:pointer, System::Vector2f.by_value], :void
+      attach_function :sfTransform_scaleWithCenter,   [:pointer, System::Vector2f.by_value, System::Vector2f.by_value], :void
+      attach_function :sfTransform_getInverse,        [:pointer], Transform.by_value
+      attach_function :sfTransform_transformPoint,    [:pointer, System::Vector2f.by_value], System::Vector2f.by_value
+      attach_function :sfTransform_transformRect,     [:pointer, FloatRect.by_value], FloatRect.by_value
+      attach_function :sfTransform_equal,             [:pointer, :pointer], :bool
 
       typedef :pointer, :render_window_t
 
@@ -335,6 +347,12 @@ module SFML
       attach_function :sfRenderTexture_drawConvexShape,     [:render_texture_t, :convex_shape_t,     :render_states_t], :void
       attach_function :sfRenderTexture_drawText,            [:render_texture_t, :text_t,             :render_states_t], :void
       attach_function :sfRenderTexture_drawVertexArray,     [:render_texture_t, :vertex_array_t,     :render_states_t], :void
+
+      # ---- Raw primitive drawing (without a VertexArray object) ----
+      attach_function :sfRenderWindow_drawPrimitives,
+                      [:render_window_t,  :pointer, :size_t, :int, :render_states_t], :void
+      attach_function :sfRenderTexture_drawPrimitives,
+                      [:render_texture_t, :pointer, :size_t, :int, :render_states_t], :void
 
       # ---- Shader ----
       attach_function :sfShader_createFromFile,   [:string, :string, :string], :shader_t

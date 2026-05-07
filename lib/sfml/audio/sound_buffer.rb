@@ -18,6 +18,15 @@ module SFML
     def sample_rate   = C::Audio.sfSoundBuffer_getSampleRate(@handle)
     def channel_count = C::Audio.sfSoundBuffer_getChannelCount(@handle)
 
+    # Write the buffer out to disk. Format is inferred from the file
+    # extension (.wav / .ogg / .flac, depends on what CSFML was built
+    # with).
+    def save(path)
+      ok = C::Audio.sfSoundBuffer_saveToFile(@handle, path.to_s)
+      raise Error, "could not save SoundBuffer to #{path.inspect}" unless ok
+      path
+    end
+
     attr_reader :handle # :nodoc:
 
     private

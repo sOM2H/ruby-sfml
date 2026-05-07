@@ -57,6 +57,49 @@ module SFML
         )
       end
 
+      # Draw a one-shot batch of vertices without allocating a
+      # SFML::VertexArray. Useful for tight inner loops (a few dozen
+      # primitives per frame, where the VertexArray's per-object
+      # bookkeeping is itself the cost).
+      #
+      #   window.draw_primitives(
+      #     [SFML::Vertex.new([0, 0], color: SFML::Color.red),
+      #      SFML::Vertex.new([100, 0], color: SFML::Color.green),
+      #      SFML::Vertex.new([50, 80], color: SFML::Color.blue)],
+      #     :triangles,
+      #   )
+      #
+      # Accepts the same render-states kwargs as #draw.
+      def draw_primitives(vertices, primitive_type = :points, render_states: nil, **opts)
+        type_code = VertexArray::PRIMITIVE_INDEX.fetch(primitive_type) do
+          raise ArgumentError, "Unknown primitive type: #{primitive_type.inspect}"
+        end
+
+        # Pack the vertex array into a contiguous buffer.
+        n   = vertices.length
+        buf = FFI::MemoryPointer.new(C::Graphics::Vertex, n)
+        vertices.each_with_index do |v, i|
+          slot = C::Graphics::Vertex.new(buf + i * C::Graphics::Vertex.size)
+          slot[:position][:x]   = v.position.x.to_f
+          slot[:position][:y]   = v.position.y.to_f
+          slot[:color][:r]      = v.color.r
+          slot[:color][:g]      = v.color.g
+          slot[:color][:b]      = v.color.b
+          slot[:color][:a]      = v.color.a
+          slot[:tex_coords][:x] = v.tex_coords.x.to_f
+          slot[:tex_coords][:y] = v.tex_coords.y.to_f
+        end
+
+        states     = render_states || RenderStates.from_draw_opts(opts)
+        states_ptr = states&.to_native_pointer
+
+        C::Graphics.public_send(
+          :"#{self.class::CSFML_PREFIX}_drawPrimitives",
+          @handle, buf, n, type_code, states_ptr,
+        )
+        self
+      end
+
       def view=(value)
         raise ArgumentError, "#{self.class}#view= requires a SFML::View" unless value.is_a?(View)
         _csfml(:setView, @handle, value.handle)

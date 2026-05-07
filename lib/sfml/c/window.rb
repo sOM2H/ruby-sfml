@@ -155,6 +155,32 @@ module SFML
       attach_function :sfJoystick_getAxisPosition, [:uint32, :int], :float
       attach_function :sfJoystick_getIdentification, [:uint32], JoystickIdentification.by_value
       attach_function :sfJoystick_update,          [], :void
+
+      # ---- Bare Window (no rendering) ----
+      # SFML 3 splits sf::Window (pure window + GL context) from
+      # sf::RenderWindow (window + 2D batcher). The bare variant is
+      # useful only when you're driving raw OpenGL yourself.
+      typedef :pointer, :raw_window_t
+
+      attach_function :sfWindow_create,        [VideoMode.by_value, :string, :uint32, :int, :pointer], :raw_window_t
+      attach_function :sfWindow_destroy,       [:raw_window_t], :void
+      attach_function :sfWindow_close,         [:raw_window_t], :void
+      attach_function :sfWindow_isOpen,        [:raw_window_t], :bool
+      attach_function :sfWindow_pollEvent,     [:raw_window_t, :pointer], :bool
+      attach_function :sfWindow_waitEvent,     [:raw_window_t, System::Time.by_value, :pointer], :bool
+      attach_function :sfWindow_display,       [:raw_window_t], :void
+      attach_function :sfWindow_setVisible,    [:raw_window_t, :bool], :void
+      attach_function :sfWindow_setTitle,      [:raw_window_t, :string], :void
+      attach_function :sfWindow_getSize,       [:raw_window_t], System::Vector2u.by_value
+      attach_function :sfWindow_setSize,       [:raw_window_t, System::Vector2u.by_value], :void
+      attach_function :sfWindow_getPosition,   [:raw_window_t], System::Vector2i.by_value
+      attach_function :sfWindow_setPosition,   [:raw_window_t, System::Vector2i.by_value], :void
+      attach_function :sfWindow_setFramerateLimit,      [:raw_window_t, :uint32], :void
+      attach_function :sfWindow_setVerticalSyncEnabled, [:raw_window_t, :bool], :void
+      attach_function :sfWindow_setKeyRepeatEnabled,    [:raw_window_t, :bool], :void
+      attach_function :sfWindow_requestFocus,  [:raw_window_t], :void
+      attach_function :sfWindow_hasFocus,      [:raw_window_t], :bool
+      attach_function :sfWindow_setActive,     [:raw_window_t, :bool], :bool
     end
   end
 end

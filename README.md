@@ -2,7 +2,7 @@
 
 Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [CSFML](https://github.com/SFML/CSFML) and [Ruby FFI](https://github.com/ffi/ffi).
 
-> **Status:** very early development. The API will change.
+> **Status:** the API surface is complete for SFML 3.0 — system, window, graphics, audio, network, plus the higher-level `Game` and `Assets` helpers. 287 RSpec examples, 20 runnable example folders. Some details (gem-build verification, RBS signatures, hosted docs) are still pending.
 
 ## Why
 
@@ -11,18 +11,24 @@ The original [rbSFML](https://github.com/Groogy/rbSFML) is unmaintained and only
 ## Requirements
 
 - Ruby `>= 3.2`
-- CSFML 3.x installed at the system level
+- CSFML **3.0** or compatible 3.x at the system level
 
 ### Install CSFML
 
-| OS              | Command                                  |
-| --------------- | ---------------------------------------- |
-| Ubuntu / Debian | `sudo apt install libcsfml-dev`          |
-| macOS (brew)    | `brew install csfml`                     |
-| Arch Linux      | `sudo pacman -S csfml`                   |
-| Windows         | https://www.sfml-dev.org/download/csfml/ |
+| OS                       | Command                                  | Notes |
+| ------------------------ | ---------------------------------------- | ----- |
+| Ubuntu 25.04+ / Debian   | `sudo apt install libcsfml-dev`          | Ships CSFML 3 |
+| Ubuntu 22.04 / 24.04     | repo too old (CSFML 2.5)                 | Build from [3.0.0 release](https://github.com/SFML/CSFML/releases/tag/3.0.0) |
+| macOS (brew)             | `brew install csfml`                     | Currently 3.x |
+| Arch Linux               | `sudo pacman -S csfml`                   | Currently 3.x |
+| Windows                  | https://www.sfml-dev.org/download/csfml/ | Pick the 3.0 tarball |
 
-If CSFML is missing, `gem install ruby-sfml` will fail at install time with a helpful message — it won't silently install a broken gem.
+ruby-sfml verifies the linked CSFML twice:
+
+- **At `gem install`** — `extconf.rb` checks for the five `libcsfml-*` libraries plus a CSFML 3.0+ symbol (`sfClock_isRunning`). Aborts with a clear message if the system has CSFML 2.x.
+- **At `require "sfml"`** — same probe runs as a runtime sanity check, in case libraries were swapped between install and use.
+
+You'll see a useful error either way; nothing falls through to a cryptic CSFML segfault.
 
 ## A 12-line game
 
@@ -70,12 +76,12 @@ end
 | Area     | Classes                                                      |
 | -------- | ------------------------------------------------------------ |
 | System   | `Vector2`, `Vector3`, `Rect`, `Time`, `Clock`                |
-| Window   | `RenderWindow`, `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick`, `Cursor`, `Clipboard` |
-| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View`, `BlendMode`, `RenderStates`, `Shader` |
-| Audio    | `SoundBuffer`, `Sound`, `Music`, `Listener` (3D positional audio supported on Sound and Music) |
+| Window   | `RenderWindow`, `Window` (bare, GL-only), `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick`, `Cursor`, `Clipboard` |
+| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View`, `BlendMode`, `RenderStates`, `Shader`, `Transform` |
+| Audio    | `SoundBuffer`, `Sound`, `Music`, `Listener`, `SoundRecorder`, `SoundBufferRecorder` (3D positional audio supported on Sound and Music) |
 | Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
 
-The `SFML::Network` module is intentionally not in the first release; it'll come later.
+**Network**: `IpAddress`, `TcpSocket`, `TcpListener`, `UdpSocket` for stream / datagram networking — `SFML::Http` and `SFML::Ftp` are intentionally not wrapped (Ruby's stdlib `Net::HTTP` / `Net::FTP` are nicer).
 
 ## Examples
 
@@ -105,17 +111,10 @@ bundle exec ruby examples/<NN_name>/<name>.rb
 | 14  | [shader_wave](examples/14_shader_wave/shader_wave.rb)                          | Pure GLSL fragment `Shader` — procedural ripple + plasma          |
 | 15  | [cursors_clipboard](examples/15_cursors_clipboard/cursors_clipboard.rb)        | All 21 system `Cursor` shapes + `Clipboard` copy/paste            |
 | 16  | [spatial_audio](examples/16_spatial_audio/spatial_audio.rb)                    | 3D positional `Sound` + `Listener` — three drones around the cursor |
-
-## Architecture
-
-Two layers. Users only touch the top one.
-
-```
-SFML::C    # thin FFI wrapper around CSFML, 1:1 with the C API
-SFML       # idiomatic Ruby on top
-```
-
-When SFML 3.1 / CSFML 3.1 ships, only the bottom layer typically needs to move.
+| 17  | [voice_memo](examples/17_voice_memo/voice_memo.rb)                             | Record from microphone via `SoundBufferRecorder`, save + play back |
+| 18  | [draw_primitives](examples/18_draw_primitives/draw_primitives.rb)              | Raw `draw_primitives` — line burst rebuilt every frame             |
+| 19  | [udp_loopback](examples/19_udp_loopback/udp_loopback.rb)                       | UDP send/receive on localhost via `Network::UdpSocket`             |
+| 20  | [bare_window](examples/20_bare_window/bare_window.rb)                          | `SFML::Window` (no 2D batcher) — events for raw-OpenGL apps        |
 
 ## Idioms baked in
 
@@ -133,14 +132,65 @@ When SFML 3.1 / CSFML 3.1 ships, only the bottom layer typically needs to move.
 - **Asset manager with cache:** `SFML::Assets.font("DejaVuSans")`, `SFML::Assets.sound("blip")` — load each thing once, refer by name.
 - **GC-managed resources:** every CSFML pointer goes through `FFI::AutoPointer`, so `sfXxx_destroy` is called automatically.
 
-## Tests
+## Versioning
 
-```sh
-bundle exec rspec
+The gem version is `MAJOR.MINOR.PATCH.GEM_PATCH` — the first three segments mirror the CSFML release the gem was built against; the fourth is our own patch level for fixes / additions on top of the same upstream:
+
+| gem version | targets CSFML | meaning                                         |
+| ----------- | ------------- | ----------------------------------------------- |
+| `3.0.0.0`   | 3.0.0         | First cut against CSFML 3.0.0                   |
+| `3.0.0.1`   | 3.0.0         | Bug fix on top of CSFML 3.0.0                   |
+| `3.0.1.0`   | 3.0.1         | CSFML 3.0.1 ships, we re-cut                    |
+| `3.1.0.0`   | 3.1.0         | New CSFML minor — added bindings for new APIs   |
+
+`SFML::CSFML_VERSION` exposes the upstream string at runtime.
+
+Bundler-pinning patterns:
+
+```ruby
+gem "ruby-sfml", "~> 3.0"      # any 3.x.x.x — typical
+gem "ruby-sfml", "~> 3.0.0"    # only 3.0.0.x — hold across a CSFML minor
+gem "ruby-sfml", "~> 3.0.0.0"  # only our patches on CSFML 3.0.0 — paranoid pin
 ```
 
-The suite hits real CSFML for everything that isn't pure Ruby — `Clock` reads the real monotonic clock, `Text#local_bounds` measures real glyphs, audio loads a WAV — so a green run also confirms the FFI bindings line up.
+## Process exit
+
+ruby-sfml installs a single `at_exit` hook that:
+
+1. Stops every live `SFML::Sound` / `SFML::Music` so the audio thread quiets before anything is freed.
+2. Calls `Kernel#exit!` with the appropriate status, bypassing Ruby's natural finalizer pass.
+
+This is intentional. CSFML's GL context, font glyph atlases, and OpenAL state are reclaimed by the OS on process exit; running each `FFI::AutoPointer` finalizer in a non-deterministic order tends to crash inside libGL/libopenal. The OS doesn't care, and now neither do we.
+
+The trade-off: any user `at_exit` hook registered **before** `require "sfml"` will be skipped. Hooks registered after the require run first (Ruby's at_exit is LIFO) and are unaffected. Put your `require` at the top of the file (the normal place for it) and there's nothing to think about.
+
+## Architecture
+
+Two layers. Users only touch the top one.
+
+```
+SFML::C    # thin FFI wrapper around CSFML, 1:1 with the C API
+SFML       # idiomatic Ruby on top
+```
+
+Each render target (RenderWindow + RenderTexture) includes a `Graphics::RenderTarget` mixin that dispatches `clear`, `display`, `draw`, `view=`, `map_pixel_to_coords` etc. through the includer's `CSFML_PREFIX`. Adding a new target (say a future `RenderImage`) is ~30 lines.
+
+When SFML 3.1 / CSFML 3.1 ships, only the bottom layer typically needs to move.
+
+## Development
+
+```sh
+bundle install
+bundle exec rspec        # 287 examples
+bundle exec rake rdoc    # generate HTML docs in doc/ (Aliki theme via RDoc 7)
+```
+
+The spec suite hits real CSFML for everything that isn't pure Ruby — `Clock` reads the real monotonic clock, `Text#local_bounds` measures real glyphs, audio loads a WAV — so a green run also confirms the FFI bindings line up. `spec/fixtures/` holds the only assets the suite touches (a font and a tiny WAV) so tests are independent of `examples/`.
+
+CI runs the full suite on Ubuntu and macOS × Ruby 3.2 / 3.3 / 3.4. Linux builds CSFML 3 from source (cached), then runs specs under `xvfb-run` so the headless runner has an X server for `RenderWindow`.
 
 ## License
 
 MIT. See [LICENSE.txt](LICENSE.txt).
+
+The gem also bundles [DejaVu Sans](https://dejavu-fonts.github.io/) under its [permissive license](lib/sfml/assets/fonts/DejaVuSans.LICENSE.txt) — used as the default font when you don't supply your own.

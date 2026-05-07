@@ -44,6 +44,8 @@ module SFML
       attach_function :sfSound_getAttenuation,        [:sound_t], :float
       attach_function :sfSound_setRelativeToListener, [:sound_t, :bool], :void
       attach_function :sfSound_isRelativeToListener,  [:sound_t], :bool
+      attach_function :sfSound_setPlayingOffset,      [:sound_t, System::Time.by_value], :void
+      attach_function :sfSound_getPlayingOffset,      [:sound_t], System::Time.by_value
 
       # ---- Music ----
       attach_function :sfMusic_createFromFile, [:string], :music_t
@@ -68,6 +70,8 @@ module SFML
       attach_function :sfMusic_getAttenuation,        [:music_t], :float
       attach_function :sfMusic_setRelativeToListener, [:music_t, :bool], :void
       attach_function :sfMusic_isRelativeToListener,  [:music_t], :bool
+      attach_function :sfMusic_setPlayingOffset,      [:music_t, System::Time.by_value], :void
+      attach_function :sfMusic_getPlayingOffset,      [:music_t], System::Time.by_value
 
       # ---- SoundBufferRecorder ----
       # The simple "record into a SoundBuffer" path. Raw sfSoundRecorder

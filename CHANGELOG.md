@@ -31,6 +31,11 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `Sound#playing_offset` / `playing_offset=` and `Music#playing_offset`
+  / `playing_offset=` — read or seek the playback head as a
+  `SFML::Time`. Setter also accepts a Numeric (interpreted as
+  seconds). Wraps `sfSound_setPlayingOffset` /
+  `sfMusic_setPlayingOffset` and the matching getters.
 - Stencil buffer support — new `SFML::StencilMode` value class with
   symbolic comparisons (`:equal`, `:always`, etc.) and update
   operations (`:replace`, `:keep`, etc.). Pass it via `stencil_mode:`

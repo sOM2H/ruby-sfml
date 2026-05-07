@@ -49,6 +49,24 @@ RSpec.describe SFML::Sound do
     end
   end
 
+  describe "#playing_offset=" do
+    let(:sound) { described_class.new(buffer, volume: 0) }
+
+    it "accepts a SFML::Time and reads back the same value" do
+      sound.playing_offset = SFML::Time.milliseconds(40)
+      expect(sound.playing_offset.as_milliseconds).to be_within(2).of(40)
+    end
+
+    it "accepts a numeric (seconds) shortcut" do
+      sound.playing_offset = 0.05
+      expect(sound.playing_offset.as_milliseconds).to be_within(2).of(50)
+    end
+
+    it "starts at offset 0 on a fresh Sound" do
+      expect(sound.playing_offset.as_microseconds).to eq(0)
+    end
+  end
+
   describe SFML::SoundBuffer do
     it "exposes duration / sample_rate / channel_count" do
       expect(buffer.duration.as_milliseconds).to eq(80)

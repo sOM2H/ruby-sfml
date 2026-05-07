@@ -41,6 +41,21 @@ module SFML
     def paused?     = status == :paused
     def stopped?    = status == :stopped
 
+    # Current playback head as a SFML::Time. Reads from the underlying
+    # OpenAL source — only meaningful while the sound is playing or
+    # paused (not after #stop).
+    def playing_offset
+      Time.from_native(C::Audio.sfSound_getPlayingOffset(@handle))
+    end
+
+    # Seek to `value` (a SFML::Time, or seconds as a Numeric). Works
+    # while the sound is playing, paused, or stopped — calling #play
+    # afterwards resumes from the new offset.
+    def playing_offset=(value)
+      t = value.is_a?(Time) ? value : Time.seconds(value.to_f)
+      C::Audio.sfSound_setPlayingOffset(@handle, t.to_native)
+    end
+
     def looping?
       @looping
     end

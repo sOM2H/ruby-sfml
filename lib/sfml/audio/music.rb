@@ -29,6 +29,20 @@ module SFML
 
     def duration = Time.from_native(C::Audio.sfMusic_getDuration(@handle))
 
+    # Current playback head as a SFML::Time. Reads from the underlying
+    # OpenAL source — only meaningful while the music is playing or
+    # paused (not after #stop).
+    def playing_offset
+      Time.from_native(C::Audio.sfMusic_getPlayingOffset(@handle))
+    end
+
+    # Seek to `value` (a SFML::Time, or seconds as a Numeric). Works
+    # while the music is playing, paused, or stopped.
+    def playing_offset=(value)
+      t = value.is_a?(Time) ? value : Time.seconds(value.to_f)
+      C::Audio.sfMusic_setPlayingOffset(@handle, t.to_native)
+    end
+
     # Cached on the Ruby side; see Sound#looping? for the why.
     def looping?
       @looping

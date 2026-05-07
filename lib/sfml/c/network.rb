@@ -74,6 +74,43 @@ module SFML
       attach_function :sfPacket_append,         [:packet_t, :pointer, :size_t], :void
       attach_function :sfPacket_clear,          [:packet_t], :void
       attach_function :sfPacket_getData,        [:packet_t], :pointer
+
+      # ---- HTTP ----
+      typedef :pointer, :http_t
+      typedef :pointer, :http_request_t
+      typedef :pointer, :http_response_t
+
+      # Order matches sfHttpMethod in CSFML 3.
+      HTTP_METHODS = %i[get post head put delete].freeze
+
+      # CSFML returns sfHttpStatus as an int. Most are HTTP status
+      # codes; the four sfInvalid*/sfConnectionFailed are SFML-side
+      # transport errors above the HTTP status range.
+      attach_function :sfHttpRequest_create,      [], :http_request_t
+      attach_function :sfHttpRequest_destroy,     [:http_request_t], :void
+      attach_function :sfHttpRequest_setField,    [:http_request_t, :string, :string], :void
+      attach_function :sfHttpRequest_setMethod,   [:http_request_t, :int], :void
+      attach_function :sfHttpRequest_setUri,      [:http_request_t, :string], :void
+      attach_function :sfHttpRequest_setHttpVersion, [:http_request_t, :uint32, :uint32], :void
+      attach_function :sfHttpRequest_setBody,     [:http_request_t, :string], :void
+
+      attach_function :sfHttpResponse_destroy,         [:http_response_t], :void
+      attach_function :sfHttpResponse_getField,        [:http_response_t, :string], :string
+      attach_function :sfHttpResponse_getStatus,       [:http_response_t], :int
+      attach_function :sfHttpResponse_getMajorVersion, [:http_response_t], :uint32
+      attach_function :sfHttpResponse_getMinorVersion, [:http_response_t], :uint32
+      attach_function :sfHttpResponse_getBody,         [:http_response_t], :string
+
+      attach_function :sfHttp_create,        [], :http_t
+      attach_function :sfHttp_destroy,       [:http_t], :void
+      attach_function :sfHttp_setHost,       [:http_t, :string, :uint16], :void
+      # The actual network round-trip — release the GVL so other Ruby
+      # threads (timers, audio, even an in-process test server) can run
+      # while CSFML is blocked on the socket.
+      attach_function :sfHttp_sendRequest,
+                      [:http_t, :http_request_t, System::Time.by_value],
+                      :http_response_t,
+                      blocking: true
     end
   end
 end

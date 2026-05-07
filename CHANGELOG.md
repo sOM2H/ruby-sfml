@@ -31,6 +31,17 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `SFML::Network::Http` — CSFML's HTTP/1.x client in idiomatic Ruby
+  form. `Http.new(host, port:)` plus `#send_request(method:, uri:,
+  fields:, body:, http_version:, timeout:)` returns an `Http::Response`
+  with `#status` (Integer) / `#status_symbol` (`:ok`, `:not_found`,
+  `:connection_failed`, …), `#body`, `#field(name)`, `#http_version`.
+  Marked `blocking: true` so the GVL is released during the network
+  round-trip and concurrent Ruby threads can run. Wraps
+  `sfHttp_*`, `sfHttpRequest_*`, `sfHttpResponse_*`. Note: for any
+  non-trivial use (TLS, redirects, JSON, retries), Ruby's stdlib
+  `Net::HTTP` is the better tool — this binding exists for parity
+  with CSFML, not because we recommend it.
 - `SFML::Sensor` polling module — `available?(type)`, `enable(type)`,
   `disable(type)`, `value(type)` for the six sensor types
   (`:accelerometer`, `:gyroscope`, `:magnetometer`, `:gravity`,

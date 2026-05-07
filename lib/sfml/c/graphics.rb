@@ -94,6 +94,8 @@ module SFML
       attach_function :sfRenderWindow_setFramerateLimit,      [:render_window_t, :uint32], :void
       attach_function :sfRenderWindow_display,                [:render_window_t], :void
       attach_function :sfRenderWindow_clear,                  [:render_window_t, Color.by_value], :void
+      attach_function :sfRenderWindow_clearStencil,           [:render_window_t, StencilValue.by_value], :void
+      attach_function :sfRenderWindow_clearColorAndStencil,   [:render_window_t, Color.by_value, StencilValue.by_value], :void
       attach_function :sfRenderWindow_getSize,                [:render_window_t], System::Vector2u.by_value
       attach_function :sfRenderWindow_setSize,                [:render_window_t, System::Vector2u.by_value], :void
       attach_function :sfRenderWindow_setIcon,                [:render_window_t, System::Vector2u.by_value, :pointer], :void
@@ -328,6 +330,9 @@ module SFML
       attach_function :sfRenderTexture_setActive,       [:render_texture_t, :bool], :bool
       attach_function :sfRenderTexture_display,         [:render_texture_t], :void
       attach_function :sfRenderTexture_clear,           [:render_texture_t, Color.by_value], :void
+      attach_function :sfRenderTexture_clearStencil,    [:render_texture_t, StencilValue.by_value], :void
+      attach_function :sfRenderTexture_clearColorAndStencil,
+                                                        [:render_texture_t, Color.by_value, StencilValue.by_value], :void
       attach_function :sfRenderTexture_setView,         [:render_texture_t, :view_t], :void
       attach_function :sfRenderTexture_getView,         [:render_texture_t], :view_t
       attach_function :sfRenderTexture_getDefaultView,  [:render_texture_t], :view_t

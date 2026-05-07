@@ -31,6 +31,17 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- Stencil buffer support — new `SFML::StencilMode` value class with
+  symbolic comparisons (`:equal`, `:always`, etc.) and update
+  operations (`:replace`, `:keep`, etc.). Pass it via `stencil_mode:`
+  to `RenderTarget#draw` for two-pass mask/clip effects, and clear
+  the stencil with `target.clear(color, stencil: N)` or
+  `target.clear(stencil: N)`. Wraps `sfRenderWindow_clearStencil` /
+  `clearColorAndStencil` (and the RenderTexture twins) plus the
+  existing `stencil_mode` slot in `sfRenderStates`. New example
+  [22_stencil_mask](examples/22_stencil_mask/stencil_mask.rb)
+  demonstrates a cursor-following spotlight that clips an animated
+  rainbow background.
 
 ### Fixed
 - `at_exit` hook now writes the unhandled exception (message, class,

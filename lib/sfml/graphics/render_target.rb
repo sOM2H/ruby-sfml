@@ -15,8 +15,23 @@ module SFML
     # through the right CSFML draw function for whichever target they're
     # being rendered to.
     module RenderTarget
-      def clear(color = Color::BLACK)
-        _csfml(:clear, @handle, color.to_native)
+      # Clear the target's colour buffer (and optionally the stencil
+      # buffer in the same call). Pass `stencil:` to clear the stencil
+      # buffer to the given integer; pass only `stencil:` to clear the
+      # stencil without touching colour.
+      #
+      #   target.clear                              # default black
+      #   target.clear(SFML::Color.cornflower_blue) # only colour
+      #   target.clear(SFML::Color.black, stencil: 0)  # both
+      #   target.clear(stencil: 0)                  # only stencil
+      def clear(color = nil, stencil: nil)
+        if stencil && color
+          _csfml(:clearColorAndStencil, @handle, color.to_native, _stencil_value(stencil))
+        elsif stencil
+          _csfml(:clearStencil, @handle, _stencil_value(stencil))
+        else
+          _csfml(:clear, @handle, (color || Color::BLACK).to_native)
+        end
         self
       end
 
@@ -140,6 +155,12 @@ module SFML
 
       def _csfml(suffix, *args)
         C::Graphics.public_send(:"#{self.class::CSFML_PREFIX}_#{suffix}", *args)
+      end
+
+      def _stencil_value(int)
+        v = C::Graphics::StencilValue.new
+        v[:value] = Integer(int)
+        v
       end
     end
   end

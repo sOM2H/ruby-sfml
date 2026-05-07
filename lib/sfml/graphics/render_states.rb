@@ -17,12 +17,13 @@ module SFML
     COORDINATE_TYPES = %i[normalized pixels].freeze
     COORDINATE_INDEX = COORDINATE_TYPES.each_with_index.to_h.freeze
 
-    attr_reader :blend_mode, :texture, :shader, :coordinate_type
+    attr_reader :blend_mode, :stencil_mode, :texture, :shader, :coordinate_type
 
-    def initialize(blend_mode: nil, texture: nil, shader: nil, coordinate_type: :normalized)
+    def initialize(blend_mode: nil, stencil_mode: nil, texture: nil, shader: nil, coordinate_type: :normalized)
       @blend_mode      = blend_mode
+      @stencil_mode    = stencil_mode
       @texture         = texture
-      @shader          = shader   # placeholder until SFML::Shader lands in the next P1 step
+      @shader          = shader
       @coordinate_type = coordinate_type
       raise ArgumentError, "unknown coordinate_type: #{coordinate_type.inspect}" unless COORDINATE_INDEX.key?(coordinate_type)
       freeze
@@ -39,6 +40,7 @@ module SFML
         .then { |bytes| buffer.pointer.write_bytes(bytes) }
 
       @blend_mode&.populate(buffer[:blend_mode])
+      @stencil_mode&.populate(buffer[:stencil_mode])
       buffer[:coordinate_type] = COORDINATE_INDEX[@coordinate_type]
       buffer[:texture] = @texture ? @texture.handle : nil
       buffer[:shader]  = @shader  ? @shader.handle  : nil

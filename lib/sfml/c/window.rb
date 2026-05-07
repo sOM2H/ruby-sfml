@@ -182,6 +182,9 @@ module SFML
       attach_function :sfWindow_hasFocus,      [:raw_window_t], :bool
       attach_function :sfWindow_setActive,     [:raw_window_t, :bool], :bool
       attach_function :sfWindow_setIcon,       [:raw_window_t, System::Vector2u.by_value, :pointer], :void
+      # NULL pointer clears the limit. Pass a Vector2u* to set it.
+      attach_function :sfWindow_setMinimumSize, [:raw_window_t, :pointer], :void
+      attach_function :sfWindow_setMaximumSize, [:raw_window_t, :pointer], :void
     end
   end
 end

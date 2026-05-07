@@ -124,6 +124,18 @@ module SFML
       C::Graphics.sfRenderWindow_setIcon(@handle, size, C::Graphics.sfImage_getPixelsPtr(image.handle))
     end
 
+    # Constrain user-driven resizes. Accepts a [w, h] Array, a Vector2,
+    # or nil to clear the limit. When set, the OS won't let the user
+    # drag the window smaller (or larger) than this — programmatic
+    # `size=` is not affected.
+    def minimum_size=(value)
+      C::Graphics.sfRenderWindow_setMinimumSize(@handle, _vec2u_or_nil(value))
+    end
+
+    def maximum_size=(value)
+      C::Graphics.sfRenderWindow_setMaximumSize(@handle, _vec2u_or_nil(value))
+    end
+
     # Convenience driver loop. Yields the per-frame delta (SFML::Time) and
     # auto-pumps events + display. The block is responsible for #clear and
     # any drawing.
@@ -147,6 +159,15 @@ module SFML
     attr_reader :handle # :nodoc:
 
     private
+
+    def _vec2u_or_nil(value)
+      return nil if value.nil?
+
+      vec = value.is_a?(Vector2) ? value : Vector2.new(*value)
+      v = C::System::Vector2u.new
+      v[:x] = Integer(vec.x); v[:y] = Integer(vec.y)
+      v
+    end
 
     def parse_args(args)
       case args.length

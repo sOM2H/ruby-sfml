@@ -26,6 +26,11 @@ ruby-sfml's own patch level.
   `uniform float arr[N];` (which can't be inferred via `[]=` because
   it'd collide with the vec3 case). Wraps the
   `sfShader_set{Float,Vec2,Vec3,Vec4}UniformArray` family.
+- `Window#minimum_size=` / `#maximum_size=` and the same on
+  `RenderWindow` — clamp how small or large the OS lets the user
+  drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
+  limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
+  RenderWindow equivalents.
 
 ### Fixed
 - `at_exit` hook now writes the unhandled exception (message, class,

@@ -8,6 +8,8 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+## [3.0.0.1] — 2026-05-07
+
 ### Added
 - `Window#icon=` and `RenderWindow#icon=` — set the window's title-bar /
   taskbar icon from any `SFML::Image`. Wraps `sfWindow_setIcon` /

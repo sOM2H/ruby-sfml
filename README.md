@@ -2,7 +2,7 @@
 
 Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [CSFML](https://github.com/SFML/CSFML) and [Ruby FFI](https://github.com/ffi/ffi).
 
-> **Status:** the API surface is complete for SFML 3.0 — system, window, graphics, audio, network, plus the higher-level `Game` and `Assets` helpers. 287 RSpec examples, 20 runnable example folders. Some details (gem-build verification, RBS signatures, hosted docs) are still pending.
+> **Status:** the API surface is complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `Game` and `Assets` helpers. 387 RSpec examples, 23 runnable example folders. RBS signatures are the main remaining engineering item.
 
 ## Why
 
@@ -76,61 +76,48 @@ end
 | Area     | Classes                                                      |
 | -------- | ------------------------------------------------------------ |
 | System   | `Vector2`, `Vector3`, `Rect`, `Time`, `Clock`                |
-| Window   | `RenderWindow`, `Window` (bare, GL-only), `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick`, `Cursor`, `Clipboard` |
-| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View`, `BlendMode`, `RenderStates`, `Shader`, `Transform` |
-| Audio    | `SoundBuffer`, `Sound`, `Music`, `Listener`, `SoundRecorder`, `SoundBufferRecorder` (3D positional audio supported on Sound and Music) |
+| Window   | `RenderWindow`, `Window` (bare, GL-only), `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick`, `Touch`, `Sensor`, `Cursor`, `Clipboard` |
+| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `VertexBuffer`, `Font`, `Text`, `View`, `BlendMode`, `StencilMode`, `RenderStates`, `Shader`, `Transform` |
+| Audio    | `SoundBuffer`, `Sound`, `Music`, `Listener`, `SoundCone`, `SoundStream`, `SoundRecorder`, `SoundBufferRecorder` (3D positional + cones + Doppler + custom DSP via `effect_processor=`) |
 | Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
 
-**Network**: `IpAddress`, `TcpSocket`, `TcpListener`, `UdpSocket` for stream / datagram networking.
+**Network**: `IpAddress`, `TcpSocket`, `TcpListener`, `UdpSocket`, `SocketSelector` for stream / datagram networking, plus the niche `Http` and `Ftp` clients (use Ruby's `Net::HTTP` / `Net::FTP` if you have the choice — these exist for parity with CSFML).
 
 ## What's intentionally *not* wrapped
 
-CSFML 3 has a few corners we deliberately don't expose. Each is either
-(a) niche enough not to justify the surface area, (b) better served by
-a Ruby standard library, or (c) requires patterns that don't translate
-cleanly to FFI.
+A handful of CSFML 3 corners deliberately stay out:
 
-**Use Ruby stdlib instead**
-- `sf::Http` — `Net::HTTP` is a better Ruby fit
-- `sf::Ftp` — `Net::FTP` likewise
-- `sf::SocketSelector` — `IO.select` or [Async](https://github.com/socketry/async)
+- **Geometry shaders** — CSFML doesn't expose them at all (only vertex
+  and fragment stages); nothing for us to wrap.
+- **Raw `sf::SoundRecorder`** (per-buffer callbacks on the audio
+  thread) — use `SFML::SoundBufferRecorder` for the common "record
+  into memory, save on stop" path. The raw callback variant fights
+  the GVL hard.
+- **Custom `sf::InputStream`** for loading assets from non-file
+  sources — Ruby has `IO`, just read into memory and use the
+  byte-string constructors.
 
-**Callback-based APIs that fight FFI / the GVL**
-- Raw `sf::SoundRecorder` (per-buffer callbacks on the audio thread) —
-  use `SFML::SoundBufferRecorder` for "record into memory, save on stop"
-- `sf::SoundStream` (custom audio source via inheritance) — niche; if
-  you need it, generate samples to a file and play via `Music`
+**An aside on `Http` / `Ftp` / `SocketSelector`** — these *are*
+wrapped (matches CSFML for parity), but for any non-trivial use
+Ruby's stdlib `Net::HTTP` / `Net::FTP` and `IO.select` are better
+tools.
 
-**Mobile / niche inputs** (SFML 3 itself treats these as experimental)
-- `sf::Touch`, `sf::Sensor` (accelerometer, gyro, etc.)
-
-**Advanced graphics features**
-- `sf::VertexBuffer` (static GPU vertex buffer) — `VertexArray` covers
-  the common case; if you need static-mesh perf, open an issue
-- Geometry shaders — only vertex and fragment stages on `SFML::Shader`
-- `sf::Shader#setUniformArray` (bulk uniforms) — set elements one by one
-- Stencil buffer ops (`clearStencil`, custom `StencilMode`) — accept
-  CSFML defaults
-- `sf::Image#saveToMemory` — only `Image#save(path)` is wrapped
-
-**Advanced audio features**
-- Sound / Music cones, velocity, Doppler factor, custom DSP via
-  `setEffectProcessor` — basic 3D positional + attenuation is in;
-  the rest is rarely used in 2D gamedev
-- `sf::Listener` cone — same reasoning
-
-**Embedding / integration corners**
-- `RenderWindow.createFromHandle` (embed in another framework's window)
-- Custom `sf::InputStream` for loading assets from non-file sources
-- Window icon, min/max size, native handle accessors on `SFML::Window`
+**An aside on `SoundStream` and `effect_processor=`** — both *are*
+wrapped, but their callbacks run on the SFML audio thread and
+must reacquire the GVL each invocation. Fine for trivial DSP;
+expect glitches for anything heavier.
 
 **Other Ruby bindings worth knowing about**
+
 - SFML 2.x is *not* covered. The previous-generation gem
   [rbSFML](https://github.com/Groogy/rbSFML) targets SFML 2; it's
   unmaintained and only works with Ruby ≤ 2.2.
+- [RubySFML3](https://github.com/gAndy50/RubySFML3) — a thin FFI
+  wrapper that exposes the CSFML C API directly. If you want raw
+  bindings (no idiomatic Ruby layer, no auto-cleanup), check that
+  project instead.
 
-If anything in the list above is blocking you, **open an issue** —
-"niche" is just a default, not a closed door.
+If anything missing here is blocking you, **open an issue**.
 
 ## Examples
 
@@ -164,6 +151,9 @@ bundle exec ruby examples/<NN_name>/<name>.rb
 | 18  | [draw_primitives](examples/18_draw_primitives/draw_primitives.rb)              | Raw `draw_primitives` — line burst rebuilt every frame             |
 | 19  | [udp_loopback](examples/19_udp_loopback/udp_loopback.rb)                       | UDP send/receive on localhost via `Network::UdpSocket`             |
 | 20  | [bare_window](examples/20_bare_window/bare_window.rb)                          | `SFML::Window` (no 2D batcher) — events for raw-OpenGL apps        |
+| 21  | [window_icon](examples/21_window_icon/window_icon.rb)                          | Procedural 32×32 icon set as the window/taskbar icon              |
+| 22  | [stencil_mask](examples/22_stencil_mask/stencil_mask.rb)                       | Two-pass `StencilMode` masking — cursor spotlight clip            |
+| 23  | [sound_stream](examples/23_sound_stream/sound_stream.rb)                       | Real-time sine synth via `SFML::SoundStream` subclass             |
 
 ## Idioms baked in
 

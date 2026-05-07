@@ -106,6 +106,22 @@ module SFML
           position: Vector2.new(w[:position][:x], w[:position][:y]),
         }
 
+      when :joystick_button_pressed, :joystick_button_released
+        b = C::Window::JoystickButtonEvent.new(ptr)
+        { joystick_id: b[:joystick_id], button: b[:button] }
+
+      when :joystick_moved
+        m = C::Window::JoystickMoveEvent.new(ptr)
+        {
+          joystick_id: m[:joystick_id],
+          axis:        Joystick::AXES[m[:axis]] || :unknown,
+          position:    m[:position],
+        }
+
+      when :joystick_connected, :joystick_disconnected
+        c = C::Window::JoystickConnectEvent.new(ptr)
+        { joystick_id: c[:joystick_id] }
+
       else
         EMPTY
       end

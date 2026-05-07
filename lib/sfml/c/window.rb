@@ -86,6 +86,24 @@ module SFML
                :position, System::Vector2i
       end
 
+      class JoystickButtonEvent < FFI::Struct
+        layout :type,        :int,
+               :joystick_id, :uint32,
+               :button,      :uint32
+      end
+
+      class JoystickMoveEvent < FFI::Struct
+        layout :type,        :int,
+               :joystick_id, :uint32,
+               :axis,        :int,
+               :position,    :float
+      end
+
+      class JoystickConnectEvent < FFI::Struct
+        layout :type,        :int,
+               :joystick_id, :uint32
+      end
+
       # sfEvent is a C union. The largest variant (KeyEvent on x86_64: 4+4+4+4
       # = 20 bytes) defines the union size; we allocate a buffer that big and
       # reinterpret per-type. We use a Struct (not Union) here because Ruby
@@ -109,6 +127,21 @@ module SFML
       attach_function :sfMouse_isButtonPressed, [:int], :bool
       attach_function :sfMouse_getPosition,     [:pointer], System::Vector2i.by_value
       attach_function :sfMouse_setPosition,     [System::Vector2i.by_value, :pointer], :void
+
+      # ---- Joystick ----
+      class JoystickIdentification < FFI::Struct
+        layout :name,       :pointer,  # const char*
+               :vendor_id,  :uint32,
+               :product_id, :uint32
+      end
+
+      attach_function :sfJoystick_isConnected,     [:uint32], :bool
+      attach_function :sfJoystick_getButtonCount,  [:uint32], :uint32
+      attach_function :sfJoystick_hasAxis,         [:uint32, :int], :bool
+      attach_function :sfJoystick_isButtonPressed, [:uint32, :uint32], :bool
+      attach_function :sfJoystick_getAxisPosition, [:uint32, :int], :float
+      attach_function :sfJoystick_getIdentification, [:uint32], JoystickIdentification.by_value
+      attach_function :sfJoystick_update,          [], :void
     end
   end
 end

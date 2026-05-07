@@ -13,8 +13,12 @@ RSpec.describe SFML::SoundRecorder do
       expect(described_class.devices).to all(be_a(String))
     end
 
-    it "default_device is one of the listed devices" do
-      expect(described_class.devices).to include(described_class.default_device)
+    it "default_device, if exposed, is one of the listed devices" do
+      # Some CI / headless configurations expose only an OpenAL "null"
+      # sink and report no default device. Skip rather than fail there.
+      default = described_class.default_device
+      skip "no default device on this host" if default.nil? || default.empty?
+      expect(described_class.devices).to include(default)
     end
   end
 end

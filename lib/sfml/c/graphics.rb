@@ -96,6 +96,7 @@ module SFML
       attach_function :sfRenderWindow_clear,                  [:render_window_t, Color.by_value], :void
       attach_function :sfRenderWindow_getSize,                [:render_window_t], System::Vector2u.by_value
       attach_function :sfRenderWindow_setSize,                [:render_window_t, System::Vector2u.by_value], :void
+      attach_function :sfRenderWindow_setIcon,                [:render_window_t, System::Vector2u.by_value, :pointer], :void
 
       typedef :pointer, :texture_t
       typedef :pointer, :render_texture_t

@@ -34,4 +34,20 @@ RSpec.describe SFML::Window do
     expect(win.size).to eq(SFML::Vector2[400, 300])
     win.close
   end
+
+  describe "#icon=" do
+    it "accepts an SFML::Image of any size without raising" do
+      win = described_class.new(320, 240, "icon spec")
+      img = SFML::Image.new(32, 32, fill: SFML::Color.new(200, 50, 50))
+      expect { win.icon = img }.not_to raise_error
+      win.close
+    end
+
+    it "rejects non-Image arguments" do
+      win = described_class.new(320, 240, "icon spec")
+      expect { win.icon = "not an image" }
+        .to raise_error(ArgumentError, /requires a SFML::Image/)
+      win.close
+    end
+  end
 end

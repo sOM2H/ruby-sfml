@@ -8,6 +8,13 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+### Added
+- `Window#icon=` and `RenderWindow#icon=` — set the window's title-bar /
+  taskbar icon from any `SFML::Image`. Wraps `sfWindow_setIcon` /
+  `sfRenderWindow_setIcon`. New example
+  [21_window_icon](examples/21_window_icon/window_icon.rb) builds a
+  procedural 32×32 ruby-style icon to demo the API.
+
 ### Fixed
 - `at_exit` hook now writes the unhandled exception (message, class,
   backtrace) to stderr before calling `exit!`. Previously `exit!`

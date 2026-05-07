@@ -181,6 +181,7 @@ module SFML
       attach_function :sfWindow_requestFocus,  [:raw_window_t], :void
       attach_function :sfWindow_hasFocus,      [:raw_window_t], :bool
       attach_function :sfWindow_setActive,     [:raw_window_t, :bool], :bool
+      attach_function :sfWindow_setIcon,       [:raw_window_t, System::Vector2u.by_value, :pointer], :void
     end
   end
 end

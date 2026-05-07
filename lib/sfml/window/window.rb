@@ -129,6 +129,18 @@ module SFML
       C::Window.sfWindow_setActive(@handle, value ? true : false)
     end
 
+    # Replace the window's title-bar / taskbar icon with the pixels from
+    # the given SFML::Image. The OS scales it as needed; 32×32 RGBA
+    # is the typical sweet spot.
+    def icon=(image)
+      raise ArgumentError, "Window#icon= requires a SFML::Image" unless image.is_a?(SFML::Image)
+
+      size = C::System::Vector2u.new
+      size[:x] = image.width
+      size[:y] = image.height
+      C::Window.sfWindow_setIcon(@handle, size, C::Graphics.sfImage_getPixelsPtr(image.handle))
+    end
+
     attr_reader :handle # :nodoc:
 
     private

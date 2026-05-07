@@ -112,6 +112,18 @@ module SFML
       Vector2.new(v[:x], v[:y])
     end
 
+    # Replace the window's title-bar / taskbar icon with the pixels from
+    # the given SFML::Image. The OS scales it as needed; 32×32 RGBA
+    # is the typical sweet spot.
+    def icon=(image)
+      raise ArgumentError, "RenderWindow#icon= requires a SFML::Image" unless image.is_a?(Image)
+
+      size = C::System::Vector2u.new
+      size[:x] = image.width
+      size[:y] = image.height
+      C::Graphics.sfRenderWindow_setIcon(@handle, size, C::Graphics.sfImage_getPixelsPtr(image.handle))
+    end
+
     # Convenience driver loop. Yields the per-frame delta (SFML::Time) and
     # auto-pumps events + display. The block is responsible for #clear and
     # any drawing.

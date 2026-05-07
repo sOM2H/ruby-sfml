@@ -88,29 +88,22 @@ end
 
 ## What's intentionally *not* wrapped
 
-A handful of CSFML 3 corners deliberately stay out:
+Three corners of CSFML 3 deliberately stay out:
 
-- **Geometry shaders** — CSFML doesn't expose them at all (only vertex
-  and fragment stages); nothing for us to wrap.
+- **Geometry shaders** — CSFML doesn't expose them at all (only
+  vertex and fragment stages); there's nothing on the C side to
+  wrap.
 - **Raw `sf::SoundRecorder`** (per-buffer callbacks on the audio
-  thread) — use `SFML::SoundBufferRecorder` for the common "record
-  into memory, save on stop" path. The raw callback variant fights
-  the GVL hard.
+  thread) — fights the GVL too hard for what it gives. Use
+  `SFML::SoundBufferRecorder` for the common "record into memory,
+  save on stop" path.
 - **Custom `sf::InputStream`** for loading assets from non-file
-  sources — Ruby has `IO`, just read into memory and use the
-  byte-string constructors.
+  sources — Ruby's `IO` covers this. Read the bytes yourself and
+  feed them into the byte-string constructors.
 
-**An aside on `Http` / `Ftp` / `SocketSelector`** — these *are*
-wrapped (matches CSFML for parity), but for any non-trivial use
-Ruby's stdlib `Net::HTTP` / `Net::FTP` and `IO.select` are better
-tools.
+If anything else is missing or blocking you, **open an issue**.
 
-**An aside on `SoundStream` and `effect_processor=`** — both *are*
-wrapped, but their callbacks run on the SFML audio thread and
-must reacquire the GVL each invocation. Fine for trivial DSP;
-expect glitches for anything heavier.
-
-**Other Ruby bindings worth knowing about**
+## Other Ruby bindings worth knowing about
 
 - SFML 2.x is *not* covered. The previous-generation gem
   [rbSFML](https://github.com/Groogy/rbSFML) targets SFML 2; it's
@@ -119,8 +112,6 @@ expect glitches for anything heavier.
   wrapper that exposes the CSFML C API directly. If you want raw
   bindings (no idiomatic Ruby layer, no auto-cleanup), check that
   project instead.
-
-If anything missing here is blocking you, **open an issue**.
 
 ## Examples
 

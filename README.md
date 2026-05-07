@@ -72,7 +72,7 @@ end
 | System   | `Vector2`, `Vector3`, `Rect`, `Time`, `Clock`                |
 | Window   | `RenderWindow`, `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick`, `Cursor`, `Clipboard` |
 | Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View`, `BlendMode`, `RenderStates`, `Shader` |
-| Audio    | `SoundBuffer`, `Sound`, `Music`                              |
+| Audio    | `SoundBuffer`, `Sound`, `Music`, `Listener` (3D positional audio supported on Sound and Music) |
 | Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
 
 The `SFML::Network` module is intentionally not in the first release; it'll come later.
@@ -104,6 +104,7 @@ bundle exec ruby examples/<NN_name>/<name>.rb
 | 13  | [tilemap](examples/13_tilemap/tilemap.rb)                                      | Textured `VertexArray` tilemap + additive `BlendMode` torch       |
 | 14  | [shader_wave](examples/14_shader_wave/shader_wave.rb)                          | Pure GLSL fragment `Shader` — procedural ripple + plasma          |
 | 15  | [cursors_clipboard](examples/15_cursors_clipboard/cursors_clipboard.rb)        | All 21 system `Cursor` shapes + `Clipboard` copy/paste            |
+| 16  | [spatial_audio](examples/16_spatial_audio/spatial_audio.rb)                    | 3D positional `Sound` + `Listener` — three drones around the cursor |
 
 ## Architecture
 

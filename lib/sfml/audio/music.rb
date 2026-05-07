@@ -51,6 +51,34 @@ module SFML
       C::Audio.sfMusic_setPitch(@handle, value.to_f)
     end
 
+    # 3D positional audio — see SFML::Sound for the why.
+    def position
+      Vector3.from_native(C::Audio.sfMusic_getPosition(@handle))
+    end
+
+    def position=(value)
+      vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
+      C::Audio.sfMusic_setPosition(@handle, vec.to_native_f)
+    end
+
+    def attenuation = C::Audio.sfMusic_getAttenuation(@handle)
+
+    def attenuation=(value)
+      C::Audio.sfMusic_setAttenuation(@handle, value.to_f)
+    end
+
+    def min_distance = C::Audio.sfMusic_getMinDistance(@handle)
+
+    def min_distance=(value)
+      C::Audio.sfMusic_setMinDistance(@handle, value.to_f)
+    end
+
+    def relative_to_listener? = C::Audio.sfMusic_isRelativeToListener(@handle)
+
+    def relative_to_listener=(value)
+      C::Audio.sfMusic_setRelativeToListener(@handle, value ? true : false)
+    end
+
     private
 
     def _take_ownership(ptr)

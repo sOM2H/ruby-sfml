@@ -34,6 +34,16 @@ module SFML
       attach_function :sfSound_setPitch,      [:sound_t, :float], :void
       attach_function :sfSound_getPitch,      [:sound_t], :float
 
+      # 3D positional audio
+      attach_function :sfSound_setPosition,           [:sound_t, System::Vector3f.by_value], :void
+      attach_function :sfSound_getPosition,           [:sound_t], System::Vector3f.by_value
+      attach_function :sfSound_setMinDistance,        [:sound_t, :float], :void
+      attach_function :sfSound_getMinDistance,        [:sound_t], :float
+      attach_function :sfSound_setAttenuation,        [:sound_t, :float], :void
+      attach_function :sfSound_getAttenuation,        [:sound_t], :float
+      attach_function :sfSound_setRelativeToListener, [:sound_t, :bool], :void
+      attach_function :sfSound_isRelativeToListener,  [:sound_t], :bool
+
       # ---- Music ----
       attach_function :sfMusic_createFromFile, [:string], :music_t
       attach_function :sfMusic_destroy,        [:music_t], :void
@@ -48,6 +58,25 @@ module SFML
       attach_function :sfMusic_setPitch,       [:music_t, :float], :void
       attach_function :sfMusic_getPitch,       [:music_t], :float
       attach_function :sfMusic_getDuration,    [:music_t], System::Time.by_value
+
+      attach_function :sfMusic_setPosition,           [:music_t, System::Vector3f.by_value], :void
+      attach_function :sfMusic_getPosition,           [:music_t], System::Vector3f.by_value
+      attach_function :sfMusic_setMinDistance,        [:music_t, :float], :void
+      attach_function :sfMusic_getMinDistance,        [:music_t], :float
+      attach_function :sfMusic_setAttenuation,        [:music_t, :float], :void
+      attach_function :sfMusic_getAttenuation,        [:music_t], :float
+      attach_function :sfMusic_setRelativeToListener, [:music_t, :bool], :void
+      attach_function :sfMusic_isRelativeToListener,  [:music_t], :bool
+
+      # ---- Listener (the "ear" — global, no handle) ----
+      attach_function :sfListener_setGlobalVolume, [:float], :void
+      attach_function :sfListener_getGlobalVolume, [], :float
+      attach_function :sfListener_setPosition,     [System::Vector3f.by_value], :void
+      attach_function :sfListener_getPosition,     [], System::Vector3f.by_value
+      attach_function :sfListener_setDirection,    [System::Vector3f.by_value], :void
+      attach_function :sfListener_getDirection,    [], System::Vector3f.by_value
+      attach_function :sfListener_setUpVector,     [System::Vector3f.by_value], :void
+      attach_function :sfListener_getUpVector,     [], System::Vector3f.by_value
     end
   end
 end

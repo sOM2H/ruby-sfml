@@ -61,5 +61,42 @@ module SFML
     def pitch=(value)
       C::Audio.sfSound_setPitch(@handle, value.to_f)
     end
+
+    # ---- 3D positional audio ----
+    #
+    # Sounds have a 3D position; the SFML::Listener acts as the "ear".
+    # Volume falls off with distance from min_distance outward, scaled
+    # by attenuation (0 = no falloff, 1 = realistic, higher = sharper).
+    # By default a Sound's position is in world coordinates; flip
+    # `relative_to_listener = true` and the position becomes relative
+    # to the listener — useful for "stuck to the camera" UI sounds.
+    #
+    # For 2D games, set z = 0 and listener.position to your camera.
+    def position
+      Vector3.from_native(C::Audio.sfSound_getPosition(@handle))
+    end
+
+    def position=(value)
+      vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
+      C::Audio.sfSound_setPosition(@handle, vec.to_native_f)
+    end
+
+    def attenuation = C::Audio.sfSound_getAttenuation(@handle)
+
+    def attenuation=(value)
+      C::Audio.sfSound_setAttenuation(@handle, value.to_f)
+    end
+
+    def min_distance = C::Audio.sfSound_getMinDistance(@handle)
+
+    def min_distance=(value)
+      C::Audio.sfSound_setMinDistance(@handle, value.to_f)
+    end
+
+    def relative_to_listener? = C::Audio.sfSound_isRelativeToListener(@handle)
+
+    def relative_to_listener=(value)
+      C::Audio.sfSound_setRelativeToListener(@handle, value ? true : false)
+    end
   end
 end

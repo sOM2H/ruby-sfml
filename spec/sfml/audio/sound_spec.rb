@@ -22,6 +22,33 @@ RSpec.describe SFML::Sound do
     expect(sound.looping?).to be true
   end
 
+  describe "3D positional audio" do
+    let(:sound) { described_class.new(buffer, volume: 0) }
+
+    it "round-trips position as Vector3 (Array form)" do
+      sound.position = [10, 20, 30]
+      expect(sound.position).to eq(SFML::Vector3[10, 20, 30])
+    end
+
+    it "round-trips position as Vector3 instance" do
+      sound.position = SFML::Vector3[1.5, 2.5, -3.0]
+      expect(sound.position).to eq(SFML::Vector3[1.5, 2.5, -3.0])
+    end
+
+    it "exposes attenuation + min_distance" do
+      sound.attenuation = 1.5
+      sound.min_distance = 25
+      expect(sound.attenuation).to eq(1.5)
+      expect(sound.min_distance).to eq(25.0)
+    end
+
+    it "toggles relative_to_listener" do
+      expect(sound.relative_to_listener?).to be false
+      sound.relative_to_listener = true
+      expect(sound.relative_to_listener?).to be true
+    end
+  end
+
   describe SFML::SoundBuffer do
     it "exposes duration / sample_rate / channel_count" do
       expect(buffer.duration.as_milliseconds).to eq(80)

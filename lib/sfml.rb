@@ -5,26 +5,49 @@ module SFML
   class LoadError < Error; end
 end
 
-# Skip CSFML destructor calls during process exit.
+# Tame process-exit teardown so CSFML doesn't crash.
 #
-# Ruby runs ObjectSpace finalizers in non-deterministic order during
-# teardown. CSFML resources are deeply intertwined — RenderWindow holds
-# a GL context, Font holds glyph atlases bound to that context, Text and
-# Sprite reference Font and Texture, View instances are independent but
-# many. When the natural teardown destroys them in the wrong order,
-# CSFML/GL segfaults. The exact sequence is the user's problem space:
-# any non-trivial example using View + Text + map_pixel_to_coords can
-# trip it.
+# Two things race during a normal Ruby exit:
 #
-# The OS reclaims process memory on exit anyway, so dropping CSFML
-# destructors here costs nothing in practice — the gain is no late-exit
-# crash. Unreferenced objects still get cleaned up at runtime via the
-# normal GC cycle; we only neuter the *teardown-time* finalizer pass.
+# 1. ObjectSpace finalizers run in non-deterministic order. CSFML's
+#    GL-bound resources (RenderWindow's GL context, Font glyph atlases,
+#    View copies) freed in the wrong sequence segfault inside the
+#    SFML/GL stack. Setting autorelease = false on every live
+#    FFI::AutoPointer skips the destruction; the OS reclaims memory
+#    anyway, so this costs nothing.
+#
+# 2. SFML's audio thread is still pumping samples while Ruby starts to
+#    tear the interpreter down. If a `Sound` or `Music` is mid-loop,
+#    OpenAL is reading buffers we're about to free → segfault inside
+#    libopenal. Stopping every live source first quiets the audio
+#    thread before anything starts disappearing.
+#
+# Unreferenced objects still get cleaned up at runtime via the normal
+# GC cycle; we only neuter the *teardown-time* pass.
 at_exit do
-  GC.start                                     # release transient state cleanly first
-  ObjectSpace.each_object(FFI::AutoPointer) do |pointer|
-    pointer.autorelease = false rescue nil
-  end
+  # 1. Capture the desired exit status before we tamper with anything.
+  status =
+    if    $!.is_a?(SystemExit) then $!.status
+    elsif $!.nil?              then 0
+    else                            1
+    end
+
+  # 2. Quiet the audio thread before anything else — OpenAL holds onto
+  #    sample buffers and crashes if Ruby starts freeing them while
+  #    a Sound/Music is mid-loop.
+  ObjectSpace.each_object(SFML::Sound) { |s| s.stop rescue nil } if defined?(SFML::Sound)
+  ObjectSpace.each_object(SFML::Music) { |m| m.stop rescue nil } if defined?(SFML::Music)
+
+  # 3. Bypass Ruby's natural finalizer pass entirely. Process memory is
+  #    about to be reclaimed by the kernel anyway, and Ruby's
+  #    non-deterministic destruction order races with CSFML's GL/audio
+  #    internals — segfaulting inside libopenal/libGL is the typical
+  #    failure mode. exit! kills the interpreter cleanly via _exit(2).
+  #
+  # Caveat: any user `at_exit` hook registered *before* `require "sfml"`
+  # won't run. Hooks registered after the require run first (LIFO),
+  # then our hook, so the common case is unaffected.
+  exit!(status)
 end
 
 require "sfml/c"
@@ -62,5 +85,6 @@ require "sfml/graphics/render_texture"
 require "sfml/audio/sound_buffer"
 require "sfml/audio/sound"
 require "sfml/audio/music"
+require "sfml/audio/listener"
 require "sfml/assets"
 require "sfml/game"

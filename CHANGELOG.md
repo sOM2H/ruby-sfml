@@ -31,6 +31,11 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `Listener.velocity` and `Listener.cone` — finish the 3D-audio
+  surface on the listener side. Velocity feeds the Doppler effect
+  for sources whose `doppler_factor` is non-zero; cone (a
+  `SoundCone`, or a Hash convertible to one) attenuates sources
+  outside a directional pickup pattern.
 - 3D-audio polish for `Sound` and `Music` — now expose `velocity`,
   `doppler_factor`, `direction`, and `cone` (via the new
   `SFML::SoundCone` value class — `inner_angle`, `outer_angle`,

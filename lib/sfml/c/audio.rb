@@ -175,6 +175,10 @@ module SFML
       attach_function :sfListener_getDirection,    [], System::Vector3f.by_value
       attach_function :sfListener_setUpVector,     [System::Vector3f.by_value], :void
       attach_function :sfListener_getUpVector,     [], System::Vector3f.by_value
+      attach_function :sfListener_setVelocity,     [System::Vector3f.by_value], :void
+      attach_function :sfListener_getVelocity,     [], System::Vector3f.by_value
+      attach_function :sfListener_setCone,         [SoundSourceCone.by_value], :void
+      attach_function :sfListener_getCone,         [], SoundSourceCone.by_value
     end
   end
 end

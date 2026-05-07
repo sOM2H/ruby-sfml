@@ -51,5 +51,36 @@ module SFML
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       C::Audio.sfListener_setUpVector(vec.to_native_f)
     end
+
+    # Listener velocity in world units / second — used by the
+    # Doppler effect on sources whose `doppler_factor` is non-zero.
+    def velocity
+      Vector3.from_native(C::Audio.sfListener_getVelocity)
+    end
+
+    def velocity=(value)
+      vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
+      C::Audio.sfListener_setVelocity(vec.to_native_f)
+    end
+
+    # Directional cone for the listener — same shape as the cone on
+    # individual sound sources (see SFML::SoundCone). Used for
+    # cone-shaped attenuation when the listener faces a particular
+    # direction (think headphones turning to follow a character's
+    # head).
+    def cone
+      SoundCone.from_native(C::Audio.sfListener_getCone)
+    end
+
+    def cone=(value)
+      cone =
+        case value
+        when SoundCone then value
+        when Hash      then SoundCone.new(**value)
+        else
+          raise ArgumentError, "Listener.cone= expects SoundCone or Hash; got #{value.class}"
+        end
+      C::Audio.sfListener_setCone(cone.to_native)
+    end
   end
 end

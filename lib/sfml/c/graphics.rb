@@ -44,6 +44,7 @@ module SFML
       typedef :pointer, :font_t
       typedef :pointer, :text_t
       typedef :pointer, :view_t
+      typedef :pointer, :image_t
       typedef :pointer, :render_states_t
 
       attach_function :sfRenderWindow_drawSprite,
@@ -92,12 +93,33 @@ module SFML
 
       # ---- Texture ----
       attach_function :sfTexture_createFromFile, [:string, :pointer], :texture_t
+      attach_function :sfTexture_createFromImage,[:image_t, :pointer], :texture_t
       attach_function :sfTexture_destroy,        [:texture_t], :void
       attach_function :sfTexture_getSize,        [:texture_t], System::Vector2u.by_value
       attach_function :sfTexture_setSmooth,      [:texture_t, :bool], :void
       attach_function :sfTexture_isSmooth,       [:texture_t], :bool
       attach_function :sfTexture_setRepeated,    [:texture_t, :bool], :void
       attach_function :sfTexture_isRepeated,     [:texture_t], :bool
+      attach_function :sfTexture_copyToImage,    [:texture_t], :image_t
+      attach_function :sfTexture_updateFromImage,[:texture_t, :image_t, System::Vector2u.by_value], :void
+      attach_function :sfTexture_updateFromPixels,
+                      [:texture_t, :pointer, System::Vector2u.by_value, System::Vector2u.by_value], :void
+
+      # ---- Image ----
+      attach_function :sfImage_create,            [System::Vector2u.by_value], :image_t
+      attach_function :sfImage_createFromColor,   [System::Vector2u.by_value, Color.by_value], :image_t
+      attach_function :sfImage_createFromPixels,  [System::Vector2u.by_value, :pointer], :image_t
+      attach_function :sfImage_createFromFile,    [:string], :image_t
+      attach_function :sfImage_copy,              [:image_t], :image_t
+      attach_function :sfImage_destroy,           [:image_t], :void
+      attach_function :sfImage_saveToFile,        [:image_t, :string], :bool
+      attach_function :sfImage_getSize,           [:image_t], System::Vector2u.by_value
+      attach_function :sfImage_setPixel,          [:image_t, System::Vector2u.by_value, Color.by_value], :void
+      attach_function :sfImage_getPixel,          [:image_t, System::Vector2u.by_value], Color.by_value
+      attach_function :sfImage_getPixelsPtr,      [:image_t], :pointer
+      attach_function :sfImage_createMaskFromColor, [:image_t, Color.by_value, :uint8], :void
+      attach_function :sfImage_flipHorizontally,  [:image_t], :void
+      attach_function :sfImage_flipVertically,    [:image_t], :void
 
       # ---- Sprite (transform-style methods are shared with shapes; same shape) ----
       attach_function :sfSprite_create,        [:texture_t], :sprite_t

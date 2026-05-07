@@ -31,6 +31,16 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `SFML::VertexBuffer` — GPU-resident vertex buffer (VBO). Same
+  shape as `VertexArray` but vertices live on the GPU, so a draw
+  call ships only an OpenGL handle instead of re-uploading every
+  frame. `new(vertices, primitive_type:, usage:)` (one of `:stream`
+  / `:dynamic` / `:static`), `update(vertices, offset:)` for
+  partial uploads, `draw_range_on(target, first, count)` to draw a
+  slice. `VertexBuffer.available?` reports whether the GPU
+  supports VBOs at all (fall back to `VertexArray` if it doesn't).
+  Wraps the `sfVertexBuffer_*` family plus the
+  `sfRender{Window,Texture}_drawVertexBuffer{,Range}` draw paths.
 - `Window.from_handle` / `RenderWindow.from_handle` — wrap an
   existing OS-level window (HWND, NSView*, X11 Window xid). The
   outside framework owns the window's lifecycle; SFML just renders

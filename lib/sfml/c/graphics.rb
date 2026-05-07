@@ -99,6 +99,8 @@ module SFML
       attach_function :sfRenderWindow_getSize,                [:render_window_t], System::Vector2u.by_value
       attach_function :sfRenderWindow_setSize,                [:render_window_t, System::Vector2u.by_value], :void
       attach_function :sfRenderWindow_setIcon,                [:render_window_t, System::Vector2u.by_value, :pointer], :void
+
+      typedef :pointer, :vertex_buffer_t
       attach_function :sfRenderWindow_setMinimumSize,         [:render_window_t, :pointer], :void
       attach_function :sfRenderWindow_setMaximumSize,         [:render_window_t, :pointer], :void
       attach_function :sfRenderWindow_createFromHandle,       [:pointer, :pointer], :render_window_t
@@ -151,6 +153,10 @@ module SFML
                       [:render_window_t, :text_t, :render_states_t], :void
       attach_function :sfRenderWindow_drawVertexArray,
                       [:render_window_t, :vertex_array_t, :render_states_t], :void
+      attach_function :sfRenderWindow_drawVertexBuffer,
+                      [:render_window_t, :vertex_buffer_t, :render_states_t], :void
+      attach_function :sfRenderWindow_drawVertexBufferRange,
+                      [:render_window_t, :vertex_buffer_t, :uint32, :uint32, :render_states_t], :void
 
       # Mouse position queries relative to a render-window.
       attach_function :sfMouse_getPositionRenderWindow,
@@ -362,6 +368,9 @@ module SFML
       attach_function :sfRenderTexture_drawConvexShape,     [:render_texture_t, :convex_shape_t,     :render_states_t], :void
       attach_function :sfRenderTexture_drawText,            [:render_texture_t, :text_t,             :render_states_t], :void
       attach_function :sfRenderTexture_drawVertexArray,     [:render_texture_t, :vertex_array_t,     :render_states_t], :void
+      attach_function :sfRenderTexture_drawVertexBuffer,    [:render_texture_t, :vertex_buffer_t,    :render_states_t], :void
+      attach_function :sfRenderTexture_drawVertexBufferRange,
+                      [:render_texture_t, :vertex_buffer_t, :uint32, :uint32, :render_states_t], :void
 
       # ---- Raw primitive drawing (without a VertexArray object) ----
       attach_function :sfRenderWindow_drawPrimitives,
@@ -388,6 +397,25 @@ module SFML
       attach_function :sfShader_setColorUniform,  [:shader_t, :string, Color.by_value], :void
       attach_function :sfShader_setTextureUniform,[:shader_t, :string, :texture_t], :void
       attach_function :sfShader_setCurrentTextureUniform, [:shader_t, :string], :void
+
+      # ---- VertexBuffer (static GPU vertex buffer) ----
+      # USAGE order matches sfVertexBufferUsage in CSFML.
+      VERTEX_BUFFER_USAGES = %i[stream dynamic static].freeze
+
+      attach_function :sfVertexBuffer_create,         [:uint32, :int, :int], :vertex_buffer_t
+      attach_function :sfVertexBuffer_copy,           [:vertex_buffer_t], :vertex_buffer_t
+      attach_function :sfVertexBuffer_destroy,        [:vertex_buffer_t], :void
+      attach_function :sfVertexBuffer_getVertexCount, [:vertex_buffer_t], :uint32
+      attach_function :sfVertexBuffer_update,         [:vertex_buffer_t, :pointer, :uint32, :uint32], :bool
+      attach_function :sfVertexBuffer_updateFromVertexBuffer,
+                      [:vertex_buffer_t, :vertex_buffer_t], :bool
+      attach_function :sfVertexBuffer_swap,           [:vertex_buffer_t, :vertex_buffer_t], :void
+      attach_function :sfVertexBuffer_getNativeHandle,[:vertex_buffer_t], :uint32
+      attach_function :sfVertexBuffer_setPrimitiveType,[:vertex_buffer_t, :int], :void
+      attach_function :sfVertexBuffer_getPrimitiveType,[:vertex_buffer_t], :int
+      attach_function :sfVertexBuffer_setUsage,       [:vertex_buffer_t, :int], :void
+      attach_function :sfVertexBuffer_getUsage,       [:vertex_buffer_t], :int
+      attach_function :sfVertexBuffer_isAvailable,    [], :bool
 
       # Bulk array uniform setters. The array argument is a packed
       # buffer of N elements (N×{1,2,3,4} floats); the length argument

@@ -5,33 +5,61 @@
 
 Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [CSFML](https://github.com/SFML/CSFML) and [Ruby FFI](https://github.com/ffi/ffi).
 
+[![gem version](https://img.shields.io/gem/v/ruby-sfml.svg)](https://rubygems.org/gems/ruby-sfml)
+[![docs](https://img.shields.io/badge/docs-rubydoc.info-blue.svg)](https://www.rubydoc.info/gems/ruby-sfml)
+
 > **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `Game` and `Assets` helpers. 387 RSpec examples, 23 runnable example folders.
 
 ## Why
 
 The original [rbSFML](https://github.com/Groogy/rbSFML) is unmaintained and only works against SFML 2 and Ruby 2.2. `ruby-sfml` targets the current SFML 3.x line, modern Ruby (3.2+), and a Ruby-first API — blocks instead of polling loops, symbols instead of enums, operators on vectors, automatic resource cleanup via GC.
 
-## Requirements
+## Installation
 
-- Ruby `>= 3.2`
-- CSFML **3.0** or compatible 3.x at the system level
+ruby-sfml needs **Ruby ≥ 3.2** and **CSFML 3.0** (or compatible 3.x) on
+the system. Install in two steps:
 
-### Install CSFML
+### 1. Install dependencies (CSFML)
 
-| OS                       | Command                                  | Notes |
-| ------------------------ | ---------------------------------------- | ----- |
-| Ubuntu 25.04+ / Debian   | `sudo apt install libcsfml-dev`          | Ships CSFML 3 |
+| OS                       | Command                                  | Notes                                                                    |
+| ------------------------ | ---------------------------------------- | ------------------------------------------------------------------------ |
+| Ubuntu 25.04+ / Debian   | `sudo apt install libcsfml-dev`          | Ships CSFML 3                                                            |
 | Ubuntu 22.04 / 24.04     | repo too old (CSFML 2.5)                 | Build from [3.0.0 release](https://github.com/SFML/CSFML/releases/tag/3.0.0) |
-| macOS (brew)             | `brew install csfml`                     | Currently 3.x |
-| Arch Linux               | `sudo pacman -S csfml`                   | Currently 3.x |
-| Windows                  | https://www.sfml-dev.org/download/csfml/ | Pick the 3.0 tarball |
+| macOS (brew)             | `brew install csfml`                     | Currently 3.x                                                            |
+| Arch Linux               | `sudo pacman -S csfml`                   | Currently 3.x                                                            |
+| Windows                  | https://www.sfml-dev.org/download/csfml/ | Pick the 3.0 tarball                                                     |
 
-ruby-sfml verifies the linked CSFML twice:
+### 2. Install the gem
 
-- **At `gem install`** — `extconf.rb` checks for the five `libcsfml-*` libraries plus a CSFML 3.0+ symbol (`sfClock_isRunning`). Aborts with a clear message if the system has CSFML 2.x.
-- **At `require "sfml"`** — same probe runs as a runtime sanity check, in case libraries were swapped between install and use.
+In a Bundler-managed project, add to your `Gemfile`:
 
-You'll see a useful error either way; nothing falls through to a cryptic CSFML segfault.
+```ruby
+gem "ruby-sfml", "~> 3.0"
+```
+
+then `bundle install`.
+
+Or drop it in directly:
+
+```sh
+gem install ruby-sfml
+```
+
+Hosted on [rubygems.org](https://rubygems.org/gems/ruby-sfml); HTML
+docs auto-generate at
+[rubydoc.info/gems/ruby-sfml](https://www.rubydoc.info/gems/ruby-sfml).
+
+### How the CSFML check happens
+
+ruby-sfml verifies the linked CSFML in two places so a missing or
+out-of-date library never falls through to a cryptic segfault:
+
+- **At `gem install`** — `extconf.rb` checks for the five
+  `libcsfml-*` libraries plus a CSFML 3.0+ symbol
+  (`sfClock_isRunning`). Aborts with a clear message if the system
+  has CSFML 2.x.
+- **At `require "sfml"`** — the same probe runs as a runtime sanity
+  check, in case libraries were swapped between install and use.
 
 ## A 12-line game
 

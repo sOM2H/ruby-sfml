@@ -1,8 +1,11 @@
-# ruby-sfml
+<h1>
+  <img src="ruby-sfml.png" alt="" height="48" align="absmiddle">
+  ruby-sfml
+</h1>
 
 Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [CSFML](https://github.com/SFML/CSFML) and [Ruby FFI](https://github.com/ffi/ffi).
 
-> **Status:** the API surface is complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `Game` and `Assets` helpers. 387 RSpec examples, 23 runnable example folders. RBS signatures are the main remaining engineering item.
+> **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `Game` and `Assets` helpers. 387 RSpec examples, 23 runnable example folders.
 
 ## Why
 

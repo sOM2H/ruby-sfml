@@ -207,6 +207,7 @@ module SFML
       attach_function :sfImage_copy,              [:image_t], :image_t
       attach_function :sfImage_destroy,           [:image_t], :void
       attach_function :sfImage_saveToFile,        [:image_t, :string], :bool
+      attach_function :sfImage_saveToMemory,      [:image_t, :pointer, :string], :bool
       attach_function :sfImage_getSize,           [:image_t], System::Vector2u.by_value
       attach_function :sfImage_setPixel,          [:image_t, System::Vector2u.by_value, Color.by_value], :void
       attach_function :sfImage_getPixel,          [:image_t, System::Vector2u.by_value], Color.by_value

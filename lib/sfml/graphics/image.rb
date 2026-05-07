@@ -96,6 +96,29 @@ module SFML
       path
     end
 
+    # Encode the image as `format` ("png", "jpg", "bmp", or "tga") and
+    # return the encoded bytes as a Ruby String. Useful for sending
+    # screenshots over the network, generating data: URLs, piping into
+    # an image-processing library, etc., without touching the disk.
+    #
+    #   png_bytes = img.save_to_memory("png")
+    #   File.binwrite("out.png", png_bytes)
+    def save_to_memory(format)
+      buffer = C::System.sfBuffer_create
+      raise Error, "sfBuffer_create returned NULL" if buffer.null?
+
+      begin
+        ok = C::Graphics.sfImage_saveToMemory(@handle, buffer, format.to_s)
+        raise Error, "Could not encode image as #{format.inspect}" unless ok
+
+        size = C::System.sfBuffer_getSize(buffer)
+        data = C::System.sfBuffer_getData(buffer)
+        data.read_bytes(size)
+      ensure
+        C::System.sfBuffer_destroy(buffer)
+      end
+    end
+
     # Replace any pixel matching `color` with that colour at `alpha`
     # opacity — typical use is to turn a fixed background colour
     # transparent: img.mask_color!(SFML::Color.magenta, alpha: 0).

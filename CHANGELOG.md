@@ -14,6 +14,12 @@ ruby-sfml's own patch level.
   `sfRenderWindow_setIcon`. New example
   [21_window_icon](examples/21_window_icon/window_icon.rb) builds a
   procedural 32×32 ruby-style icon to demo the API.
+- `Image#save_to_memory(format)` — encode an image to a Ruby String of
+  bytes in the given format (`"png"`, `"jpg"`, `"bmp"`, `"tga"`),
+  without touching the disk. Useful for screenshots over the network,
+  data: URLs, or piping into other image-processing libraries. Wraps
+  `sfImage_saveToMemory` plus the `sfBuffer_*` helpers in
+  libcsfml-system.
 
 ### Fixed
 - `at_exit` hook now writes the unhandled exception (message, class,

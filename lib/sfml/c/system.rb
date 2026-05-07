@@ -38,6 +38,16 @@ module SFML
       attach_function :sfClock_reset,          [:clock_t],    Time.by_value
 
       attach_function :sfSleep,                [Time.by_value], :void
+
+      # sfBuffer — opaque growable byte buffer used by APIs like
+      # sfImage_saveToMemory to return variable-length binary data
+      # without forcing the caller to pre-size an output buffer.
+      typedef :pointer, :buffer_t
+
+      attach_function :sfBuffer_create,  [],                       :buffer_t
+      attach_function :sfBuffer_destroy, [:buffer_t],               :void
+      attach_function :sfBuffer_getSize, [:buffer_t],               :size_t
+      attach_function :sfBuffer_getData, [:buffer_t],               :pointer
     end
   end
 end

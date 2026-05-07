@@ -86,6 +86,41 @@ RSpec.describe SFML::Image do
     end
   end
 
+  describe "#save_to_memory" do
+    let(:img) { described_class.new(4, 4, fill: SFML::Color.new(200, 50, 50)) }
+
+    it "encodes PNG with the correct magic number" do
+      bytes = img.save_to_memory("png")
+      expect(bytes.bytesize).to be > 0
+      # PNG signature: 89 50 4E 47 0D 0A 1A 0A
+      expect(bytes.bytes.first(4)).to eq([0x89, 0x50, 0x4E, 0x47])
+    end
+
+    it "encodes BMP with the correct magic number" do
+      bytes = img.save_to_memory("bmp")
+      # BMP signature: "BM"
+      expect(bytes.bytes.first(2)).to eq([0x42, 0x4D])
+    end
+
+    it "round-trips through load — encode then load gives back the same pixels" do
+      png = img.save_to_memory("png")
+      path = File.join(Dir.tmpdir, "ruby-sfml-stm-#{$$}-#{rand(1000)}.png")
+      begin
+        File.binwrite(path, png)
+        loaded = described_class.load(path)
+        expect(loaded.size).to eq(img.size)
+        expect(loaded[2, 2]).to eq(SFML::Color.new(200, 50, 50))
+      ensure
+        File.delete(path) if File.exist?(path)
+      end
+    end
+
+    it "raises on unsupported format" do
+      expect { img.save_to_memory("xyz") }
+        .to raise_error(SFML::Error, /Could not encode/)
+    end
+  end
+
   describe "#mask_color!" do
     it "makes matching pixels transparent" do
       img = described_class.new(2, 1, fill: SFML::Color.magenta)

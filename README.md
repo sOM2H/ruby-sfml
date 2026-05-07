@@ -79,19 +79,26 @@ The `SFML::Network` module is intentionally not in the first release; it'll come
 
 ## Examples
 
-All under [examples/](examples/) — run from the gem root:
+Each example is a self-contained folder under [examples/](examples/),
+numbered roughly in learning order. Assets each example needs sit next
+to its script. Run from the gem root:
 
 ```sh
-bundle exec ruby examples/<name>.rb
+bundle exec ruby examples/<NN_name>/<name>.rb
 ```
 
-| File                                    | What it shows                                                |
-| --------------------------------------- | ------------------------------------------------------------ |
-| [hello_window.rb](examples/hello_window.rb) | Empty window, manual loop                                    |
-| [events_demo.rb](examples/events_demo.rb)   | Pattern matching on input events                             |
-| [bouncing_ball.rb](examples/bouncing_ball.rb) | dt-based physics, `CircleShape` + `RectangleShape`           |
-| [game_class.rb](examples/game_class.rb)     | Same as bouncing_ball but built on `SFML::Game`              |
-| [pong.rb](examples/pong.rb)                 | Two-player Pong with in-window score (`Text`) and bounce sound (`Sound`) |
+| #   | Example                                                                        | What it shows                                                       |
+| --- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 01  | [hello_window](examples/01_hello_window/hello_window.rb)                       | Empty window, manual event loop                                     |
+| 02  | [events_demo](examples/02_events_demo/events_demo.rb)                          | Pattern matching on input events                                    |
+| 03  | [bouncing_ball](examples/03_bouncing_ball/bouncing_ball.rb)                    | dt-based physics, `CircleShape` + `RectangleShape`                  |
+| 04  | [game_class](examples/04_game_class/game_class.rb)                             | Same idea on top of `SFML::Game`                                    |
+| 05  | [mouse_demo](examples/05_mouse_demo/mouse_demo.rb)                             | Polling vs. events; paint with the mouse                            |
+| 06  | [pong](examples/06_pong/pong.rb)                                               | Two-player Pong with in-window score (`Text`) and bounce `Sound`    |
+| 07  | [scrolling_world](examples/07_scrolling_world/scrolling_world.rb)              | `View` as a 2D camera: drag-pan, wheel-zoom around cursor, FPS HUD  |
+| 08  | [joystick_demo](examples/08_joystick_demo/joystick_demo.rb)                    | Live gamepad inspector (axes, buttons, connect/disconnect)          |
+| 09  | [image_viewer](examples/09_image_viewer/image_viewer.rb)                       | Load a PNG, mutate the `Image`, re-upload to `Texture` on a key     |
+| 10  | [pixel_paint](examples/10_pixel_paint/pixel_paint.rb)                          | Paint into a CPU `Image`, blit to GPU `Texture` each dirty frame    |
 
 ## Architecture
 

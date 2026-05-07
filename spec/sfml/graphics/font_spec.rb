@@ -10,18 +10,17 @@ RSpec.describe SFML::Font do
   end
 
   describe ".find" do
-    # Point SEARCH_PATHS at the bundled-font directory so this test is
-    # platform-independent — system font availability differs wildly on
-    # macOS / Linux / Windows runners.
-    let(:bundled_dir) { File.expand_path("../../../lib/sfml/assets/fonts", __dir__) }
+    # Point SEARCH_PATHS at our self-contained fixtures directory so the
+    # test isn't influenced by what fonts the host happens to have.
+    let(:fixtures_dir) { File.expand_path("../../fixtures", __dir__) }
 
     it "finds a font by basename in a configured directory" do
-      stub_const("#{described_class}::SEARCH_PATHS", [bundled_dir])
+      stub_const("#{described_class}::SEARCH_PATHS", [fixtures_dir])
       expect(described_class.find("DejaVuSans")).to be_a(described_class)
     end
 
     it "returns nil when no match exists" do
-      stub_const("#{described_class}::SEARCH_PATHS", [bundled_dir])
+      stub_const("#{described_class}::SEARCH_PATHS", [fixtures_dir])
       expect(described_class.find("definitely-not-a-real-font-12345")).to be_nil
     end
   end

@@ -5,7 +5,7 @@
 #
 # Run from the gem root:
 #
-#     bundle exec ruby examples/hello_window.rb
+#     bundle exec ruby examples/01_hello_window/hello_window.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

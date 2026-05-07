@@ -7,7 +7,7 @@
 #   Right paddle: Up / Down
 #   Quit:         Esc or close button
 #
-#     bundle exec ruby examples/pong.rb
+#     bundle exec ruby examples/06_pong/pong.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

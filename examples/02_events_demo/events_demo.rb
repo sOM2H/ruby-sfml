@@ -7,7 +7,7 @@
 # Press keys, type characters, click and scroll the mouse, resize/refocus
 # the window. Esc or close button to quit.
 #
-#     bundle exec ruby examples/events_demo.rb
+#     bundle exec ruby examples/02_events_demo/events_demo.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

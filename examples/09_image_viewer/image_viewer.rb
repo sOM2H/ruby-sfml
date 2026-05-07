@@ -11,7 +11,7 @@
 #   H / V    flip the image horizontally / vertically and re-upload to GPU
 #   Esc      quit
 #
-#     bundle exec ruby examples/image_viewer.rb
+#     bundle exec ruby examples/09_image_viewer/image_viewer.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

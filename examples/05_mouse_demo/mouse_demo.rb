@@ -7,7 +7,7 @@
 #   - Mouse.button_pressed?(:left) for "is currently held" — distinct from
 #     :mouse_button_pressed events which fire once per click.
 #
-#     bundle exec ruby examples/mouse_demo.rb
+#     bundle exec ruby examples/05_mouse_demo/mouse_demo.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

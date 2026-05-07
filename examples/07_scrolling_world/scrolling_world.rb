@@ -17,7 +17,7 @@
 #   + / - or numpad +/-   zoom (centred)
 #   Esc                   quit
 #
-#     bundle exec ruby examples/scrolling_world.rb
+#     bundle exec ruby examples/07_scrolling_world/scrolling_world.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

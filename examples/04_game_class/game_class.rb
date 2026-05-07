@@ -4,7 +4,7 @@
 # Same idea as bouncing_ball.rb but built on top of SFML::Game. Compare the
 # two files to see how much boilerplate the lifecycle class removes.
 #
-#     bundle exec ruby examples/game_class.rb
+#     bundle exec ruby examples/04_game_class/game_class.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

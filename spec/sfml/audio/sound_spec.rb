@@ -1,5 +1,5 @@
 RSpec.describe SFML::Sound do
-  let(:buffer) { SFML::SoundBuffer.load(File.expand_path("../../../../examples/assets/blip.wav", __FILE__)) }
+  let(:buffer) { SFML::SoundBuffer.load(File.expand_path("../../../fixtures/blip.wav", __FILE__)) }
 
   it "starts in :stopped state" do
     sound = described_class.new(buffer, volume: 0)

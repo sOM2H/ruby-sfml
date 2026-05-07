@@ -14,7 +14,7 @@
 #
 # Esc to quit.
 #
-#     bundle exec ruby examples/joystick_demo.rb
+#     bundle exec ruby examples/08_joystick_demo/joystick_demo.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

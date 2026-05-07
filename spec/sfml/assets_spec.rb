@@ -1,12 +1,11 @@
 RSpec.describe SFML::Assets do
-  let(:assets_dir)        { File.expand_path("../../examples/assets",       __dir__) }
-  let(:bundled_fonts_dir) { File.expand_path("../../lib/sfml/assets/fonts", __dir__) }
+  let(:fixtures_dir) { File.expand_path("../fixtures", __dir__) }
 
   before do
-    # Include both the example asset dir (for blip.wav) and our bundled
-    # fonts dir (for DejaVuSans.ttf) so these specs don't depend on what
-    # the host system happens to have installed.
-    described_class.search_paths = [assets_dir, bundled_fonts_dir]
+    # Self-contained: spec/fixtures/ holds blip.wav + DejaVuSans.ttf, so
+    # these specs neither depend on what's installed on the host nor on
+    # the layout of examples/.
+    described_class.search_paths = [fixtures_dir]
     described_class.clear
   end
 

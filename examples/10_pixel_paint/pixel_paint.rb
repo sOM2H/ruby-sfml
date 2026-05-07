@@ -16,7 +16,7 @@
 #   s                  save canvas to ./pixel_paint.png
 #   Esc                quit
 #
-#     bundle exec ruby examples/pixel_paint.rb
+#     bundle exec ruby examples/10_pixel_paint/pixel_paint.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

@@ -9,7 +9,7 @@
 #
 # Esc or close button to quit.
 #
-#     bundle exec ruby examples/bouncing_ball.rb
+#     bundle exec ruby examples/03_bouncing_ball/bouncing_ball.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"

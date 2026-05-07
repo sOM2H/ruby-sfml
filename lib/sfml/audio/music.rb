@@ -28,10 +28,12 @@ module SFML
 
     def duration = Time.from_native(C::Audio.sfMusic_getDuration(@handle))
 
-    def looping? = C::Audio.sfMusic_isLooping(@handle)
+    def looping?
+      C::Audio.sfMusic_isLooping(@handle) != 0
+    end
 
     def looping=(value)
-      C::Audio.sfMusic_setLooping(@handle, !!value)
+      C::Audio.sfMusic_setLooping(@handle, value ? 1 : 0)
     end
 
     def volume = C::Audio.sfMusic_getVolume(@handle)

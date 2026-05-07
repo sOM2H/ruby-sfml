@@ -36,10 +36,12 @@ module SFML
     def paused?     = status == :paused
     def stopped?    = status == :stopped
 
-    def looping?    = C::Audio.sfSound_isLooping(@handle)
+    def looping?
+      C::Audio.sfSound_isLooping(@handle) != 0
+    end
 
     def looping=(value)
-      C::Audio.sfSound_setLooping(@handle, !!value)
+      C::Audio.sfSound_setLooping(@handle, value ? 1 : 0)
     end
 
     def volume      = C::Audio.sfSound_getVolume(@handle)

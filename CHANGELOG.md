@@ -31,6 +31,12 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `SFML::Network::SocketSelector` — multiplex many sockets onto one
+  blocking `wait`. `add` / `remove` / `clear` / `wait(timeout:)`
+  / `ready?(socket)`. Polymorphic across `TcpListener`, `TcpSocket`,
+  `UdpSocket`. The `wait` call releases the GVL, so other Ruby
+  threads keep running during the syscall. Wraps the
+  `sfSocketSelector_*` family.
 - `SFML::Network::Ftp` — CSFML's FTP client wrapped as idiomatic Ruby:
   `connect`, `login` / `login_anonymous`, `working_directory`,
   `directory_listing`, `change_directory`, `parent_directory`,

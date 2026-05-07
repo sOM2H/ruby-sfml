@@ -112,6 +112,25 @@ module SFML
                       :http_response_t,
                       blocking: true
 
+      # ---- SocketSelector ----
+      typedef :pointer, :socket_selector_t
+
+      attach_function :sfSocketSelector_create,             [], :socket_selector_t
+      attach_function :sfSocketSelector_copy,               [:socket_selector_t], :socket_selector_t
+      attach_function :sfSocketSelector_destroy,            [:socket_selector_t], :void
+      attach_function :sfSocketSelector_addTcpListener,     [:socket_selector_t, :tcp_listener_t], :void
+      attach_function :sfSocketSelector_addTcpSocket,       [:socket_selector_t, :tcp_socket_t], :void
+      attach_function :sfSocketSelector_addUdpSocket,       [:socket_selector_t, :udp_socket_t], :void
+      attach_function :sfSocketSelector_removeTcpListener,  [:socket_selector_t, :tcp_listener_t], :void
+      attach_function :sfSocketSelector_removeTcpSocket,    [:socket_selector_t, :tcp_socket_t], :void
+      attach_function :sfSocketSelector_removeUdpSocket,    [:socket_selector_t, :udp_socket_t], :void
+      attach_function :sfSocketSelector_clear,              [:socket_selector_t], :void
+      attach_function :sfSocketSelector_wait,
+                      [:socket_selector_t, System::Time.by_value], :bool, blocking: true
+      attach_function :sfSocketSelector_isTcpListenerReady, [:socket_selector_t, :tcp_listener_t], :bool
+      attach_function :sfSocketSelector_isTcpSocketReady,   [:socket_selector_t, :tcp_socket_t], :bool
+      attach_function :sfSocketSelector_isUdpSocketReady,   [:socket_selector_t, :udp_socket_t], :bool
+
       # ---- FTP ----
       typedef :pointer, :ftp_t
       typedef :pointer, :ftp_response_t

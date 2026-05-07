@@ -96,7 +96,23 @@ module SFML
       typedef :pointer, :view_t
       typedef :pointer, :image_t
       typedef :pointer, :vertex_array_t
+      typedef :pointer, :shader_t
       typedef :pointer, :render_states_t
+
+      # GLSL types: vec2/vec3 are typedef'd to sfVector2f/sfVector3f, so
+      # we don't need separate structs for those. The other arities are
+      # fresh struct shapes.
+      class GlslVec4 < FFI::Struct
+        layout :x, :float, :y, :float, :z, :float, :w, :float
+      end
+
+      class GlslIvec3 < FFI::Struct
+        layout :x, :int32, :y, :int32, :z, :int32
+      end
+
+      class GlslIvec4 < FFI::Struct
+        layout :x, :int32, :y, :int32, :z, :int32, :w, :int32
+      end
 
       class Vertex < FFI::Struct
         layout :position,   System::Vector2f,
@@ -315,6 +331,26 @@ module SFML
       attach_function :sfRenderTexture_drawConvexShape,     [:render_texture_t, :convex_shape_t,     :render_states_t], :void
       attach_function :sfRenderTexture_drawText,            [:render_texture_t, :text_t,             :render_states_t], :void
       attach_function :sfRenderTexture_drawVertexArray,     [:render_texture_t, :vertex_array_t,     :render_states_t], :void
+
+      # ---- Shader ----
+      attach_function :sfShader_createFromFile,   [:string, :string, :string], :shader_t
+      attach_function :sfShader_createFromMemory, [:string, :string, :string], :shader_t
+      attach_function :sfShader_destroy,          [:shader_t], :void
+      attach_function :sfShader_isAvailable,      [], :bool
+      attach_function :sfShader_isGeometryAvailable, [], :bool
+
+      attach_function :sfShader_setFloatUniform,  [:shader_t, :string, :float], :void
+      attach_function :sfShader_setVec2Uniform,   [:shader_t, :string, System::Vector2f.by_value], :void
+      attach_function :sfShader_setVec3Uniform,   [:shader_t, :string, System::Vector3f.by_value], :void
+      attach_function :sfShader_setVec4Uniform,   [:shader_t, :string, GlslVec4.by_value], :void
+      attach_function :sfShader_setIntUniform,    [:shader_t, :string, :int32], :void
+      attach_function :sfShader_setIvec2Uniform,  [:shader_t, :string, System::Vector2i.by_value], :void
+      attach_function :sfShader_setIvec3Uniform,  [:shader_t, :string, GlslIvec3.by_value], :void
+      attach_function :sfShader_setIvec4Uniform,  [:shader_t, :string, GlslIvec4.by_value], :void
+      attach_function :sfShader_setBoolUniform,   [:shader_t, :string, :bool], :void
+      attach_function :sfShader_setColorUniform,  [:shader_t, :string, Color.by_value], :void
+      attach_function :sfShader_setTextureUniform,[:shader_t, :string, :texture_t], :void
+      attach_function :sfShader_setCurrentTextureUniform, [:shader_t, :string], :void
 
       # ---- Font ----
       attach_function :sfFont_createFromFile, [:string], :font_t

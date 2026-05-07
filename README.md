@@ -71,7 +71,7 @@ end
 | -------- | ------------------------------------------------------------ |
 | System   | `Vector2`, `Vector3`, `Rect`, `Time`, `Clock`                |
 | Window   | `RenderWindow`, `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick` |
-| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View`, `BlendMode`, `RenderStates` |
+| Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `Font`, `Text`, `View`, `BlendMode`, `RenderStates`, `Shader` |
 | Audio    | `SoundBuffer`, `Sound`, `Music`                              |
 | Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
 
@@ -102,6 +102,7 @@ bundle exec ruby examples/<NN_name>/<name>.rb
 | 11  | [particles](examples/11_particles/particles.rb)                                | Thousands of points in one draw call via `VertexArray` + `ConvexShape` ground |
 | 12  | [render_texture](examples/12_render_texture/render_texture.rb)                 | Off-screen `RenderTexture` for trail / motion-blur effects        |
 | 13  | [tilemap](examples/13_tilemap/tilemap.rb)                                      | Textured `VertexArray` tilemap + additive `BlendMode` torch       |
+| 14  | [shader_wave](examples/14_shader_wave/shader_wave.rb)                          | GLSL fragment `Shader` — animated wave distortion with chromatic shift |
 
 ## Architecture
 

@@ -78,10 +78,21 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install csfml
 
+      # SFML opens an X11 display for things like sfVideoMode_getDesktopMode.
+      # GitHub's Linux runners are headless, so wrap the test run in xvfb.
+      - name: Install xvfb (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y xvfb
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
-      - name: Run specs
+      - name: Run specs (Linux, under xvfb)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a bundle exec rake spec
+
+      - name: Run specs (macOS)
+        if: runner.os == 'macOS'
         run: bundle exec rake spec

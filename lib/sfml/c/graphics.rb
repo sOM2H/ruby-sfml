@@ -43,6 +43,7 @@ module SFML
       typedef :pointer, :rectangle_shape_t
       typedef :pointer, :font_t
       typedef :pointer, :text_t
+      typedef :pointer, :view_t
       typedef :pointer, :render_states_t
 
       attach_function :sfRenderWindow_drawSprite,
@@ -59,6 +60,35 @@ module SFML
                       [:render_window_t], System::Vector2i.by_value
       attach_function :sfMouse_setPositionRenderWindow,
                       [System::Vector2i.by_value, :render_window_t], :void
+
+      # ---- View ----
+      attach_function :sfView_create,         [], :view_t
+      attach_function :sfView_createFromRect, [FloatRect.by_value], :view_t
+      attach_function :sfView_copy,           [:view_t], :view_t
+      attach_function :sfView_destroy,        [:view_t], :void
+      attach_function :sfView_setCenter,      [:view_t, System::Vector2f.by_value], :void
+      attach_function :sfView_getCenter,      [:view_t], System::Vector2f.by_value
+      attach_function :sfView_setSize,        [:view_t, System::Vector2f.by_value], :void
+      attach_function :sfView_getSize,        [:view_t], System::Vector2f.by_value
+      attach_function :sfView_setRotation,    [:view_t, :float], :void
+      attach_function :sfView_getRotation,    [:view_t], :float
+      attach_function :sfView_setViewport,    [:view_t, FloatRect.by_value], :void
+      attach_function :sfView_getViewport,    [:view_t], FloatRect.by_value
+      attach_function :sfView_move,           [:view_t, System::Vector2f.by_value], :void
+      attach_function :sfView_rotate,         [:view_t, :float], :void
+      attach_function :sfView_zoom,           [:view_t, :float], :void
+
+      # RenderWindow ↔ View bridge
+      attach_function :sfRenderWindow_setView,        [:render_window_t, :view_t], :void
+      attach_function :sfRenderWindow_getView,        [:render_window_t], :view_t
+      attach_function :sfRenderWindow_getDefaultView, [:render_window_t], :view_t
+
+      attach_function :sfRenderWindow_mapPixelToCoords,
+                      [:render_window_t, System::Vector2i.by_value, :view_t],
+                      System::Vector2f.by_value
+      attach_function :sfRenderWindow_mapCoordsToPixel,
+                      [:render_window_t, System::Vector2f.by_value, :view_t],
+                      System::Vector2i.by_value
 
       # ---- Texture ----
       attach_function :sfTexture_createFromFile, [:string, :pointer], :texture_t

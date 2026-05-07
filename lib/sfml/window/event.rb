@@ -122,6 +122,13 @@ module SFML
         c = C::Window::JoystickConnectEvent.new(ptr)
         { joystick_id: c[:joystick_id] }
 
+      when :touch_began, :touch_moved, :touch_ended
+        t = C::Window::TouchEvent.new(ptr)
+        {
+          finger:   t[:finger],
+          position: Vector2.new(t[:position][:x], t[:position][:y]),
+        }
+
       else
         EMPTY
       end

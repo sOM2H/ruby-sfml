@@ -104,6 +104,18 @@ module SFML
                :joystick_id, :uint32
       end
 
+      class TouchEvent < FFI::Struct
+        layout :type,     :int,
+               :finger,   :uint32,
+               :position, System::Vector2i
+      end
+
+      class SensorEvent < FFI::Struct
+        layout :type,   :int,
+               :sensor, :int,
+               :value,  System::Vector3f
+      end
+
       # sfEvent is a C union. The largest variant (KeyEvent on x86_64: 4+4+4+4
       # = 20 bytes) defines the union size; we allocate a buffer that big and
       # reinterpret per-type. We use a Struct (not Union) here because Ruby
@@ -155,6 +167,10 @@ module SFML
       attach_function :sfJoystick_getAxisPosition, [:uint32, :int], :float
       attach_function :sfJoystick_getIdentification, [:uint32], JoystickIdentification.by_value
       attach_function :sfJoystick_update,          [], :void
+
+      # ---- Touch ----
+      attach_function :sfTouch_isDown,        [:uint32], :bool
+      attach_function :sfTouch_getPosition,   [:uint32, :pointer], System::Vector2i.by_value
 
       # ---- Bare Window (no rendering) ----
       # SFML 3 splits sf::Window (pure window + GL context) from

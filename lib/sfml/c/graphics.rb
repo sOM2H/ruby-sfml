@@ -156,6 +156,10 @@ module SFML
       attach_function :sfMouse_setPositionRenderWindow,
                       [System::Vector2i.by_value, :render_window_t], :void
 
+      # Touch position relative to a render-window.
+      attach_function :sfTouch_getPositionRenderWindow,
+                      [:uint32, :render_window_t], System::Vector2i.by_value
+
       # ---- View ----
       attach_function :sfView_create,         [], :view_t
       attach_function :sfView_createFromRect, [FloatRect.by_value], :view_t

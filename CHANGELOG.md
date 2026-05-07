@@ -31,6 +31,12 @@ ruby-sfml's own patch level.
   drag the window. Accepts `[w, h]`, `Vector2`, or `nil` (clears the
   limit). Wraps `sfWindow_setMinimumSize` / `setMaximumSize` and the
   RenderWindow equivalents.
+- `SFML::Touch` polling module — `down?(finger)` and
+  `position(finger, relative_to: window)`. Touch event variants
+  (`:touch_began`, `:touch_moved`, `:touch_ended`) now decode their
+  `finger:` and `position:` payloads (previously fell through to
+  empty data). Wraps `sfTouch_isDown` / `sfTouch_getPosition` /
+  `sfTouch_getPositionRenderWindow`.
 - `Sound#playing_offset` / `playing_offset=` and `Music#playing_offset`
   / `playing_offset=` — read or seek the playback head as a
   `SFML::Time`. Setter also accepts a Numeric (interpreted as

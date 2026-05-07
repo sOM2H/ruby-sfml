@@ -81,7 +81,56 @@ end
 | Audio    | `SoundBuffer`, `Sound`, `Music`, `Listener`, `SoundRecorder`, `SoundBufferRecorder` (3D positional audio supported on Sound and Music) |
 | Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
 
-**Network**: `IpAddress`, `TcpSocket`, `TcpListener`, `UdpSocket` for stream / datagram networking — `SFML::Http` and `SFML::Ftp` are intentionally not wrapped (Ruby's stdlib `Net::HTTP` / `Net::FTP` are nicer).
+**Network**: `IpAddress`, `TcpSocket`, `TcpListener`, `UdpSocket` for stream / datagram networking.
+
+## What's intentionally *not* wrapped
+
+CSFML 3 has a few corners we deliberately don't expose. Each is either
+(a) niche enough not to justify the surface area, (b) better served by
+a Ruby standard library, or (c) requires patterns that don't translate
+cleanly to FFI.
+
+**Use Ruby stdlib instead**
+- `sf::Http` — `Net::HTTP` is a better Ruby fit
+- `sf::Ftp` — `Net::FTP` likewise
+- `sf::SocketSelector` — `IO.select` or [Async](https://github.com/socketry/async)
+
+**Callback-based APIs that fight FFI / the GVL**
+- Raw `sf::SoundRecorder` (per-buffer callbacks on the audio thread) —
+  use `SFML::SoundBufferRecorder` for "record into memory, save on stop"
+- `sf::SoundStream` (custom audio source via inheritance) — niche; if
+  you need it, generate samples to a file and play via `Music`
+
+**Mobile / niche inputs** (SFML 3 itself treats these as experimental)
+- `sf::Touch`, `sf::Sensor` (accelerometer, gyro, etc.)
+
+**Advanced graphics features**
+- `sf::VertexBuffer` (static GPU vertex buffer) — `VertexArray` covers
+  the common case; if you need static-mesh perf, open an issue
+- Geometry shaders — only vertex and fragment stages on `SFML::Shader`
+- `sf::Shader#setUniformArray` (bulk uniforms) — set elements one by one
+- Stencil buffer ops (`clearStencil`, custom `StencilMode`) — accept
+  CSFML defaults
+- `sf::Image#saveToMemory` — only `Image#save(path)` is wrapped
+
+**Advanced audio features**
+- Sound / Music cones, velocity, Doppler factor, custom DSP via
+  `setEffectProcessor` — basic 3D positional + attenuation is in;
+  the rest is rarely used in 2D gamedev
+- `sf::Listener` cone — same reasoning
+
+**Embedding / integration corners**
+- `RenderWindow.createFromHandle` (embed in another framework's window)
+- Custom `sf::InputStream` for loading assets from non-file sources
+- Window icon, min/max size, native handle accessors on `SFML::Window`
+
+**Other Ruby bindings worth knowing about**
+- SFML 2.x is *not* covered. The previous-generation gem
+  [rbSFML](https://github.com/Groogy/rbSFML) targets SFML 2; it's
+  unmaintained and only works with Ruby ≤ 2.2.
+
+If anything in the list above is blocking you, **open an issue** —
+"niche" is just a default, not a closed door.
 
 ## Examples
 

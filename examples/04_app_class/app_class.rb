@@ -1,15 +1,27 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Same idea as bouncing_ball.rb but built on top of SFML::Game. Compare the
-# two files to see how much boilerplate the lifecycle class removes.
+# Same idea as bouncing_ball.rb but built on top of SFML::App.
+# Compare the two files to see how much boilerplate the lifecycle
+# class removes.
 #
-#     bundle exec ruby examples/04_game_class/game_class.rb
+#     bundle exec ruby examples/04_app_class/app_class.rb
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "sfml"
 
-class BouncingBall < SFML::Game
+class BouncingBall < SFML::App
+  # Class-level config — every instance picks these up. Per-instance
+  # kwargs to `.new` still override on a case-by-case basis.
+  width        800
+  height       600
+  title        "SFML::App — bouncing ball"
+  background   SFML::Color["#1a1a1a"]
+  antialiasing 4
+
+  on_key :escape, :quit
+  on_key :space  do |app| app.recenter end
+
   RADIUS = 25
 
   def setup
@@ -44,18 +56,9 @@ class BouncingBall < SFML::Game
     window.draw(@ball)
   end
 
-  def on_event(event)
-    case event
-    in {type: :key_pressed, code: :space}
-      @ball.position = [width / 2, height / 2]
-    else # ignore
-    end
+  def recenter
+    @ball.position = [width / 2, height / 2]
   end
 end
 
-BouncingBall.new(
-  width:      800,
-  height:     600,
-  title:      "SFML::Game — bouncing ball",
-  background: SFML::Color["#1a1a1a"],
-).run
+BouncingBall.new.run

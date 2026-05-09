@@ -79,12 +79,15 @@ module SFML
 
       typedef :pointer, :render_window_t
 
-      # See CSFML/Graphics/RenderWindow.h. We pass NULL for sfContextSettings
-      # in the high-level wrapper; that matches SFML defaults.
+      # See CSFML/Graphics/RenderWindow.h. The fifth param is a
+      # `const sfContextSettings*` — pass `nil` for SFML defaults
+      # or the pointer to a populated ContextSettings struct for
+      # MSAA / depth-buffer / GL-version tuning.
       attach_function :sfRenderWindow_create,
                       [Window::VideoMode.by_value, :string, :uint32, :int, :pointer],
                       :render_window_t
 
+      attach_function :sfRenderWindow_getSettings, [:render_window_t], Window::ContextSettings.by_value
       attach_function :sfRenderWindow_destroy,                [:render_window_t], :void
       attach_function :sfRenderWindow_close,                  [:render_window_t], :void
       attach_function :sfRenderWindow_isOpen,                 [:render_window_t], :bool

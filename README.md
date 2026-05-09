@@ -61,25 +61,29 @@ out-of-date library never falls through to a cryptic segfault:
 - **At `require "sfml"`** — the same probe runs as a runtime sanity
   check, in case libraries were swapped between install and use.
 
-## A 12-line game
+## A 13-line app
 
 ```ruby
 require "sfml"
 
-class Hello < SFML::Game
+class Hello < SFML::App
+  title        "Hello"
+  background   SFML::Color.cornflower_blue
+  antialiasing 4
+
   def setup
     @ball = SFML::CircleShape.new(radius: 30, fill_color: SFML::Color.white,
                                   position: [200, 200])
   end
 
-  def update(dt)  = @ball.move(60 * dt.as_seconds * SFML::Vector2[1, 0])
-  def draw        = window.draw(@ball)
+  def update(dt) = @ball.move(60 * dt.as_seconds * SFML::Vector2[1, 0])
+  def draw       = window.draw(@ball)
 end
 
-Hello.new(title: "Hello", background: SFML::Color.cornflower_blue).run
+Hello.new.run
 ```
 
-`SFML::Game` handles window creation, the main loop, event pumping, dt, and the Esc/close-button quit. Override `setup` / `update` / `draw` / `on_event`. Drop into the manual loop style any time you want full control.
+`SFML::App` handles window creation, the main loop, event pumping, dt, and the Esc/close-button quit. Override `setup` / `update` / `draw` / `on_event`. Class-level macros (`title`, `framerate`, `antialiasing`, `background`, ...) set per-class defaults; per-instance kwargs to `.new` still override on a case-by-case basis. Drop into the manual loop style any time you want full control.
 
 ## A 5-line manual loop
 
@@ -156,7 +160,7 @@ bundle exec ruby examples/<NN_name>/<name>.rb
 | 01  | [hello_window](examples/01_hello_window/hello_window.rb)                       | Empty window, manual event loop                                     |
 | 02  | [events_demo](examples/02_events_demo/events_demo.rb)                          | Pattern matching on input events                                    |
 | 03  | [bouncing_ball](examples/03_bouncing_ball/bouncing_ball.rb)                    | dt-based physics, `CircleShape` + `RectangleShape`                  |
-| 04  | [game_class](examples/04_game_class/game_class.rb)                             | Same idea on top of `SFML::Game`                                    |
+| 04  | [app_class](examples/04_app_class/app_class.rb)                                 | Same idea on top of `SFML::App`                                     |
 | 05  | [mouse_demo](examples/05_mouse_demo/mouse_demo.rb)                             | Polling vs. events; paint with the mouse                            |
 | 06  | [pong](examples/06_pong/pong.rb)                                               | Two-player Pong with in-window score (`Text`) and bounce `Sound`    |
 | 07  | [scrolling_world](examples/07_scrolling_world/scrolling_world.rb)              | `View` as a 2D camera: drag-pan, wheel-zoom around cursor, FPS HUD  |

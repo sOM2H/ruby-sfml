@@ -24,30 +24,50 @@ module SFML
     # The second form takes (video_mode, title, **opts) for full control.
     #
     # Options:
-    #   style:      bitmask of SFML::C::Window::Style constants
-    #   fullscreen: true to use sfFullscreen state instead of sfWindowed
-    #   framerate:  cap to N FPS via sfRenderWindow_setFramerateLimit
-    #   vsync:      enable vertical sync
+    #   style:        bitmask of SFML::C::Window::Style constants
+    #   fullscreen:   true to use sfFullscreen state instead of sfWindowed
+    #   framerate:    cap to N FPS via sfRenderWindow_setFramerateLimit
+    #   vsync:        enable vertical sync
+    #   antialiasing: shorthand — MSAA level (2 / 4 / 8). Same as
+    #                 passing `context: ContextSettings.new(antialiasing: N)`
+    #   context:      a SFML::ContextSettings for full GL-context control
     def initialize(*args, **opts)
       mode, title = parse_args(args)
       style = opts.fetch(:style, DEFAULT_STYLE)
       state = opts[:fullscreen] ? :fullscreen : :windowed
+
+      settings = _resolve_context_settings(opts)
+      # Hold a reference for the duration of the C call so the
+      # struct's memory survives until CSFML has copied it.
+      @ctx_struct = settings ? settings.to_native : nil
+      ctx_ptr     = @ctx_struct ? @ctx_struct.to_ptr : nil
 
       ptr = C::Graphics.sfRenderWindow_create(
         mode.to_native,
         title.to_s,
         style,
         C::Window::State[state],
-        nil,
+        ctx_ptr,
       )
       raise Error, "sfRenderWindow_create returned NULL" if ptr.null?
 
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfRenderWindow_destroy))
       @event_buffer = C::Window::Event.new
+      @requested_context = settings
 
       self.framerate_limit = opts[:framerate] if opts[:framerate]
       self.vsync = opts[:vsync]               unless opts[:vsync].nil?
     end
+
+    # The actual ContextSettings the driver gave us. May differ
+    # from what we requested — the driver picks the closest level
+    # of MSAA / GL version it supports.
+    def context_settings
+      ContextSettings.from_native(C::Graphics.sfRenderWindow_getSettings(@handle))
+    end
+
+    # What we asked for at creation time, if anything (otherwise nil).
+    attr_reader :requested_context
 
     def open?
       C::Graphics.sfRenderWindow_isOpen(@handle)
@@ -181,6 +201,17 @@ module SFML
     attr_reader :handle # :nodoc:
 
     private
+
+    def _resolve_context_settings(opts)
+      if opts[:context]
+        unless opts[:context].is_a?(ContextSettings)
+          raise ArgumentError, "context: must be a SFML::ContextSettings"
+        end
+        opts[:context]
+      elsif opts[:antialiasing]
+        ContextSettings.new(antialiasing: opts[:antialiasing])
+      end
+    end
 
     def _vec2u_or_nil(value)
       return nil if value.nil?

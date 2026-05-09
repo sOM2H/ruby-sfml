@@ -10,6 +10,36 @@ module SFML
                :bits_per_pixel, :uint32
       end
 
+      # sfContextSettings — passed to sfWindow_create / sfRenderWindow_create
+      # to configure the underlying OpenGL context. Field order and types
+      # match CSFML/Window/Window.h exactly:
+      #
+      #   typedef struct {
+      #     unsigned int depthBits;
+      #     unsigned int stencilBits;
+      #     unsigned int antiAliasingLevel;
+      #     unsigned int majorVersion;
+      #     unsigned int minorVersion;
+      #     uint32_t     attributeFlags;
+      #     bool         sRgbCapable;
+      #   } sfContextSettings;
+      class ContextSettings < FFI::Struct
+        layout :depth_bits,         :uint32,
+               :stencil_bits,       :uint32,
+               :anti_aliasing_level,:uint32,
+               :major_version,      :uint32,
+               :minor_version,      :uint32,
+               :attribute_flags,    :uint32,
+               :s_rgb_capable,      :bool
+      end
+
+      # Context attribute bitmask values — match SFML's enum.
+      module ContextAttribute
+        DEFAULT = 0
+        CORE    = 1 << 0
+        DEBUG   = 1 << 2
+      end
+
       # sfStyle is a bitmask. sfWindowState is a plain enum.
       module Style
         NONE     = 0

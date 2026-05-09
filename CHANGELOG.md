@@ -8,6 +8,88 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+## [3.0.0.2] — 2026-05-09
+
+### Added
+- **`SFML::App`** — renamed from `SFML::Game` (the old name still
+  works as a deprecated alias and will go in a future major
+  release). The class is a subclass-friendly main loop that's
+  appropriate for any kind of app, not only games — the rename
+  reflects that.
+- Class-level configuration DSL for `SFML::App`. Defaults that
+  used to be passed to `.new` can now be declared in the class
+  body and inherited:
+  ```ruby
+  class MyApp < SFML::App
+    width        800
+    height       600
+    title        "Smooth"
+    framerate    120
+    antialiasing 4
+    background   SFML::Color["#1a1a1a"]
+  end
+  ```
+  Per-instance kwargs to `.new` still override on a case-by-case
+  basis. Available macros: `width`, `height`, `title`, `framerate`,
+  `vsync`, `background`, `style`, `fullscreen`, `antialiasing`,
+  `context`.
+- **`SFML::ContextSettings`** — configures the OpenGL context the
+  window backs onto: anti-aliasing level, depth/stencil bits, GL
+  version. The fifth argument to `sfRenderWindow_create` is no
+  longer `NULL` by default; pass `antialiasing: 4` (or
+  `context: SFML::ContextSettings.new(...)`) to
+  `RenderWindow.new` / `SFML::App.new` to turn on MSAA. Read back
+  what the driver actually gave you with
+  `window.context_settings`. Wraps `sfContextSettings` and
+  `sfRenderWindow_getSettings`.
+- **`on_key`** — class-level keybinding DSL. Bind a key to an
+  instance method, a Proc, or a block; bindings inherit through
+  subclasses with later definitions shadowing earlier ones:
+  ```ruby
+  class MyApp < SFML::App
+    on_key :escape, :quit
+    on_key :f11,    :toggle_fullscreen
+    on_key :p       do |app| app.toggle_pause end
+  end
+  ```
+  Bindings live as the class's `key_handlers` Hash; the same DSL
+  is also available on `SFML::Scene`, where scene-level bindings
+  shadow app-level ones for the active scene.
+- **`pause` / `resume` / `toggle_pause` / `paused?`** on
+  `SFML::App` — while paused, `update(dt)` is skipped but `draw`
+  continues, so a pause overlay can be drawn on top of a frozen
+  scene.
+- **`on_resize(width, height)`** hook on `SFML::App` and
+  `SFML::Scene` — replaces the `case event in {type: :resized,
+  size: {x:, y:}}` boilerplate that used to live inside
+  `on_event`. Default forwards to the active scene.
+- **`SFML::Scene`** — base class for stateful screens (menu,
+  gameplay, game-over, etc.). Lifecycle hooks (`setup` /
+  `update` / `draw` / `on_event` / `on_resize` / `teardown`),
+  its own `on_key` DSL, and a `switch_to(other)` shortcut that
+  delegates to the host app. The host app picks a starting scene
+  with the `initial_scene SomeScene` class macro; `App.switch_to`
+  tears down the previous scene before calling `setup` on the
+  new one.
+- New example
+  [24_scenes](examples/24_scenes/scenes.rb) — Title → Play scene
+  pair built on `SFML::Scene` + `initial_scene`.
+
+### Changed
+- The old example `04_game_class` is now `04_app_class` and
+  uses `SFML::App` plus class-level config (matches the new
+  default style). The companion file is `app_class.rb`.
+- `SFML::App._dispatch` no longer auto-quits on Esc. Apps that
+  want it bind it explicitly with `on_key :escape, :quit`. The
+  window-close button (`:closed`) still always quits.
+
+### Deprecated
+- `SFML::Game` — alias of `SFML::App`. Will be removed in a
+  future major release. Migrating is mechanical: rename the
+  superclass and the constructor kwargs you keep at `.new` —
+  `framerate:` / `background:` still work; consider moving them
+  into the class body via the new DSL.
+
 ## [3.0.0.1] — 2026-05-07
 
 ### Added

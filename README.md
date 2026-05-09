@@ -8,7 +8,7 @@ Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [C
 [![gem version](https://img.shields.io/gem/v/ruby-sfml.svg)](https://rubygems.org/gems/ruby-sfml)
 [![docs](https://img.shields.io/badge/docs-rubydoc.info-blue.svg)](https://www.rubydoc.info/gems/ruby-sfml)
 
-> **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `Game` and `Assets` helpers. 387 RSpec examples, 23 runnable example folders.
+> **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `App` / `Scene` / `Assets` helpers. 410 RSpec examples, 24 runnable example folders.
 
 ## Why
 
@@ -114,7 +114,7 @@ end
 | Window   | `RenderWindow`, `Window` (bare, GL-only), `VideoMode`, `Event`, `Keyboard`, `Mouse`, `Joystick`, `Touch`, `Sensor`, `Cursor`, `Clipboard` |
 | Graphics | `Color`, `Image`, `Texture`, `RenderTexture`, `Sprite`, `CircleShape`, `RectangleShape`, `ConvexShape`, `Vertex`, `VertexArray`, `VertexBuffer`, `Font`, `Text`, `View`, `BlendMode`, `StencilMode`, `RenderStates`, `Shader`, `Transform` |
 | Audio    | `SoundBuffer`, `Sound`, `Music`, `Listener`, `SoundCone`, `SoundStream`, `SoundRecorder`, `SoundBufferRecorder` (3D positional + cones + Doppler + custom DSP via `effect_processor=`) |
-| Helpers  | `Assets` (search-path + cache), `Game` (lifecycle main loop) |
+| Helpers  | `Assets` (search-path + cache), `App` (lifecycle main loop with class-level config + `on_key` DSL + `pause` / `on_resize`), `Scene` (stateful screens + `switch_to` between them), `ContextSettings` (MSAA / GL version) |
 
 **Network**: `IpAddress`, `TcpSocket`, `TcpListener`, `UdpSocket`, `SocketSelector` for stream / datagram networking, plus the niche `Http` and `Ftp` clients (use Ruby's `Net::HTTP` / `Net::FTP` if you have the choice — these exist for parity with CSFML).
 
@@ -246,13 +246,24 @@ When SFML 3.1 / CSFML 3.1 ships, only the bottom layer typically needs to move.
 
 ```sh
 bundle install
-bundle exec rspec        # 287 examples
+bundle exec rspec        # 410 examples (all subsystems on Linux)
 bundle exec rake rdoc    # generate HTML docs in doc/ (Aliki theme via RDoc 7)
 ```
 
 The spec suite hits real CSFML for everything that isn't pure Ruby — `Clock` reads the real monotonic clock, `Text#local_bounds` measures real glyphs, audio loads a WAV — so a green run also confirms the FFI bindings line up. `spec/fixtures/` holds the only assets the suite touches (a font and a tiny WAV) so tests are independent of `examples/`.
 
 CI runs the full suite on Ubuntu and macOS × Ruby 3.2 / 3.3 / 3.4. Linux builds CSFML 3 from source (cached), then runs specs under `xvfb-run` so the headless runner has an X server for `RenderWindow`.
+
+### Audio specs on macOS
+
+CoreAudio + the CSFML OpenAL backend occasionally hang an audio test group on macOS. To keep a darwin run reliable, every spec under `spec/sfml/audio/` is auto-tagged `:audio` and **excluded by default on darwin**. Force them in when you do want to run them:
+
+```sh
+bundle exec rspec --tag audio                  # only audio specs
+bundle exec rspec spec/sfml/audio/sound_spec.rb --tag audio   # one file
+```
+
+On Linux the `:audio` filter doesn't fire — the whole suite runs by default.
 
 ## License
 

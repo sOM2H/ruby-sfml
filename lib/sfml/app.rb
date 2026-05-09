@@ -254,11 +254,4 @@ module SFML
       end
     end
   end
-
-  # Deprecated alias — `SFML::Game` was renamed to `SFML::App` in
-  # 3.0.0.2. Existing subclasses keep working; the alias will be
-  # removed in a future major release. Prefer `SFML::App` in new
-  # code and any class-level config DSL (`on_key`, `initial_scene`,
-  # `pause` / `resume`, `on_resize`) is App-only.
-  Game = App
 end

@@ -25,7 +25,7 @@ module SFML
   #     # …
   #   end
   #
-  #   class MyGame < SFML::App
+  #   class MyApp < SFML::App
   #     initial_scene TitleScene   # auto-switches to it on app setup
   #   end
   #

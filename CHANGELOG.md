@@ -11,11 +11,9 @@ ruby-sfml's own patch level.
 ## [3.0.0.2] — 2026-05-09
 
 ### Added
-- **`SFML::App`** — renamed from `SFML::Game` (the old name still
-  works as a deprecated alias and will go in a future major
-  release). The class is a subclass-friendly main loop that's
-  appropriate for any kind of app, not only games — the rename
-  reflects that.
+- **`SFML::App`** — subclass-friendly main loop. Removes the
+  boilerplate of window creation, event pumping, dt management,
+  and clear/display so a small app fits in a few methods.
 - Class-level configuration DSL for `SFML::App`. Defaults that
   used to be passed to `.new` can now be declared in the class
   body and inherited:
@@ -64,31 +62,30 @@ ruby-sfml's own patch level.
   size: {x:, y:}}` boilerplate that used to live inside
   `on_event`. Default forwards to the active scene.
 - **`SFML::Scene`** — base class for stateful screens (menu,
-  gameplay, game-over, etc.). Lifecycle hooks (`setup` /
-  `update` / `draw` / `on_event` / `on_resize` / `teardown`),
-  its own `on_key` DSL, and a `switch_to(other)` shortcut that
-  delegates to the host app. The host app picks a starting scene
-  with the `initial_scene SomeScene` class macro; `App.switch_to`
-  tears down the previous scene before calling `setup` on the
-  new one.
+  gameplay, results screen, settings overlay, etc.). Lifecycle
+  hooks (`setup` / `update` / `draw` / `on_event` / `on_resize` /
+  `teardown`), its own `on_key` DSL, and a `switch_to(other)`
+  shortcut that delegates to the host app. The host app picks a
+  starting scene with the `initial_scene SomeScene` class macro;
+  `App.switch_to` tears down the previous scene before calling
+  `setup` on the new one.
 - New example
-  [24_scenes](examples/24_scenes/scenes.rb) — Title → Play scene
+  [24_scenes](examples/24_scenes/scenes.rb) — title → play scene
   pair built on `SFML::Scene` + `initial_scene`.
+- New example
+  [04_app_class](examples/04_app_class/app_class.rb) — bouncing
+  ball on top of `SFML::App` with class-level config and
+  `on_key` bindings (replaces the old `04_game_class` example).
 
 ### Changed
-- The old example `04_game_class` is now `04_app_class` and
-  uses `SFML::App` plus class-level config (matches the new
-  default style). The companion file is `app_class.rb`.
 - `SFML::App._dispatch` no longer auto-quits on Esc. Apps that
   want it bind it explicitly with `on_key :escape, :quit`. The
   window-close button (`:closed`) still always quits.
-
-### Deprecated
-- `SFML::Game` — alias of `SFML::App`. Will be removed in a
-  future major release. Migrating is mechanical: rename the
-  superclass and the constructor kwargs you keep at `.new` —
-  `framerate:` / `background:` still work; consider moving them
-  into the class body via the new DSL.
+- Audio specs (anything under `spec/sfml/audio/`) are now
+  auto-tagged `:audio` and skipped by default on macOS, where
+  CoreAudio + the CSFML OpenAL backend occasionally hang the
+  test group. Opt-in with `bundle exec rspec --tag audio`.
+  Linux runs the full suite as before.
 
 ## [3.0.0.1] — 2026-05-07
 
@@ -284,8 +281,8 @@ RBS signatures, hosted RDoc).
   `Net::HTTP` / `Net::FTP` — they're nicer)
 
 ### Helpers
-- `Game` — subclass-friendly main loop with `setup` / `update(dt)` /
-  `draw` / `on_event` hooks. Auto-quit on Esc + close button.
+- `App` — subclass-friendly main loop with `setup` / `update(dt)` /
+  `draw` / `on_event` hooks.
 - `Assets` — cached, search-path-driven loader.
   `SFML::Assets.font("DejaVuSans")`, `.texture(name)`, `.sound(name)`,
   `.music(name)`. Default search root is `<dir of $0>/assets/`.

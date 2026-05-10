@@ -88,12 +88,20 @@ module SFML
 
     def viewport=(rect)
       raise ArgumentError, "View#viewport= needs a SFML::Rect" unless rect.is_a?(Rect)
-      native = C::Graphics::FloatRect.new
-      native[:position][:x] = rect.x.to_f
-      native[:position][:y] = rect.y.to_f
-      native[:size][:x]     = rect.width.to_f
-      native[:size][:y]     = rect.height.to_f
-      C::Graphics.sfView_setViewport(@handle, native)
+      C::Graphics.sfView_setViewport(@handle, _to_floatrect(rect))
+    end
+
+    # Scissor rect in normalised [0,1] window coords — pixels
+    # *outside* this rect are clipped before rendering. Default
+    # `[0, 0, 1, 1]` (no clipping). Use it to render UI inside a
+    # sub-region of the window without re-projecting.
+    def scissor
+      Rect.from_native(C::Graphics.sfView_getScissor(@handle))
+    end
+
+    def scissor=(rect)
+      raise ArgumentError, "View#scissor= needs a SFML::Rect" unless rect.is_a?(Rect)
+      C::Graphics.sfView_setScissor(@handle, _to_floatrect(rect))
     end
 
     # Pan the camera by an offset in world units.
@@ -118,6 +126,15 @@ module SFML
     attr_reader :handle # :nodoc:
 
     private
+
+    def _to_floatrect(rect)
+      native = C::Graphics::FloatRect.new
+      native[:position][:x] = rect.x.to_f
+      native[:position][:y] = rect.y.to_f
+      native[:size][:x]     = rect.width.to_f
+      native[:size][:y]     = rect.height.to_f
+      native
+    end
 
     def _vec2(value)
       value.is_a?(Vector2) ? value : Vector2.new(*value)

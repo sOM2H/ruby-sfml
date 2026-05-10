@@ -70,6 +70,38 @@ module SFML
       target._draw_native(:Sprite, @handle, states_ptr)
     end
 
+    # The Texture this sprite was last bound to. Borrowed — caller
+    # is responsible for keeping the source texture alive.
+    def texture
+      ptr = C::Graphics.sfSprite_getTexture(@handle)
+      return nil if ptr.null?
+      Texture.send(:_borrow, ptr)
+    end
+
+    # Combined transform (translation + rotation + scale + origin)
+    # the renderer applies when drawing this sprite.
+    def transform
+      C::Graphics.sfSprite_getTransform(@handle)
+    end
+
+    def inverse_transform
+      C::Graphics.sfSprite_getInverseTransform(@handle)
+    end
+
+    # Deep copy — same texture binding (textures are shared GPU
+    # objects), independent transform / colour state.
+    def dup
+      ptr = C::Graphics.sfSprite_copy(@handle)
+      raise Error, "sfSprite_copy returned NULL" if ptr.null?
+
+      copy = self.class.allocate
+      copy.instance_variable_set(:@handle,
+        FFI::AutoPointer.new(ptr, C::Graphics.method(:sfSprite_destroy)))
+      copy.instance_variable_set(:@texture, @texture)   # keep source alive
+      copy
+    end
+    alias clone dup
+
     attr_reader :handle # :nodoc:
   end
 end

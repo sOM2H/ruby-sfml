@@ -95,4 +95,23 @@ RSpec.describe SFML::RenderWindow do
       expect(win.wait_event(timeout: SFML::Time.milliseconds(1))).to be_nil
     end
   end
+
+  describe "#viewport / #scissor" do
+    let(:win) { described_class.new(200, 200, "vp+scissor") }
+    after     { win.close if win.open? }
+
+    it "#viewport returns a pixel-space SFML::Rect for the active view" do
+      rect = win.viewport
+      expect(rect).to be_a(SFML::Rect)
+      expect(rect.width).to be > 0
+    end
+
+    it "#scissor returns a pixel-space SFML::Rect" do
+      expect(win.scissor).to be_a(SFML::Rect)
+    end
+
+    it "rejects non-View arguments" do
+      expect { win.scissor(:not_a_view) }.to raise_error(ArgumentError, /View/)
+    end
+  end
 end

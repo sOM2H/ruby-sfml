@@ -50,4 +50,50 @@ RSpec.describe SFML::Texture do
       expect([true, false]).to include(described_class.create(8, 8).generate_mipmap)
     end
   end
+
+  describe ".from_memory" do
+    it "decodes PNG bytes into a Texture" do
+      img   = SFML::Image.from_pixels(2, 2, "\xff\x00\x00\xff" * 4)
+      bytes = img.save_to_memory("png")
+      tex   = described_class.from_memory(bytes)
+      expect(tex.size).to eq(SFML::Vector2.new(2, 2))
+    end
+
+    it "raises on garbage bytes" do
+      expect { described_class.from_memory("not an image") }.to raise_error(SFML::Error)
+    end
+  end
+
+  describe "#resize / #swap / #native_handle / #update_from_texture" do
+    it "#resize reallocates GPU memory" do
+      tex = described_class.create(8, 8)
+      expect(tex.resize(64, 32)).to be true
+      expect(tex.size).to eq(SFML::Vector2.new(64, 32))
+    end
+
+    it "#swap exchanges GPU memory between two textures" do
+      a = described_class.create(8, 8)
+      b = described_class.create(16, 16)
+      a.swap(b)
+      expect(a.size).to eq(SFML::Vector2.new(16, 16))
+      expect(b.size).to eq(SFML::Vector2.new(8, 8))
+    end
+
+    it "#native_handle is a positive Integer (a glGenTextures id)" do
+      tex = described_class.create(8, 8)
+      expect(tex.native_handle).to be_a(Integer).and(be > 0)
+    end
+
+    it "#update_from_texture copies one texture's pixels into another" do
+      src = described_class.from_image(SFML::Image.from_pixels(8, 8,
+        "\xff\x00\x00\xff" * 64))
+      dst = described_class.create(8, 8)
+      expect { dst.update_from_texture(src) }.not_to raise_error
+    end
+
+    it "rejects non-Texture sources" do
+      tex = described_class.create(8, 8)
+      expect { tex.update_from_texture(:nope) }.to raise_error(ArgumentError, /Texture/)
+    end
+  end
 end

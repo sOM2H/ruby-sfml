@@ -212,4 +212,27 @@ RSpec.describe SFML::Shader do
       expect(shader.native_handle).to be > 0
     end
   end
+
+  describe "#set_int_color" do
+    it "uploads an SFML::Color as a vec4 uniform" do
+      next unless described_class.available?
+
+      shader = described_class.from_source(fragment: <<~GLSL)
+        uniform vec4 tint;
+        void main() { gl_FragColor = tint; }
+      GLSL
+      expect { shader.set_int_color("tint", SFML::Color.new(255, 128, 0, 200)) }
+        .not_to raise_error
+    end
+
+    it "rejects non-Color values" do
+      next unless described_class.available?
+
+      shader = described_class.from_source(fragment: <<~GLSL)
+        uniform vec4 tint;
+        void main() { gl_FragColor = tint; }
+      GLSL
+      expect { shader.set_int_color("tint", "red") }.to raise_error(ArgumentError, /Color/)
+    end
+  end
 end

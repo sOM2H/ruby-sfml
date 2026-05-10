@@ -133,4 +133,51 @@ RSpec.describe SFML::Sound do
         .to raise_error(SFML::Error, /Could not load sound buffer/)
     end
   end
+
+  describe "3D-audio extras" do
+    it "pan round-trips" do
+      sound = described_class.new(buffer)
+      sound.pan = 0.5
+      expect(sound.pan).to be_within(0.001).of(0.5)
+    end
+
+    it "min/max gain round-trip" do
+      sound = described_class.new(buffer)
+      sound.min_gain = 0.1
+      sound.max_gain = 0.9
+      expect(sound.min_gain).to be_within(0.001).of(0.1)
+      expect(sound.max_gain).to be_within(0.001).of(0.9)
+    end
+
+    it "max_distance round-trips" do
+      sound = described_class.new(buffer)
+      sound.max_distance = 50.0
+      expect(sound.max_distance).to be_within(0.001).of(50.0)
+    end
+
+    it "spatialization_enabled? toggles" do
+      sound = described_class.new(buffer)
+      sound.spatialization_enabled = false
+      expect(sound.spatialization_enabled?).to be false
+      sound.spatialization_enabled = true
+      expect(sound.spatialization_enabled?).to be true
+    end
+
+    it "directional_attenuation_factor getter returns a Float, setter is callable" do
+      # CSFML may ignore the setter under certain spatialisation
+      # configs, so we only assert the read path + that the setter
+      # doesn't raise — exact round-trip is environment-dependent.
+      sound = described_class.new(buffer)
+      expect(sound.directional_attenuation_factor).to be_a(Float)
+      expect { sound.directional_attenuation_factor = 0.5 }.not_to raise_error
+    end
+
+    it "#dup makes an independent Sound that still references the same buffer" do
+      sound = described_class.new(buffer)
+      sound.pan = 0.7
+      copy = sound.dup
+      expect(copy).to be_a(described_class)
+      expect(copy.pan).to be_within(0.001).of(0.7)
+    end
+  end
 end

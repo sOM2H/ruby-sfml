@@ -8,6 +8,57 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+## [3.0.0.4] — 2026-05-09
+
+### Added — graphics
+
+- `Sprite#dup` / `#clone`, `Sprite#texture` (borrowed reference),
+  `Sprite#transform`, `Sprite#inverse_transform`.
+- `View#scissor` / `View#scissor=` — normalised [0..1] clip rect
+  applied at render time (paired with the existing `viewport` API).
+- `Texture.from_memory(bytes, smooth:, repeated:)` — decode +
+  upload a Ruby String of bytes (PNG / JPG / BMP / TGA / …) as a
+  texture. Bypasses the disk for embedded assets / network blobs.
+- `Texture#resize(w, h)` — reallocate GPU memory in place.
+- `Texture#swap(other)` — atomically swap GPU memory between two
+  textures (cheap double-buffer pattern).
+- `Texture#native_handle` — the OpenGL texture-object name for
+  raw GL interop.
+- `Texture#update_from_texture(source, offset:)`,
+  `Texture#update_from_render_window(window, offset:)`,
+  `Texture#update_from_window(window, offset:)` — copy pixels
+  from another GPU texture / from a window's back-buffer / from a
+  bare-Window's framebuffer into this texture at `offset`.
+- `RenderWindow#viewport(view = self.view)` and
+  `RenderWindow#scissor(view = self.view)` — pixel-space
+  `SFML::Rect`s the view actually covers / clips. Same on
+  `RenderTexture`.
+- `Shader#set_int_color(name, color)` — uploads a `SFML::Color`
+  as a `vec4` uniform (CSFML normalises 0–255 → 0.0–1.0 for you).
+
+### Added — audio
+- `Sound#dup` / `#clone`, `Sound#buffer` reader.
+- `Sound#pan` / `#pan=`, `Sound#min_gain`/`#max_gain` (and `=`),
+  `Sound#max_distance` (and `=`), `Sound#spatialization_enabled?` /
+  `#spatialization_enabled=`,
+  `Sound#directional_attenuation_factor` (and `=`) — the full
+  remaining 3D-audio surface from CSFML's SoundSource.
+- Same set on `Music`: `pan`, gain clamps, max-distance,
+  spatialisation, directional-attenuation.
+- `Music#channel_count`, `Music#sample_rate` — stream introspection.
+- `Music#loop_points` / `#loop_points=` — set the looping window
+  inside a track ([offset_time, length_time] pair of `SFML::Time`s).
+- `Music.from_memory(bytes, **opts)` — stream from a Ruby String
+  of bytes (in-memory MP3 / OGG / FLAC). Caller's bytes must
+  outlive the `Music` (we pin the Ruby buffer).
+- `SoundBuffer.from_memory(bytes)` — decode `.wav` / `.ogg` /
+  `.flac` from RAM.
+- `SoundBuffer.from_samples(samples, sample_rate:, channel_count:,
+  channel_map:)` — build a buffer from a Ruby Array of int16
+  samples. Default channel maps for 1- and 2-channel content.
+- `SoundBuffer#dup`, `SoundBuffer#sample_count`,
+  `SoundBuffer#samples` — sample-level introspection.
+
 ## [3.0.0.3] — 2026-05-09
 
 ### Added — typography

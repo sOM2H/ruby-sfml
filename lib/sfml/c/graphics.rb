@@ -121,6 +121,8 @@ module SFML
       attach_function :sfRenderWindow_resetGLStates,          [:render_window_t], :void
       attach_function :sfRenderWindow_isSrgb,                 [:render_window_t], :bool
       attach_function :sfRenderWindow_waitEvent,              [:render_window_t, System::Time.by_value, :pointer], :bool
+      attach_function :sfRenderWindow_getScissor,             [:render_window_t, :pointer], IntRect.by_value
+      attach_function :sfRenderWindow_getViewport,            [:render_window_t, :pointer], IntRect.by_value
 
       typedef :pointer, :texture_t
       typedef :pointer, :render_texture_t
@@ -197,6 +199,8 @@ module SFML
       attach_function :sfView_getRotation,    [:view_t], :float
       attach_function :sfView_setViewport,    [:view_t, FloatRect.by_value], :void
       attach_function :sfView_getViewport,    [:view_t], FloatRect.by_value
+      attach_function :sfView_setScissor,     [:view_t, FloatRect.by_value], :void
+      attach_function :sfView_getScissor,     [:view_t], FloatRect.by_value
       attach_function :sfView_move,           [:view_t, System::Vector2f.by_value], :void
       attach_function :sfView_rotate,         [:view_t, :float], :void
       attach_function :sfView_zoom,           [:view_t, :float], :void
@@ -221,7 +225,17 @@ module SFML
       attach_function :sfTexture_create,         [System::Vector2u.by_value], :texture_t
       attach_function :sfTexture_createFromFile, [:string, :pointer], :texture_t
       attach_function :sfTexture_createFromImage,[:image_t, :pointer], :texture_t
+      attach_function :sfTexture_createFromMemory,[:pointer, :size_t, :pointer], :texture_t
       attach_function :sfTexture_copy,           [:texture_t], :texture_t
+      attach_function :sfTexture_resize,         [:texture_t, System::Vector2u.by_value], :bool
+      attach_function :sfTexture_swap,           [:texture_t, :texture_t], :void
+      attach_function :sfTexture_getNativeHandle,[:texture_t], :uint
+      attach_function :sfTexture_updateFromTexture,
+                      [:texture_t, :texture_t, System::Vector2u.by_value], :void
+      attach_function :sfTexture_updateFromRenderWindow,
+                      [:texture_t, :render_window_t, System::Vector2u.by_value], :void
+      attach_function :sfTexture_updateFromWindow,
+                      [:texture_t, :pointer, System::Vector2u.by_value], :void
       attach_function :sfTexture_isSrgb,         [:texture_t], :bool
       attach_function :sfTexture_generateMipmap, [:texture_t], :bool
       attach_function :sfTexture_getMaximumSize, [], :uint
@@ -275,6 +289,10 @@ module SFML
       attach_function :sfSprite_setColor,      [:sprite_t, Color.by_value], :void
       attach_function :sfSprite_getColor,      [:sprite_t], Color.by_value
       attach_function :sfSprite_setTexture,    [:sprite_t, :texture_t, :bool], :void
+      attach_function :sfSprite_getTexture,    [:sprite_t], :texture_t
+      attach_function :sfSprite_copy,          [:sprite_t], :sprite_t
+      attach_function :sfSprite_getTransform,  [:sprite_t], Transform.by_value
+      attach_function :sfSprite_getInverseTransform, [:sprite_t], Transform.by_value
 
       # ---- CircleShape ----
       attach_function :sfCircleShape_create,             [], :circle_shape_t
@@ -385,6 +403,8 @@ module SFML
       attach_function :sfRenderTexture_pushGLStates,    [:render_texture_t], :void
       attach_function :sfRenderTexture_popGLStates,     [:render_texture_t], :void
       attach_function :sfRenderTexture_resetGLStates,   [:render_texture_t], :void
+      attach_function :sfRenderTexture_getScissor,      [:render_texture_t, :view_t], IntRect.by_value
+      attach_function :sfRenderTexture_getViewport,     [:render_texture_t, :view_t], IntRect.by_value
 
       attach_function :sfRenderTexture_mapPixelToCoords,
                       [:render_texture_t, System::Vector2i.by_value, :view_t],
@@ -417,6 +437,7 @@ module SFML
       attach_function :sfShader_isAvailable,      [], :bool
       attach_function :sfShader_bind,             [:shader_t], :void
       attach_function :sfShader_getNativeHandle,  [:shader_t], :uint
+      attach_function :sfShader_setIntColorUniform, [:shader_t, :string, Color.by_value], :void
       attach_function :sfShader_isGeometryAvailable, [], :bool
 
       attach_function :sfShader_setFloatUniform,  [:shader_t, :string, :float], :void

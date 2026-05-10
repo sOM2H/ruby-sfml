@@ -66,4 +66,57 @@ RSpec.describe SFML::Music do
       expect(music.cone.outer_gain).to  eq(0.5)
     end
   end
+
+  describe ".from_memory" do
+    it "loads music from a Ruby String of bytes" do
+      bytes = File.binread(fixture)
+      m = described_class.from_memory(bytes)
+      expect(m.duration.as_seconds).to be > 0
+    end
+
+    it "raises on garbage bytes" do
+      expect { described_class.from_memory("not music") }.to raise_error(SFML::Error)
+    end
+  end
+
+  describe "stream introspection" do
+    let(:music) { described_class.load(fixture) }
+
+    it "#channel_count and #sample_rate report the format" do
+      expect(music.channel_count).to be > 0
+      expect(music.sample_rate).to   be > 0
+    end
+
+    it "#loop_points round-trips" do
+      music.loop_points = [SFML::Time.zero, music.duration]
+      offset, length = music.loop_points
+      expect(offset.as_microseconds).to eq(0)
+      expect(length.as_microseconds).to be > 0
+    end
+  end
+
+  describe "3D-audio extras (mirror of Sound)" do
+    let(:music) { described_class.load(fixture) }
+
+    it "pan / max_distance / spatialization_enabled? round-trip" do
+      music.pan = -0.4
+      music.max_distance = 25.0
+      music.spatialization_enabled = false
+
+      expect(music.pan).to be_within(0.001).of(-0.4)
+      expect(music.max_distance).to be_within(0.001).of(25.0)
+      expect(music.spatialization_enabled?).to be false
+    end
+
+    it "min_gain / max_gain are settable (round-trip is OpenAL-implementation-dependent)" do
+      expect { music.min_gain = 0.1; music.max_gain = 0.9 }.not_to raise_error
+      expect(music.min_gain).to be_a(Float)
+      expect(music.max_gain).to be_a(Float)
+    end
+
+    it "directional_attenuation_factor round-trips" do
+      music.directional_attenuation_factor = 0.7
+      expect(music.directional_attenuation_factor).to be_within(0.001).of(0.7)
+    end
+  end
 end

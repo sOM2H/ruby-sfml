@@ -180,5 +180,77 @@ module SFML
     def relative_to_listener=(value)
       C::Audio.sfSound_setRelativeToListener(@handle, value ? true : false)
     end
+
+    # The buffer this Sound is currently bound to (the one passed
+    # to `.new`, or whoever last called `buffer=`). Returns nil
+    # if the underlying source has none.
+    def buffer
+      ptr = C::Audio.sfSound_getBuffer(@handle)
+      return nil if ptr.null?
+      @buffer  # keep Ruby reference alive (the C handle is borrowed from it)
+    end
+
+    # Stereo pan in [-1.0, 1.0]: -1 = full left, 0 = centre, 1 = full right.
+    def pan = C::Audio.sfSound_getPan(@handle)
+
+    def pan=(v)
+      C::Audio.sfSound_setPan(@handle, v.to_f)
+    end
+
+    # Output gain clamping. `min_gain` floors the attenuated
+    # gain; `max_gain` caps it. Useful when you want a sound to
+    # always be at least faintly audible (or never louder than
+    # the listener's local SFX volume).
+    def min_gain = C::Audio.sfSound_getMinGain(@handle)
+
+    def min_gain=(v)
+      C::Audio.sfSound_setMinGain(@handle, v.to_f)
+    end
+
+    def max_gain = C::Audio.sfSound_getMaxGain(@handle)
+
+    def max_gain=(v)
+      C::Audio.sfSound_setMaxGain(@handle, v.to_f)
+    end
+
+    # The distance beyond which the source is fully attenuated.
+    def max_distance = C::Audio.sfSound_getMaxDistance(@handle)
+
+    def max_distance=(v)
+      C::Audio.sfSound_setMaxDistance(@handle, v.to_f)
+    end
+
+    # Whether 3D-positional / Doppler / cone math is applied at
+    # mix time. Off → the sound plays as a simple stereo source.
+    def spatialization_enabled? = C::Audio.sfSound_isSpatializationEnabled(@handle)
+
+    def spatialization_enabled=(v)
+      C::Audio.sfSound_setSpatializationEnabled(@handle, v ? true : false)
+    end
+
+    # Multiplier on the Listener's directional attenuation cone.
+    # 0 = source ignores the listener's facing direction (no
+    # cone falloff); 1 = full cone effect.
+    def directional_attenuation_factor
+      C::Audio.sfSound_getDirectionalAttenuationFactor(@handle)
+    end
+
+    def directional_attenuation_factor=(v)
+      C::Audio.sfSound_setDirectionalAttenuationFactor(@handle, v.to_f)
+    end
+
+    # Independent copy — same buffer (buffers are shareable),
+    # independent transport state (volume/pan/spatialisation/etc).
+    def dup
+      ptr = C::Audio.sfSound_copy(@handle)
+      raise Error, "sfSound_copy returned NULL" if ptr.null?
+
+      copy = self.class.allocate
+      copy.instance_variable_set(:@handle,
+        FFI::AutoPointer.new(ptr, C::Audio.method(:sfSound_destroy)))
+      copy.instance_variable_set(:@buffer, @buffer)
+      copy
+    end
+    alias clone dup
   end
 end

@@ -68,4 +68,24 @@ RSpec.describe SFML::View do
       expect(v1.center).to eq(SFML::Vector2[10, 20])
     end
   end
+
+  describe "#scissor / #scissor=" do
+    it "defaults to a full-window rect" do
+      view = described_class.new
+      expect(view.scissor.width).to  eq(1.0)
+      expect(view.scissor.height).to eq(1.0)
+    end
+
+    it "round-trips through #scissor=" do
+      view = described_class.new
+      view.scissor = SFML::Rect.new([0.25, 0.0], [0.5, 1.0])
+      expect(view.scissor.x).to     be_within(0.001).of(0.25)
+      expect(view.scissor.width).to be_within(0.001).of(0.5)
+    end
+
+    it "rejects non-Rect arguments" do
+      view = described_class.new
+      expect { view.scissor = [0, 0, 1, 1] }.to raise_error(ArgumentError, /SFML::Rect/)
+    end
+  end
 end

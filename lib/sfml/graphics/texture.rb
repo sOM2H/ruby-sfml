@@ -31,6 +31,24 @@ module SFML
       tex
     end
 
+    # Decode + upload a Ruby String of bytes (PNG, JPG, BMP, …) as
+    # a texture. Useful for embedded assets / network responses
+    # that bypass the disk.
+    def self.from_memory(bytes, smooth: false, repeated: false)
+      raise ArgumentError, "expected a String, got #{bytes.class}" unless bytes.is_a?(String)
+
+      buf = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
+      buf.write_bytes(bytes)
+      ptr = C::Graphics.sfTexture_createFromMemory(buf, bytes.bytesize, nil)
+      raise Error, "sfTexture_createFromMemory returned NULL — unsupported format?" if ptr.null?
+
+      tex = allocate
+      tex.send(:_take_ownership, ptr)
+      tex.smooth   = smooth
+      tex.repeated = repeated
+      tex
+    end
+
     # Upload a CPU-side SFML::Image to the GPU as a new Texture. Keeps
     # the RGBA byte order and dimensions of the source image.
     def self.from_image(image, smooth: false, repeated: false)
@@ -123,6 +141,54 @@ module SFML
     end
     alias clone dup
 
+    # Reallocate this texture's GPU memory at a new size. Returns
+    # `false` if the GPU rejects the size (driver limit / OOM);
+    # the texture's contents become undefined on success.
+    def resize(width, height)
+      size = C::System::Vector2u.new
+      size[:x] = Integer(width); size[:y] = Integer(height)
+      C::Graphics.sfTexture_resize(@handle, size)
+    end
+
+    # Atomically swap the GPU memory between two textures —
+    # cheaper than `dup` + reassign for double-buffer-style
+    # patterns (paint-buffer ⇄ visible-buffer).
+    def swap(other)
+      raise ArgumentError, "Texture#swap needs a Texture" unless other.is_a?(Texture)
+      C::Graphics.sfTexture_swap(@handle, other.handle)
+      self
+    end
+
+    # The OpenGL texture-object name (a `glGenTextures` ID).
+    # Useful when feeding this texture into raw GL calls.
+    def native_handle = C::Graphics.sfTexture_getNativeHandle(@handle)
+
+    # Upload the contents of another texture into this one at
+    # `offset` (`[x, y]`). Both textures must remain alive for the
+    # duration of the call.
+    def update_from_texture(source, offset: [0, 0])
+      raise ArgumentError, "expected a Texture" unless source.is_a?(Texture)
+      C::Graphics.sfTexture_updateFromTexture(@handle, source.handle, _vec2u(offset))
+      self
+    end
+
+    # Read the back-buffer of a `RenderWindow` into this texture
+    # at `offset`. Useful for capturing the rendered scene
+    # without re-drawing into a separate `RenderTexture`.
+    def update_from_render_window(window, offset: [0, 0])
+      raise ArgumentError, "expected a RenderWindow" unless window.is_a?(RenderWindow)
+      C::Graphics.sfTexture_updateFromRenderWindow(@handle, window.handle, _vec2u(offset))
+      self
+    end
+
+    # Same as `update_from_render_window` for the bare `Window`
+    # (when you're managing GL yourself).
+    def update_from_window(window, offset: [0, 0])
+      raise ArgumentError, "expected a Window" unless window.is_a?(SFML::Window)
+      C::Graphics.sfTexture_updateFromWindow(@handle, window.handle, _vec2u(offset))
+      self
+    end
+
     attr_reader :handle # :nodoc:
 
     # Internal — borrow a CSFML-owned `sfTexture*` (e.g. one
@@ -139,6 +205,13 @@ module SFML
 
     def _take_ownership(ptr)
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfTexture_destroy))
+    end
+
+    def _vec2u(value)
+      v = C::System::Vector2u.new
+      x, y = value.is_a?(Vector2) ? [value.x, value.y] : value
+      v[:x] = Integer(x); v[:y] = Integer(y)
+      v
     end
   end
 end

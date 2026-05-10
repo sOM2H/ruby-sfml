@@ -111,4 +111,17 @@ RSpec.describe SFML::RenderTexture do
       expect { rt.push_gl_states; rt.pop_gl_states; rt.reset_gl_states }.not_to raise_error
     end
   end
+
+  describe "#viewport / #scissor" do
+    let(:rt) { described_class.new(64, 64) }
+
+    it "return SFML::Rect in pixel space for the active view" do
+      expect(rt.viewport).to be_a(SFML::Rect)
+      expect(rt.scissor).to  be_a(SFML::Rect)
+    end
+
+    it "reject non-View arguments" do
+      expect { rt.scissor(:nope) }.to raise_error(ArgumentError, /View/)
+    end
+  end
 end

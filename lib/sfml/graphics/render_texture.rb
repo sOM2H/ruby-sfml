@@ -78,6 +78,18 @@ module SFML
     def pop_gl_states   = C::Graphics.sfRenderTexture_popGLStates(@handle)
     def reset_gl_states = C::Graphics.sfRenderTexture_resetGLStates(@handle)
 
+    # Pixel-space viewport / scissor for the given view (defaults
+    # to the active view). Same shape as RenderWindow's.
+    def viewport(view = self.view)
+      raise ArgumentError, "expected a SFML::View" unless view.is_a?(View)
+      Rect.from_native(C::Graphics.sfRenderTexture_getViewport(@handle, view.handle))
+    end
+
+    def scissor(view = self.view)
+      raise ArgumentError, "expected a SFML::View" unless view.is_a?(View)
+      Rect.from_native(C::Graphics.sfRenderTexture_getScissor(@handle, view.handle))
+    end
+
     # The Texture this RenderTexture is rendering into. Borrowed — its
     # lifetime is bounded by `self`. Memoised so repeated calls return
     # the same Ruby wrapper.

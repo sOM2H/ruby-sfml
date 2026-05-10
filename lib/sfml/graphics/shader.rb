@@ -152,6 +152,15 @@ module SFML
     # with raw GL libraries.
     def native_handle = C::Graphics.sfShader_getNativeHandle(@handle)
 
+    # Set a `vec4` uniform from an integer-channel `SFML::Color`
+    # (RGBA 0–255). Equivalent to writing `[c.r/255, ..., c.a/255]`
+    # by hand into a vec4 — the CSFML helper does the divide for
+    # you.
+    def set_int_color(name, color)
+      raise ArgumentError, "expected SFML::Color" unless color.is_a?(Color)
+      C::Graphics.sfShader_setIntColorUniform(@handle, name.to_s, color.to_native)
+    end
+
     attr_reader :handle # :nodoc:
 
     private

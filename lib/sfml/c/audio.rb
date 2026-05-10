@@ -26,10 +26,31 @@ module SFML
       attach_function :sfSoundBuffer_getDuration,    [:sound_buffer_t], System::Time.by_value
       attach_function :sfSoundBuffer_getSampleRate,  [:sound_buffer_t], :uint32
       attach_function :sfSoundBuffer_getChannelCount,[:sound_buffer_t], :uint32
+      attach_function :sfSoundBuffer_copy,           [:sound_buffer_t], :sound_buffer_t
+      attach_function :sfSoundBuffer_createFromMemory, [:pointer, :size_t], :sound_buffer_t
+      attach_function :sfSoundBuffer_createFromSamples,
+                      [:pointer, :uint64, :uint32, :uint32, :pointer, :size_t], :sound_buffer_t
+      attach_function :sfSoundBuffer_getSampleCount, [:sound_buffer_t], :uint64
+      attach_function :sfSoundBuffer_getSamples,     [:sound_buffer_t], :pointer
+      attach_function :sfSoundBuffer_getChannelMap,  [:sound_buffer_t, :pointer], :pointer
 
       # ---- Sound ----
       attach_function :sfSound_create,        [:sound_buffer_t], :sound_t
+      attach_function :sfSound_copy,          [:sound_t], :sound_t
       attach_function :sfSound_destroy,       [:sound_t], :void
+      attach_function :sfSound_getBuffer,     [:sound_t], :sound_buffer_t
+      attach_function :sfSound_setPan,                 [:sound_t, :float], :void
+      attach_function :sfSound_getPan,                 [:sound_t], :float
+      attach_function :sfSound_setMinGain,             [:sound_t, :float], :void
+      attach_function :sfSound_getMinGain,             [:sound_t], :float
+      attach_function :sfSound_setMaxGain,             [:sound_t, :float], :void
+      attach_function :sfSound_getMaxGain,             [:sound_t], :float
+      attach_function :sfSound_setMaxDistance,         [:sound_t, :float], :void
+      attach_function :sfSound_getMaxDistance,         [:sound_t], :float
+      attach_function :sfSound_setSpatializationEnabled, [:sound_t, :bool], :void
+      attach_function :sfSound_isSpatializationEnabled,  [:sound_t], :bool
+      attach_function :sfSound_setDirectionalAttenuationFactor, [:sound_t, :float], :void
+      attach_function :sfSound_getDirectionalAttenuationFactor, [:sound_t], :float
       attach_function :sfSound_play,          [:sound_t], :void
       attach_function :sfSound_pause,         [:sound_t], :void
       attach_function :sfSound_stop,          [:sound_t], :void
@@ -66,8 +87,31 @@ module SFML
       attach_function :sfSound_setEffectProcessor,    [:sound_t, :sf_effect_processor, :pointer], :void
 
       # ---- Music ----
+      class TimeSpan < FFI::Struct
+        layout :offset, System::Time,
+               :length, System::Time
+      end
+
       attach_function :sfMusic_createFromFile, [:string], :music_t
+      attach_function :sfMusic_createFromMemory, [:pointer, :size_t], :music_t
       attach_function :sfMusic_destroy,        [:music_t], :void
+      attach_function :sfMusic_getChannelCount, [:music_t], :uint32
+      attach_function :sfMusic_getSampleRate,   [:music_t], :uint32
+      attach_function :sfMusic_getChannelMap,   [:music_t, :pointer], :pointer
+      attach_function :sfMusic_getLoopPoints,   [:music_t], TimeSpan.by_value
+      attach_function :sfMusic_setLoopPoints,   [:music_t, TimeSpan.by_value], :void
+      attach_function :sfMusic_setPan,                 [:music_t, :float], :void
+      attach_function :sfMusic_getPan,                 [:music_t], :float
+      attach_function :sfMusic_setMinGain,             [:music_t, :float], :void
+      attach_function :sfMusic_getMinGain,             [:music_t], :float
+      attach_function :sfMusic_setMaxGain,             [:music_t, :float], :void
+      attach_function :sfMusic_getMaxGain,             [:music_t], :float
+      attach_function :sfMusic_setMaxDistance,         [:music_t, :float], :void
+      attach_function :sfMusic_getMaxDistance,         [:music_t], :float
+      attach_function :sfMusic_setSpatializationEnabled, [:music_t, :bool], :void
+      attach_function :sfMusic_isSpatializationEnabled,  [:music_t], :bool
+      attach_function :sfMusic_setDirectionalAttenuationFactor, [:music_t, :float], :void
+      attach_function :sfMusic_getDirectionalAttenuationFactor, [:music_t], :float
       attach_function :sfMusic_play,           [:music_t], :void
       attach_function :sfMusic_pause,          [:music_t], :void
       attach_function :sfMusic_stop,           [:music_t], :void

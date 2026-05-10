@@ -9,6 +9,29 @@ module SFML
       ptr = C::Audio.sfMusic_createFromFile(path.to_s)
       raise Error, "Could not load music from #{path.inspect}" if ptr.null?
 
+      _wrap(ptr, opts)
+    end
+
+    # Stream music from a Ruby String of bytes (an in-memory MP3,
+    # OGG, FLAC, …). Useful for embedded audio or downloaded
+    # tracks that bypass the disk. The bytes must outlive the
+    # Music object — SFML keeps a pointer into them.
+    def self.from_memory(bytes, **opts)
+      raise ArgumentError, "expected a String, got #{bytes.class}" unless bytes.is_a?(String)
+
+      buf = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
+      buf.write_bytes(bytes)
+      ptr = C::Audio.sfMusic_createFromMemory(buf, bytes.bytesize)
+      raise Error, "sfMusic_createFromMemory returned NULL — unsupported format?" if ptr.null?
+
+      m = _wrap(ptr, opts)
+      m.instance_variable_set(:@_memory_pin, buf)   # keep buffer alive
+      m
+    end
+
+    # Internal — finish initialising a Music from an already-built
+    # CSFML pointer.
+    def self._wrap(ptr, opts)
       m = allocate
       m.send(:_take_ownership, ptr)
       m.instance_variable_set(:@looping, false)
@@ -17,6 +40,7 @@ module SFML
       m.looping = opts[:looping] if opts.key?(:looping)
       m
     end
+    private_class_method :_wrap
 
     def play   = C::Audio.sfMusic_play(@handle)
     def pause  = C::Audio.sfMusic_pause(@handle)
@@ -141,6 +165,69 @@ module SFML
 
     def relative_to_listener=(value)
       C::Audio.sfMusic_setRelativeToListener(@handle, value ? true : false)
+    end
+
+    # ---- Stream introspection ----
+
+    def channel_count = C::Audio.sfMusic_getChannelCount(@handle)
+    def sample_rate   = C::Audio.sfMusic_getSampleRate(@handle)
+
+    # The portion of the track that loops when `looping = true`.
+    # Returns `[offset, length]` of `SFML::Time`s; defaults to the
+    # whole track. Set with `loop_points = [Time, Time]`.
+    def loop_points
+      span = C::Audio.sfMusic_getLoopPoints(@handle)
+      [Time.from_native(span[:offset]), Time.from_native(span[:length])]
+    end
+
+    def loop_points=(value)
+      offset_t, length_t = value
+      raise ArgumentError, "expected [offset_time, length_time]" unless offset_t && length_t
+
+      span = C::Audio::TimeSpan.new
+      span[:offset][:microseconds] = offset_t.is_a?(Time) ? offset_t.microseconds : Time.seconds(offset_t.to_f).microseconds
+      span[:length][:microseconds] = length_t.is_a?(Time) ? length_t.microseconds : Time.seconds(length_t.to_f).microseconds
+      C::Audio.sfMusic_setLoopPoints(@handle, span)
+    end
+
+    # ---- 3D-audio extras (mirror of Sound's) ----
+
+    def pan = C::Audio.sfMusic_getPan(@handle)
+
+    def pan=(v)
+      C::Audio.sfMusic_setPan(@handle, v.to_f)
+    end
+
+    def min_gain = C::Audio.sfMusic_getMinGain(@handle)
+
+    def min_gain=(v)
+      C::Audio.sfMusic_setMinGain(@handle, v.to_f)
+    end
+
+    def max_gain = C::Audio.sfMusic_getMaxGain(@handle)
+
+    def max_gain=(v)
+      C::Audio.sfMusic_setMaxGain(@handle, v.to_f)
+    end
+
+    def max_distance = C::Audio.sfMusic_getMaxDistance(@handle)
+
+    def max_distance=(v)
+      C::Audio.sfMusic_setMaxDistance(@handle, v.to_f)
+    end
+
+    def spatialization_enabled? = C::Audio.sfMusic_isSpatializationEnabled(@handle)
+
+    def spatialization_enabled=(v)
+      C::Audio.sfMusic_setSpatializationEnabled(@handle, v ? true : false)
+    end
+
+    def directional_attenuation_factor
+      C::Audio.sfMusic_getDirectionalAttenuationFactor(@handle)
+    end
+
+    def directional_attenuation_factor=(v)
+      C::Audio.sfMusic_setDirectionalAttenuationFactor(@handle, v.to_f)
     end
 
     private

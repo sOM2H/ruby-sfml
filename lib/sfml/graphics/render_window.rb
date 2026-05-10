@@ -224,6 +224,22 @@ module SFML
       Event.from_native(@event_buffer)
     end
 
+    # The pixel-space rect a `view` projects onto inside this
+    # window. Combines the view's normalised viewport with the
+    # window's pixel size.
+    def viewport(view = self.view)
+      raise ArgumentError, "expected a SFML::View" unless view.is_a?(View)
+      Rect.from_native(C::Graphics.sfRenderWindow_getViewport(@handle, view.handle))
+    end
+
+    # The pixel-space scissor rect — same idea as `viewport` but
+    # for the view's `scissor` property. Pixels outside this rect
+    # are clipped before rendering.
+    def scissor(view = self.view)
+      raise ArgumentError, "expected a SFML::View" unless view.is_a?(View)
+      Rect.from_native(C::Graphics.sfRenderWindow_getScissor(@handle, view.handle))
+    end
+
     # Wrap an existing OS-level window. `handle` is a platform native
     # handle (Integer address or FFI::Pointer). Useful for embedding
     # the renderer inside another framework's window (Qt, Gtk, raw

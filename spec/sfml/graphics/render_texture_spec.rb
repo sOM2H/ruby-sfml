@@ -87,4 +87,28 @@ RSpec.describe SFML::RenderTexture do
       expect(rt.view.center).to eq(SFML::Vector2[16, 16])
     end
   end
+
+  describe "metadata" do
+    it ".maximum_anti_aliasing_level is non-negative" do
+      expect(described_class.maximum_anti_aliasing_level).to be >= 0
+    end
+
+    it "#srgb? returns a boolean" do
+      rt = described_class.new(64, 64)
+      expect([true, false]).to include(rt.srgb?)
+    end
+
+    it "#generate_mipmap returns a boolean" do
+      rt = described_class.new(64, 64)
+      expect([true, false]).to include(rt.generate_mipmap)
+    end
+  end
+
+  describe "GL interop" do
+    it "active=, push/pop/reset GL states don't raise" do
+      rt = described_class.new(64, 64)
+      expect { rt.active = true; rt.active = false }.not_to raise_error
+      expect { rt.push_gl_states; rt.pop_gl_states; rt.reset_gl_states }.not_to raise_error
+    end
+  end
 end

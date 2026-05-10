@@ -159,4 +159,35 @@ RSpec.describe SFML::Image do
       expect { tex.update("nope") }.to raise_error(ArgumentError, /SFML::Image/)
     end
   end
+
+  describe ".from_memory" do
+    it "round-trips encoded bytes through PNG" do
+      original = described_class.from_pixels(2, 2,
+        "\xff\x00\x00\xff\x00\xff\x00\xff\x00\x00\xff\xff\xff\xff\x00\xff".b)
+      bytes = original.save_to_memory("png")
+      decoded = described_class.from_memory(bytes)
+      expect(decoded.size).to eq(SFML::Vector2.new(2, 2))
+      expect(decoded.pixels).to eq(original.pixels)
+    end
+
+    it "raises on garbage bytes" do
+      expect { described_class.from_memory("not an image") }.to raise_error(SFML::Error)
+    end
+  end
+
+  describe "#copy_from" do
+    it "stamps a region of `source` into self at the given offset" do
+      stamp  = described_class.from_pixels(2, 2, "\xff\x00\x00\xff" * 4)   # solid red
+      canvas = described_class.from_pixels(4, 4, "\x00".b * 64)
+      canvas.copy_from(stamp, at: [1, 1])
+      expect(canvas[2, 2].r).to eq(255)
+      expect(canvas[0, 0].r).to eq(0)   # unchanged outside the stamp area
+    end
+
+    it "rejects non-Image sources" do
+      img = described_class.new(2, 2)
+      expect { img.copy_from("nope", at: [0, 0]) }
+        .to raise_error(ArgumentError, /SFML::Image/)
+    end
+  end
 end

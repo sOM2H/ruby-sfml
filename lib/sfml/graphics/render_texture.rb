@@ -51,6 +51,33 @@ module SFML
       C::Graphics.sfRenderTexture_setRepeated(@handle, !!value)
     end
 
+    # `true` if the framebuffer is sRGB-capable.
+    def srgb? = C::Graphics.sfRenderTexture_isSrgb(@handle)
+
+    # Generate mipmaps for the underlying texture. Useful when the
+    # texture will be sampled at a downscaled size — without
+    # mipmaps you get aliasing on minification. Returns `true` if
+    # the GPU honoured the request (NPOT or unsupported drivers
+    # return `false`).
+    def generate_mipmap
+      C::Graphics.sfRenderTexture_generateMipmap(@handle)
+    end
+
+    # Maximum MSAA level the driver can apply to a RenderTexture
+    # at this moment. Class-level — independent of the instance.
+    def self.maximum_anti_aliasing_level
+      C::Graphics.sfRenderTexture_getMaximumAntiAliasingLevel
+    end
+
+    # ---- GL interop (mirror of RenderWindow's) ----
+
+    def active=(value)
+      C::Graphics.sfRenderTexture_setActive(@handle, value ? true : false)
+    end
+    def push_gl_states  = C::Graphics.sfRenderTexture_pushGLStates(@handle)
+    def pop_gl_states   = C::Graphics.sfRenderTexture_popGLStates(@handle)
+    def reset_gl_states = C::Graphics.sfRenderTexture_resetGLStates(@handle)
+
     # The Texture this RenderTexture is rendering into. Borrowed — its
     # lifetime is bounded by `self`. Memoised so repeated calls return
     # the same Ruby wrapper.

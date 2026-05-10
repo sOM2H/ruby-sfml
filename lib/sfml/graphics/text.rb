@@ -123,6 +123,53 @@ module SFML
       C::Graphics.sfText_setStyle(@handle, bits)
     end
 
+    # The character spacing modifier — a multiplier on the font's
+    # natural advance. Read with no args, set with a Float (1.0 =
+    # default).
+    def letter_spacing = C::Graphics.sfText_getLetterSpacing(@handle)
+
+    def letter_spacing=(value)
+      C::Graphics.sfText_setLetterSpacing(@handle, Float(value))
+    end
+
+    # The line-spacing multiplier (1.0 = default).
+    def line_spacing = C::Graphics.sfText_getLineSpacing(@handle)
+
+    def line_spacing=(value)
+      C::Graphics.sfText_setLineSpacing(@handle, Float(value))
+    end
+
+    # The screen-space position of the character at byte index
+    # `index` in the Text's current string. Returns a `Vector2`.
+    # Useful for positioning a caret in a text field, drawing
+    # selection highlights, or anchoring tooltips.
+    def find_character_pos(index)
+      Vector2.from_native(C::Graphics.sfText_findCharacterPos(@handle, Integer(index)))
+    end
+
+    # Combined translation/scale/rotation as a SFML::Transform.
+    # Same matrix the renderer uses to draw the Text.
+    def transform
+      C::Graphics.sfText_getTransform(@handle)
+    end
+
+    def inverse_transform
+      C::Graphics.sfText_getInverseTransform(@handle)
+    end
+
+    # Deep copy. The returned Text holds the same Font reference
+    # (Fonts are shareable; each owns its own glyph atlas).
+    def dup
+      ptr = C::Graphics.sfText_copy(@handle)
+      raise Error, "sfText_copy returned NULL" if ptr.null?
+
+      copy = self.class.allocate
+      copy.instance_variable_set(:@handle, FFI::AutoPointer.new(ptr, C::Graphics.method(:sfText_destroy)))
+      copy.instance_variable_set(:@font, @font)
+      copy
+    end
+    alias clone dup
+
     # Bounding box of the text in its own (untransformed) coordinate system.
     # Use this to centre or align glyphs precisely:
     #   text.origin = [text.local_bounds.width / 2, 0]

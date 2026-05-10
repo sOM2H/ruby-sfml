@@ -241,8 +241,15 @@ module SFML
       attach_function :sfWindow_setKeyRepeatEnabled,    [:raw_window_t, :bool], :void
       attach_function :sfWindow_requestFocus,  [:raw_window_t], :void
       attach_function :sfWindow_hasFocus,      [:raw_window_t], :bool
+      attach_function :sfWindow_requestFocus,  [:raw_window_t], :void
       attach_function :sfWindow_setActive,     [:raw_window_t, :bool], :bool
       attach_function :sfWindow_setIcon,       [:raw_window_t, System::Vector2u.by_value, :pointer], :void
+      attach_function :sfWindow_setMouseCursor,        [:raw_window_t, :pointer], :void
+      attach_function :sfWindow_setMouseCursorVisible, [:raw_window_t, :bool], :void
+      attach_function :sfWindow_setMouseCursorGrabbed, [:raw_window_t, :bool], :void
+      attach_function :sfWindow_setJoystickThreshold,  [:raw_window_t, :float], :void
+      attach_function :sfWindow_getSettings,           [:raw_window_t], ContextSettings.by_value
+      attach_function :sfWindow_waitEvent,             [:raw_window_t, System::Time.by_value, :pointer], :bool
       # NULL pointer clears the limit. Pass a Vector2u* to set it.
       attach_function :sfWindow_setMinimumSize, [:raw_window_t, :pointer], :void
       attach_function :sfWindow_setMaximumSize, [:raw_window_t, :pointer], :void

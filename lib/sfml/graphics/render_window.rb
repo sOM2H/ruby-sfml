@@ -162,6 +162,68 @@ module SFML
       C::Graphics.sfRenderWindow_getNativeHandle(@handle)
     end
 
+    # ---- Focus ----
+    def focused?       = C::Graphics.sfRenderWindow_hasFocus(@handle)
+    def request_focus  = C::Graphics.sfRenderWindow_requestFocus(@handle)
+
+    # ---- OS-window state ----
+    def visible=(value)
+      C::Graphics.sfRenderWindow_setVisible(@handle, value ? true : false)
+    end
+
+    def key_repeat_enabled=(value)
+      C::Graphics.sfRenderWindow_setKeyRepeatEnabled(@handle, value ? true : false)
+    end
+
+    def joystick_threshold=(value)
+      C::Graphics.sfRenderWindow_setJoystickThreshold(@handle, Float(value))
+    end
+
+    # Top-left corner in desktop coordinates.
+    def position
+      Vector2.from_native(C::Graphics.sfRenderWindow_getPosition(@handle))
+    end
+
+    def position=(value)
+      vec = value.is_a?(Vector2) ? value : Vector2.new(*value)
+      v = C::System::Vector2i.new
+      v[:x] = Integer(vec.x); v[:y] = Integer(vec.y)
+      C::Graphics.sfRenderWindow_setPosition(@handle, v)
+    end
+
+    # `true` if the framebuffer is sRGB-capable (i.e. the GL
+    # context was created with the sRGB attribute and the driver
+    # honoured it).
+    def srgb? = C::Graphics.sfRenderWindow_isSrgb(@handle)
+
+    # ---- GL interop ----
+    #
+    # When mixing raw OpenGL calls with SFML rendering, surround
+    # the OpenGL block with `push_gl_states` / `pop_gl_states` so
+    # SFML's internal state survives. `reset_gl_states` is a
+    # heavier "throw away whatever's been changed" reset.
+    # `active=` toggles the GL context's activation on the
+    # current thread — the only way to use SFML rendering from a
+    # non-main thread.
+
+    def active=(value)
+      C::Graphics.sfRenderWindow_setActive(@handle, value ? true : false)
+    end
+    def push_gl_states  = C::Graphics.sfRenderWindow_pushGLStates(@handle)
+    def pop_gl_states   = C::Graphics.sfRenderWindow_popGLStates(@handle)
+    def reset_gl_states = C::Graphics.sfRenderWindow_resetGLStates(@handle)
+
+    # Block until an event arrives or `timeout` (a SFML::Time)
+    # elapses. Returns the next pending Event or nil on timeout.
+    # Useful for low-power apps that don't need to redraw at
+    # 60fps — wake on input.
+    def wait_event(timeout: nil)
+      t = timeout || Time.zero
+      ok = C::Graphics.sfRenderWindow_waitEvent(@handle, t.to_native, @event_buffer)
+      return nil unless ok
+      Event.from_native(@event_buffer)
+    end
+
     # Wrap an existing OS-level window. `handle` is a platform native
     # handle (Integer address or FFI::Pointer). Useful for embedding
     # the renderer inside another framework's window (Qt, Gtk, raw

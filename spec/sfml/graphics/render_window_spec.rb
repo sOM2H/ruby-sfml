@@ -36,4 +36,63 @@ RSpec.describe SFML::RenderWindow do
       win.close
     end
   end
+
+  describe "focus + position" do
+    let(:win) { described_class.new(200, 200, "focus+position") }
+    after     { win.close if win.open? }
+
+    it "#focused? returns a boolean" do
+      expect([true, false]).to include(win.focused?)
+    end
+
+    it "#request_focus doesn't raise" do
+      expect { win.request_focus }.not_to raise_error
+    end
+
+    it "#position returns a SFML::Vector2 in desktop coords" do
+      expect(win.position).to be_a(SFML::Vector2)
+    end
+
+    it "#position= accepts an Array or a Vector2" do
+      expect { win.position = [50, 50] }.not_to raise_error
+      expect { win.position = SFML::Vector2[100, 100] }.not_to raise_error
+    end
+  end
+
+  describe "OS-window state setters" do
+    let(:win) { described_class.new(200, 200, "state") }
+    after     { win.close if win.open? }
+
+    it "visible= / key_repeat_enabled= / joystick_threshold= don't raise" do
+      expect { win.visible = false }.not_to raise_error
+      expect { win.key_repeat_enabled = false }.not_to raise_error
+      expect { win.joystick_threshold = 5.0 }.not_to raise_error
+    end
+
+    it "#srgb? returns a boolean" do
+      expect([true, false]).to include(win.srgb?)
+    end
+  end
+
+  describe "GL interop" do
+    let(:win) { described_class.new(200, 200, "gl") }
+    after     { win.close if win.open? }
+
+    it "active=, push/pop/reset GL states don't raise" do
+      expect { win.active = true; win.active = false }.not_to raise_error
+      expect { win.push_gl_states; win.pop_gl_states; win.reset_gl_states }.not_to raise_error
+    end
+  end
+
+  describe "#wait_event" do
+    let(:win) { described_class.new(200, 200, "wait") }
+    after     { win.close if win.open? }
+
+    it "returns nil when no event arrives within the timeout" do
+      win.each_event.to_a   # drain anything the OS queued at creation
+      # 1ms timeout — long enough that CSFML honours it, short
+      # enough not to slow the suite.
+      expect(win.wait_event(timeout: SFML::Time.milliseconds(1))).to be_nil
+    end
+  end
 end

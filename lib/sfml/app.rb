@@ -224,7 +224,12 @@ module SFML
       in {type: :closed}
         quit
       in {type: :resized, size: {x:, y:}}
+        # `:resized` fires BOTH the structured hook and the generic
+        # event sink — apps that forward `on_event` to a sub-system
+        # (`@gui.on_event(event)`, etc.) keep getting the event,
+        # while apps that just want clean (w, h) override the hook.
         on_resize(x, y)
+        on_event(event)
       in {type: :key_pressed, code:}
         # Scene-level bindings win over app-level (CSS-style cascade:
         # the more-specific layer overrides the more-general one).

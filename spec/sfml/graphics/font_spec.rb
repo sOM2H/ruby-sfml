@@ -41,4 +41,71 @@ RSpec.describe SFML::Font do
       expect(font.smooth?).to be true
     end
   end
+
+  describe ".from_memory" do
+    it "round-trips with file-loaded bytes" do
+      bytes = File.binread(SFML::Font::DEFAULT_PATH)
+      font = described_class.from_memory(bytes)
+      expect(font.family).to eq(described_class.default.family)
+    end
+
+    it "raises on garbage bytes" do
+      expect { described_class.from_memory("not a font") }.to raise_error(SFML::Error)
+    end
+  end
+
+  describe "#family" do
+    it "returns the human-readable family name" do
+      expect(described_class.default.family).to be_a(String)
+      expect(described_class.default.family).not_to be_empty
+    end
+  end
+
+  describe "#has_glyph?" do
+    it "returns true for ASCII letters" do
+      expect(described_class.default.has_glyph?("A")).to be true
+    end
+
+    it "accepts an Integer codepoint" do
+      expect(described_class.default.has_glyph?(0x41)).to be true
+    end
+  end
+
+  describe "metrics" do
+    let(:font) { described_class.default }
+
+    it "#kerning returns a Float" do
+      expect(font.kerning("A", "V", character_size: 32)).to be_a(Float)
+    end
+
+    it "#kerning(bold:) uses the bold-weight kerning table" do
+      expect(font.kerning("A", "V", character_size: 32, bold: true)).to be_a(Float)
+    end
+
+    it "#line_spacing scales with character size" do
+      expect(font.line_spacing(64)).to be > font.line_spacing(16)
+    end
+
+    it "#underline_position / #underline_thickness are positive floats" do
+      expect(font.underline_position(32)).to be_a(Float)
+      expect(font.underline_thickness(32)).to be > 0
+    end
+  end
+
+  describe "#texture" do
+    it "returns a (borrowed) SFML::Texture for the requested size" do
+      tex = described_class.default.texture(32)
+      expect(tex).to be_a(SFML::Texture)
+      expect(tex.size.x).to be > 0
+    end
+  end
+
+  describe "#dup" do
+    it "produces an independent Font handle" do
+      a = described_class.default
+      b = a.dup
+      expect(b).to be_a(described_class)
+      expect(b.handle).not_to eq(a.handle)
+    end
+  end
 end

@@ -129,6 +129,44 @@ module SFML
       C::Window.sfWindow_setActive(@handle, value ? true : false)
     end
 
+    # ---- Mouse cursor ----
+
+    def cursor=(cursor)
+      raise ArgumentError, "Window#cursor= requires a SFML::Cursor" unless cursor.is_a?(Cursor)
+      C::Window.sfWindow_setMouseCursor(@handle, cursor.handle)
+      @cursor = cursor   # keep alive
+    end
+
+    def cursor_visible=(visible)
+      C::Window.sfWindow_setMouseCursorVisible(@handle, visible ? true : false)
+    end
+
+    def cursor_grabbed=(grabbed)
+      C::Window.sfWindow_setMouseCursorGrabbed(@handle, grabbed ? true : false)
+    end
+
+    # ---- Misc state ----
+
+    def joystick_threshold=(value)
+      C::Window.sfWindow_setJoystickThreshold(@handle, Float(value))
+    end
+
+    # The actual GL context settings the driver gave us — may differ
+    # from what was requested via `ContextSettings`.
+    def context_settings
+      ContextSettings.from_native(C::Window.sfWindow_getSettings(@handle))
+    end
+
+    # Block until the next event arrives or `timeout` (a SFML::Time)
+    # elapses. `nil` timeout = wait forever (matches CSFML's
+    # `sfTime_Zero` / no-timeout convention).
+    def wait_event(timeout: nil)
+      t = timeout || Time.zero
+      ok = C::Window.sfWindow_waitEvent(@handle, t.to_native, @event_buffer)
+      return nil unless ok
+      Event.from_native(@event_buffer)
+    end
+
     # Replace the window's title-bar / taskbar icon with the pixels from
     # the given SFML::Image. The OS scales it as needed; 32×32 RGBA
     # is the typical sweet spot.

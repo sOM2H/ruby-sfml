@@ -68,4 +68,47 @@ RSpec.describe SFML::Text do
       expect(gb.y).to be >= 50
     end
   end
+
+  describe "#find_character_pos" do
+    it "returns a Vector2 in the text's local coords" do
+      text = described_class.new(font, "Hello", character_size: 32)
+      expect(text.find_character_pos(0)).to eq(SFML::Vector2.new(0, 0))
+      expect(text.find_character_pos(2).x).to be > 0
+    end
+  end
+
+  describe "letter_spacing / line_spacing" do
+    let(:text) { described_class.new(font, "abc", character_size: 24) }
+
+    it "default to 1.0" do
+      expect(text.letter_spacing).to eq(1.0)
+      expect(text.line_spacing).to  eq(1.0)
+    end
+
+    it "round-trip via the setters" do
+      text.letter_spacing = 2.5
+      text.line_spacing   = 1.4
+      expect(text.letter_spacing).to be_within(0.001).of(2.5)
+      expect(text.line_spacing).to   be_within(0.001).of(1.4)
+    end
+  end
+
+  describe "#dup" do
+    it "produces an independent Text with the same string + font" do
+      a = described_class.new(font, "Hello", character_size: 24)
+      b = a.dup
+      expect(b.string).to eq("Hello")
+      expect(b.handle).not_to eq(a.handle)
+      b.string = "Goodbye"
+      expect(a.string).to eq("Hello")
+    end
+  end
+
+  describe "#transform / #inverse_transform" do
+    it "return SFML transform structs reflecting the placement" do
+      t = described_class.new(font, "x", position: [100, 50])
+      expect(t.transform).to         be_a(SFML::C::Graphics::Transform)
+      expect(t.inverse_transform).to be_a(SFML::C::Graphics::Transform)
+    end
+  end
 end

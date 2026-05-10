@@ -16,6 +16,21 @@ module SFML
       tex
     end
 
+    # Allocate a blank texture on the GPU at the given size — use
+    # `update(image)` afterwards to upload pixels. Useful when
+    # you'll be filling the texture from a procedurally-generated
+    # Image or repeatedly streaming pixel data into it.
+    def self.create(width, height)
+      size = C::System::Vector2u.new
+      size[:x] = Integer(width); size[:y] = Integer(height)
+      ptr = C::Graphics.sfTexture_create(size)
+      raise Error, "sfTexture_create returned NULL — out of GPU memory?" if ptr.null?
+
+      tex = allocate
+      tex.send(:_take_ownership, ptr)
+      tex
+    end
+
     # Upload a CPU-side SFML::Image to the GPU as a new Texture. Keeps
     # the RGBA byte order and dimensions of the source image.
     def self.from_image(image, smooth: false, repeated: false)
@@ -68,7 +83,57 @@ module SFML
       C::Graphics.sfTexture_setRepeated(@handle, !!value)
     end
 
+    def srgb? = C::Graphics.sfTexture_isSrgb(@handle)
+
+    # Generate mipmaps for this texture. Returns `true` if the
+    # GPU honoured it. Required for the `_MIPMAP_*` minification
+    # filters; otherwise downscaled samples alias.
+    def generate_mipmap = C::Graphics.sfTexture_generateMipmap(@handle)
+
+    # Bind this texture to the active OpenGL texture unit. `coord`
+    # is one of `:normalized` (default — UVs in [0..1]) or
+    # `:pixels` (UVs in [0..size]). Useful when mixing raw
+    # OpenGL with SFML rendering. Pass `nil` to unbind:
+    #   `SFML::Texture.unbind`.
+    COORDINATE_TYPES = {normalized: 0, pixels: 1}.freeze
+
+    def bind(coord: :normalized)
+      raise ArgumentError, "coord must be :normalized or :pixels" unless COORDINATE_TYPES.key?(coord)
+      C::Graphics.sfTexture_bind(@handle, COORDINATE_TYPES[coord])
+    end
+
+    def self.unbind
+      C::Graphics.sfTexture_bind(nil, 0)
+    end
+
+    # Maximum texture dimension the driver will allocate. Tied to
+    # the GL state, so it's a class-level call (no instance).
+    def self.maximum_size
+      C::Graphics.sfTexture_getMaximumSize
+    end
+
+    # Deep copy. The returned texture has its own GPU memory.
+    def dup
+      ptr = C::Graphics.sfTexture_copy(@handle)
+      raise Error, "sfTexture_copy returned NULL" if ptr.null?
+
+      tex = self.class.allocate
+      tex.send(:_take_ownership, ptr)
+      tex
+    end
+    alias clone dup
+
     attr_reader :handle # :nodoc:
+
+    # Internal — borrow a CSFML-owned `sfTexture*` (e.g. one
+    # returned by `sfFont_getTexture`) without registering an
+    # auto-destroy hook. The owning object is responsible for
+    # outliving any draw call that uses this borrowed handle.
+    def self._borrow(ptr)
+      tex = allocate
+      tex.instance_variable_set(:@handle, ptr)
+      tex
+    end
 
     private
 

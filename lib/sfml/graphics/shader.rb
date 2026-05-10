@@ -139,6 +139,19 @@ module SFML
       C::Graphics.sfShader_setFloatUniformArray(@handle, name.to_s, buf, values.length)
     end
 
+    # Bind this shader as the active GL program. Useful when you
+    # want to issue raw GL draw calls under SFML's context. Pair
+    # with `Shader.unbind` to restore SFML's default. Most users
+    # don't need this — just pass the shader to `target.draw(...,
+    # render_states: SFML::RenderStates.new(shader: self))`.
+    def bind = C::Graphics.sfShader_bind(@handle)
+
+    def self.unbind = C::Graphics.sfShader_bind(nil)
+
+    # The OpenGL program ID. Useful for debug printf / interop
+    # with raw GL libraries.
+    def native_handle = C::Graphics.sfShader_getNativeHandle(@handle)
+
     attr_reader :handle # :nodoc:
 
     private

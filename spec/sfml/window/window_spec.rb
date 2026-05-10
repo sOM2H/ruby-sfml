@@ -70,4 +70,42 @@ RSpec.describe SFML::Window do
       win.close
     end
   end
+
+  describe "cursor + threshold setters" do
+    let(:win) { described_class.new(200, 200, "cursor+threshold") }
+    after     { win.close if win.open? }
+
+    it "cursor_visible= / cursor_grabbed= don't raise" do
+      expect { win.cursor_visible = false }.not_to raise_error
+      expect { win.cursor_grabbed = false }.not_to raise_error
+    end
+
+    it "joystick_threshold= accepts a float" do
+      expect { win.joystick_threshold = 0.1 }.not_to raise_error
+    end
+
+    it "rejects a non-Cursor cursor=" do
+      expect { win.cursor = :not_a_cursor }
+        .to raise_error(ArgumentError, /SFML::Cursor/)
+    end
+  end
+
+  describe "context_settings" do
+    let(:win) { described_class.new(200, 200, "ctx") }
+    after     { win.close if win.open? }
+
+    it "returns a SFML::ContextSettings — what the driver actually gave us" do
+      expect(win.context_settings).to be_a(SFML::ContextSettings)
+    end
+  end
+
+  describe "#wait_event" do
+    let(:win) { described_class.new(200, 200, "wait") }
+    after     { win.close if win.open? }
+
+    it "returns nil when no event arrives within the timeout" do
+      win.each_event.to_a   # drain creation events
+      expect(win.wait_event(timeout: SFML::Time.milliseconds(1))).to be_nil
+    end
+  end
 end

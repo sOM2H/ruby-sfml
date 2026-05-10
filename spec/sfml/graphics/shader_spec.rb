@@ -196,4 +196,20 @@ RSpec.describe SFML::Shader do
       rt.display
     end
   end
+
+  describe "#bind / .unbind / #native_handle" do
+    it "bind / unbind don't raise; native_handle is a positive Integer" do
+      next unless described_class.available?
+
+      shader = described_class.from_source(fragment: <<~GLSL)
+        uniform float t;
+        void main() { gl_FragColor = vec4(t, 0.0, 0.0, 1.0); }
+      GLSL
+
+      expect { shader.bind }.not_to raise_error
+      expect { described_class.unbind }.not_to raise_error
+      expect(shader.native_handle).to be_a(Integer)
+      expect(shader.native_handle).to be > 0
+    end
+  end
 end

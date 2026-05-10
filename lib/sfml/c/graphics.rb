@@ -108,6 +108,19 @@ module SFML
       attach_function :sfRenderWindow_setMaximumSize,         [:render_window_t, :pointer], :void
       attach_function :sfRenderWindow_createFromHandle,       [:pointer, :pointer], :render_window_t
       attach_function :sfRenderWindow_getNativeHandle,        [:render_window_t], :pointer
+      attach_function :sfRenderWindow_hasFocus,               [:render_window_t], :bool
+      attach_function :sfRenderWindow_requestFocus,           [:render_window_t], :void
+      attach_function :sfRenderWindow_getPosition,            [:render_window_t], System::Vector2i.by_value
+      attach_function :sfRenderWindow_setPosition,            [:render_window_t, System::Vector2i.by_value], :void
+      attach_function :sfRenderWindow_setVisible,             [:render_window_t, :bool], :void
+      attach_function :sfRenderWindow_setKeyRepeatEnabled,    [:render_window_t, :bool], :void
+      attach_function :sfRenderWindow_setJoystickThreshold,   [:render_window_t, :float], :void
+      attach_function :sfRenderWindow_setActive,              [:render_window_t, :bool], :bool
+      attach_function :sfRenderWindow_pushGLStates,           [:render_window_t], :void
+      attach_function :sfRenderWindow_popGLStates,            [:render_window_t], :void
+      attach_function :sfRenderWindow_resetGLStates,          [:render_window_t], :void
+      attach_function :sfRenderWindow_isSrgb,                 [:render_window_t], :bool
+      attach_function :sfRenderWindow_waitEvent,              [:render_window_t, System::Time.by_value, :pointer], :bool
 
       typedef :pointer, :texture_t
       typedef :pointer, :render_texture_t
@@ -205,8 +218,16 @@ module SFML
                       System::Vector2i.by_value
 
       # ---- Texture ----
+      attach_function :sfTexture_create,         [System::Vector2u.by_value], :texture_t
       attach_function :sfTexture_createFromFile, [:string, :pointer], :texture_t
       attach_function :sfTexture_createFromImage,[:image_t, :pointer], :texture_t
+      attach_function :sfTexture_copy,           [:texture_t], :texture_t
+      attach_function :sfTexture_isSrgb,         [:texture_t], :bool
+      attach_function :sfTexture_generateMipmap, [:texture_t], :bool
+      attach_function :sfTexture_getMaximumSize, [], :uint
+      # `sfTexture_bind` takes a CoordinateType enum (0 = normalised,
+      # 1 = pixels). Pass NULL to unbind.
+      attach_function :sfTexture_bind,           [:texture_t, :int], :void
       attach_function :sfTexture_destroy,        [:texture_t], :void
       attach_function :sfTexture_getSize,        [:texture_t], System::Vector2u.by_value
       attach_function :sfTexture_setSmooth,      [:texture_t, :bool], :void
@@ -223,7 +244,9 @@ module SFML
       attach_function :sfImage_createFromColor,   [System::Vector2u.by_value, Color.by_value], :image_t
       attach_function :sfImage_createFromPixels,  [System::Vector2u.by_value, :pointer], :image_t
       attach_function :sfImage_createFromFile,    [:string], :image_t
+      attach_function :sfImage_createFromMemory,  [:pointer, :size_t], :image_t
       attach_function :sfImage_copy,              [:image_t], :image_t
+      attach_function :sfImage_copyImage,         [:image_t, :image_t, System::Vector2u.by_value, IntRect.by_value, :bool], :bool
       attach_function :sfImage_destroy,           [:image_t], :void
       attach_function :sfImage_saveToFile,        [:image_t, :string], :bool
       attach_function :sfImage_saveToMemory,      [:image_t, :pointer, :string], :bool
@@ -356,6 +379,12 @@ module SFML
       attach_function :sfRenderTexture_isSmooth,        [:render_texture_t], :bool
       attach_function :sfRenderTexture_setRepeated,     [:render_texture_t, :bool], :void
       attach_function :sfRenderTexture_isRepeated,      [:render_texture_t], :bool
+      attach_function :sfRenderTexture_isSrgb,          [:render_texture_t], :bool
+      attach_function :sfRenderTexture_generateMipmap,  [:render_texture_t], :bool
+      attach_function :sfRenderTexture_getMaximumAntiAliasingLevel, [], :uint
+      attach_function :sfRenderTexture_pushGLStates,    [:render_texture_t], :void
+      attach_function :sfRenderTexture_popGLStates,     [:render_texture_t], :void
+      attach_function :sfRenderTexture_resetGLStates,   [:render_texture_t], :void
 
       attach_function :sfRenderTexture_mapPixelToCoords,
                       [:render_texture_t, System::Vector2i.by_value, :view_t],
@@ -386,6 +415,8 @@ module SFML
       attach_function :sfShader_createFromMemory, [:string, :string, :string], :shader_t
       attach_function :sfShader_destroy,          [:shader_t], :void
       attach_function :sfShader_isAvailable,      [], :bool
+      attach_function :sfShader_bind,             [:shader_t], :void
+      attach_function :sfShader_getNativeHandle,  [:shader_t], :uint
       attach_function :sfShader_isGeometryAvailable, [], :bool
 
       attach_function :sfShader_setFloatUniform,  [:shader_t, :string, :float], :void
@@ -429,10 +460,28 @@ module SFML
       attach_function :sfShader_setVec4UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
 
       # ---- Font ----
-      attach_function :sfFont_createFromFile, [:string], :font_t
-      attach_function :sfFont_destroy,        [:font_t], :void
-      attach_function :sfFont_setSmooth,      [:font_t, :bool], :void
-      attach_function :sfFont_isSmooth,       [:font_t], :bool
+      # `sfFontInfo` carries one field — the human-readable font
+      # family. CSFML 3 expanded this struct's surface area only
+      # through the existing `getInfo` getter; new fields would
+      # arrive as additional struct members.
+      class FontInfo < FFI::Struct
+        layout :family, :pointer   # C string; copy out before the font is destroyed
+      end
+
+      attach_function :sfFont_createFromFile,        [:string], :font_t
+      attach_function :sfFont_createFromMemory,      [:pointer, :size_t], :font_t
+      attach_function :sfFont_copy,                  [:font_t], :font_t
+      attach_function :sfFont_destroy,               [:font_t], :void
+      attach_function :sfFont_setSmooth,             [:font_t, :bool], :void
+      attach_function :sfFont_isSmooth,              [:font_t], :bool
+      attach_function :sfFont_getInfo,               [:font_t], FontInfo.by_value
+      attach_function :sfFont_hasGlyph,              [:font_t, :uint32], :bool
+      attach_function :sfFont_getKerning,            [:font_t, :uint32, :uint32, :uint], :float
+      attach_function :sfFont_getBoldKerning,        [:font_t, :uint32, :uint32, :uint], :float
+      attach_function :sfFont_getLineSpacing,        [:font_t, :uint], :float
+      attach_function :sfFont_getUnderlinePosition,  [:font_t, :uint], :float
+      attach_function :sfFont_getUnderlineThickness, [:font_t, :uint], :float
+      attach_function :sfFont_getTexture,            [:font_t, :uint], :texture_t
 
       # ---- Text ----
       attach_function :sfText_create,             [:font_t], :text_t
@@ -455,7 +504,15 @@ module SFML
       attach_function :sfText_setStyle,           [:text_t, :uint32], :void
       attach_function :sfText_getStyle,           [:text_t], :uint32
       attach_function :sfText_setLetterSpacing,   [:text_t, :float], :void
+      attach_function :sfText_getLetterSpacing,   [:text_t], :float
       attach_function :sfText_setLineSpacing,     [:text_t, :float], :void
+      attach_function :sfText_getLineSpacing,     [:text_t], :float
+      attach_function :sfText_findCharacterPos,   [:text_t, :size_t], System::Vector2f.by_value
+      attach_function :sfText_getFont,            [:text_t], :font_t
+      attach_function :sfText_copy,               [:text_t], :text_t
+      attach_function :sfText_getString,          [:text_t], :string
+      attach_function :sfText_getTransform,       [:text_t], Transform.by_value
+      attach_function :sfText_getInverseTransform,[:text_t], Transform.by_value
       attach_function :sfText_setPosition,        [:text_t, System::Vector2f.by_value], :void
       attach_function :sfText_getPosition,        [:text_t], System::Vector2f.by_value
       attach_function :sfText_setRotation,        [:text_t, :float], :void

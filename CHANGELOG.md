@@ -8,6 +8,83 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+## [3.0.0.3] — 2026-05-09
+
+### Added — typography
+- `Font#family` — human-readable family name from `sfFont_getInfo`.
+- `Font#has_glyph?(codepoint)` — accepts an Integer codepoint or
+  a single-character String.
+- `Font#kerning(a, b, character_size:, bold: false)` — wraps
+  `sfFont_getKerning` / `getBoldKerning` for accurate glyph
+  pairing. Used in advanced text layout.
+- `Font#line_spacing(size)`, `Font#underline_position(size)`,
+  `Font#underline_thickness(size)` — typography metrics for the
+  given character size.
+- `Font#texture(size)` — borrowed `SFML::Texture` of the glyph
+  atlas (handy for debug visualisations of what's been rasterised).
+- `Font#dup` / `#clone` — independent deep copy.
+- `Font.from_memory(bytes)` — load from a Ruby String (embedded
+  assets, network responses, `data:` URLs).
+- `Text#find_character_pos(index)` — exact `Vector2` position of
+  the character at the given byte index. Critical for caret /
+  selection rendering in text inputs.
+- `Text#letter_spacing` / `#line_spacing` getters (the setters
+  were already there).
+- `Text#dup` / `#clone` — independent copy with the same string
+  and font reference.
+- `Text#transform` / `#inverse_transform` — the `SFML::Transform`
+  the renderer applies when drawing this Text.
+
+### Added — Image / Texture / RenderTexture
+- `Image.from_memory(bytes)` — decode PNG / JPG / BMP / TGA /
+  GIF / HDR / PSD from a Ruby String. Mirror of
+  `Image#save_to_memory`.
+- `Image#copy_from(source, at:, source_rect: nil, apply_alpha: false)`
+  — stamp a region of `source` into self. Useful for hand-built
+  texture atlases or composite images.
+- `Texture.create(width, height)` — allocate a blank GPU
+  texture; pair with `Texture#update(image)` to stream pixels.
+- `Texture.maximum_size` / `Texture.unbind` — class-level
+  helpers.
+- `Texture#bind(coord:)` — manually bind for raw OpenGL interop.
+- `Texture#srgb?`, `Texture#generate_mipmap`, `Texture#dup`.
+- `RenderTexture.maximum_anti_aliasing_level`,
+  `RenderTexture#srgb?`, `RenderTexture#generate_mipmap`.
+- `RenderTexture#active=`, `#push_gl_states`, `#pop_gl_states`,
+  `#reset_gl_states` — same GL-state machinery as RenderWindow.
+
+### Added — Window / RenderWindow polish
+- `RenderWindow#focused?` / `#request_focus` / `#position` /
+  `#position=` / `#srgb?`.
+- `RenderWindow#visible=`, `#key_repeat_enabled=`,
+  `#joystick_threshold=`.
+- `RenderWindow#active=`, `#push_gl_states`, `#pop_gl_states`,
+  `#reset_gl_states` — for mixing raw OpenGL calls with SFML
+  rendering. Surround custom GL with push/pop so SFML's
+  internal state survives.
+- `RenderWindow#wait_event(timeout:)` — block until the next
+  event or `timeout` elapses (a `SFML::Time`). For low-power /
+  event-driven apps that don't need a 60Hz update loop.
+- `Window#cursor=`, `#cursor_visible=`, `#cursor_grabbed=` —
+  parity with the same setters that already existed on
+  `RenderWindow`.
+- `Window#joystick_threshold=`, `Window#context_settings`,
+  `Window#wait_event(timeout:)`.
+
+### Added — Shader
+- `Shader#bind`, `Shader.unbind`, `Shader#native_handle` — for
+  raw GL interop and debug introspection.
+
+### Fixed
+- `SFML::App._dispatch` now forwards `:resized` events to *both*
+  `on_resize(width, height)` *and* `on_event(event)`. The 3.0.0.2
+  refactor accidentally routed `:resized` only through the
+  structured hook, which broke any app that forwarded
+  `on_event` to a sub-system (e.g. `def on_event(e) =
+  @gui.on_event(e)`) — the GUI never got told to refresh its
+  view + reflow on resize. Both hooks now receive the event;
+  apps that already use `on_resize` are unaffected.
+
 ## [3.0.0.2] — 2026-05-09
 
 ### Added

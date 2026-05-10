@@ -41,6 +41,23 @@ module SFML
       img
     end
 
+    # Decode an image from a Ruby String of bytes (PNG, JPG, BMP,
+    # TGA, GIF, HDR, PSD — whatever stb_image / SFML's loader
+    # supports). Mirror of `Image#save_to_memory` for round-trips
+    # without touching the disk.
+    def self.from_memory(bytes)
+      raise ArgumentError, "expected a String, got #{bytes.class}" unless bytes.is_a?(String)
+
+      buf = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
+      buf.write_bytes(bytes)
+      ptr = C::Graphics.sfImage_createFromMemory(buf, bytes.bytesize)
+      raise Error, "sfImage_createFromMemory returned NULL — unsupported format?" if ptr.null?
+
+      img = allocate
+      img.send(:_take_ownership, ptr)
+      img
+    end
+
     # Build an image from a raw RGBA byte string. `pixels` must be
     # exactly width*height*4 bytes, row-major from the top-left.
     def self.from_pixels(width, height, pixels)
@@ -88,6 +105,36 @@ module SFML
     def pixels
       ptr = C::Graphics.sfImage_getPixelsPtr(@handle)
       ptr.read_bytes(width * height * 4)
+    end
+
+    # Copy a rectangular region of `source` into this image. The
+    # source region is `source_rect` (a `SFML::Rect` or `[x, y, w,
+    # h]` Array; defaults to the entire source); the destination
+    # top-left in this image is `at` (`[x, y]`). When `apply_alpha`
+    # is true, the source's alpha channel blends with this image's
+    # existing pixels; otherwise the copy is opaque.
+    #
+    # Useful for stamping sprites onto an atlas, blitting one
+    # image into a sub-rect of another, or hand-building a
+    # composite before uploading to GPU.
+    def copy_from(source, at:, source_rect: nil, apply_alpha: false)
+      raise ArgumentError, "Image#copy_from needs a SFML::Image" unless source.is_a?(Image)
+
+      dest = C::System::Vector2u.new
+      dest[:x] = Integer(at[0]); dest[:y] = Integer(at[1])
+
+      sr_struct = C::Graphics::IntRect.new
+      x, y, w, h =
+        case source_rect
+        when nil   then [0, 0, 0, 0]   # zeroes = "entire source" in CSFML
+        when Rect  then [source_rect.x, source_rect.y, source_rect.width, source_rect.height]
+        when Array then source_rect
+        else raise ArgumentError, "source_rect must be a SFML::Rect or [x, y, w, h]"
+        end
+      sr_struct[:position][:x] = Integer(x); sr_struct[:position][:y] = Integer(y)
+      sr_struct[:size][:x]     = Integer(w); sr_struct[:size][:y]     = Integer(h)
+      C::Graphics.sfImage_copyImage(@handle, source.handle, dest, sr_struct, !!apply_alpha)
+      self
     end
 
     def save(path)

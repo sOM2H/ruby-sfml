@@ -58,6 +58,18 @@ module SFML
       img
     end
 
+    # Decode an image from any Ruby IO-like object (File, StringIO,
+    # network-backed reader). The stream must support read/seek/pos/size.
+    def self.from_stream(io)
+      stream = SFML::InputStream.new(io)
+      ptr = C::Graphics.sfImage_createFromStream(stream.to_ptr)
+      raise Error, "sfImage_createFromStream returned NULL — unsupported format?" if ptr.null?
+
+      img = allocate
+      img.send(:_take_ownership, ptr)
+      img
+    end
+
     # Build an image from a raw RGBA byte string. `pixels` must be
     # exactly width*height*4 bytes, row-major from the top-left.
     def self.from_pixels(width, height, pixels)

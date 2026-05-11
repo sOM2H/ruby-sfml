@@ -21,4 +21,22 @@ RSpec.describe SFML::VideoMode do
     expect(m.width).to be > 0
     expect(m.height).to be > 0
   end
+
+  describe ".fullscreen_modes" do
+    it "returns at least one mode" do
+      modes = described_class.fullscreen_modes
+      expect(modes).not_to be_empty
+      expect(modes.first).to be_a(described_class)
+    end
+  end
+
+  describe "#valid?" do
+    it "true for the current desktop mode" do
+      expect(described_class.desktop_mode.valid?).to be true
+    end
+
+    it "false for nonsense modes" do
+      expect(described_class.new(1, 1).valid?).to be false
+    end
+  end
 end

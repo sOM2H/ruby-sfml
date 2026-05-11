@@ -57,6 +57,29 @@ module SFML
         [status, buf.read_bytes(n), sip, sport]
       end
 
+      # Send a structured SFML::Network::Packet to (to, port).
+      def send_packet(packet, to:, port:)
+        raise ArgumentError, "expected SFML::Network::Packet" unless packet.is_a?(Packet)
+        addr = to.is_a?(IpAddress) ? to : IpAddress.from_string(to)
+        code = C::Network.sfUdpSocket_sendPacket(@handle, packet.handle, addr.struct, Integer(port))
+        C::Network::STATUSES[code]
+      end
+
+      # Returns [status, packet, sender_ip, sender_port]. Packet is nil
+      # for non-:done statuses.
+      def receive_packet
+        pkt         = Packet.new
+        sender_addr = C::Network::IpAddress.new
+        sender_port = FFI::MemoryPointer.new(:uint16)
+
+        code = C::Network.sfUdpSocket_receivePacket(
+          @handle, pkt.handle, sender_addr.pointer, sender_port,
+        )
+        status = C::Network::STATUSES[code]
+        return [status, nil, nil, nil] unless status == :done
+        [status, pkt, IpAddress.wrap(sender_addr), sender_port.read(:uint16)]
+      end
+
       def blocking? = C::Network.sfUdpSocket_isBlocking(@handle)
 
       def blocking=(value)

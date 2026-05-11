@@ -159,9 +159,16 @@ module SFML
         end
       end
 
-      attach_function :sfVideoMode_getDesktopMode, [], VideoMode.by_value
+      attach_function :sfVideoMode_getDesktopMode,     [], VideoMode.by_value
+      attach_function :sfVideoMode_getFullscreenModes, [:pointer], :pointer
+      attach_function :sfVideoMode_isValid,            [VideoMode.by_value], :bool
 
-      attach_function :sfKeyboard_isKeyPressed, [:int], :bool
+      attach_function :sfKeyboard_isKeyPressed,            [:int], :bool
+      attach_function :sfKeyboard_isScancodePressed,       [:int], :bool
+      attach_function :sfKeyboard_localize,                [:int], :int
+      attach_function :sfKeyboard_delocalize,              [:int], :int
+      attach_function :sfKeyboard_getDescription,          [:int], :string
+      attach_function :sfKeyboard_setVirtualKeyboardVisible, [:bool], :void
 
       # Mouse: position queries here use a sfWindow*. Pass NULL to get
       # desktop-relative coordinates. The render-window variants live in
@@ -260,6 +267,17 @@ module SFML
       # to use defaults.
       attach_function :sfWindow_createFromHandle, [:pointer, :pointer], :raw_window_t
       attach_function :sfWindow_getNativeHandle,  [:raw_window_t], :pointer
+
+      # ---- Context (headless GL context — for off-screen shader
+      #               compilation or raw GL work without a window) ----
+      typedef :pointer, :context_t
+      attach_function :sfContext_create,                [], :context_t
+      attach_function :sfContext_destroy,               [:context_t], :void
+      attach_function :sfContext_isExtensionAvailable,  [:string], :bool
+      attach_function :sfContext_setActive,             [:context_t, :bool], :bool
+      attach_function :sfContext_getFunction,           [:string], :pointer
+      attach_function :sfContext_getSettings,           [:context_t], ContextSettings.by_value
+      attach_function :sfContext_getActiveContextId,    [], :uint64
     end
   end
 end

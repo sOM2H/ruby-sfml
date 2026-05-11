@@ -66,6 +66,12 @@ module SFML
       attach_variable :sfRenderStates_default, RenderStates
       attach_variable :sfTransform_Identity,   Transform
 
+      attach_function :sfColor_fromInteger, [:uint32], Color.by_value
+      attach_function :sfColor_toInteger,   [Color.by_value], :uint32
+      attach_function :sfColor_add,         [Color.by_value, Color.by_value], Color.by_value
+      attach_function :sfColor_subtract,    [Color.by_value, Color.by_value], Color.by_value
+      attach_function :sfColor_modulate,    [Color.by_value, Color.by_value], Color.by_value
+
       attach_function :sfTransform_combine,           [:pointer, :pointer], :void
       attach_function :sfTransform_translate,         [:pointer, System::Vector2f.by_value], :void
       attach_function :sfTransform_rotate,            [:pointer, :float], :void
@@ -153,6 +159,26 @@ module SFML
         layout :x, :int32, :y, :int32, :z, :int32, :w, :int32
       end
 
+      class GlslBvec2 < FFI::Struct
+        layout :x, :bool, :y, :bool
+      end
+
+      class GlslBvec3 < FFI::Struct
+        layout :x, :bool, :y, :bool, :z, :bool
+      end
+
+      class GlslBvec4 < FFI::Struct
+        layout :x, :bool, :y, :bool, :z, :bool, :w, :bool
+      end
+
+      class GlslMat3 < FFI::Struct
+        layout :array, [:float, 9]
+      end
+
+      class GlslMat4 < FFI::Struct
+        layout :array, [:float, 16]
+      end
+
       class Vertex < FFI::Struct
         layout :position,   System::Vector2f,
                :color,      Color,
@@ -222,10 +248,17 @@ module SFML
                       System::Vector2i.by_value
 
       # ---- Texture ----
-      attach_function :sfTexture_create,         [System::Vector2u.by_value], :texture_t
-      attach_function :sfTexture_createFromFile, [:string, :pointer], :texture_t
-      attach_function :sfTexture_createFromImage,[:image_t, :pointer], :texture_t
-      attach_function :sfTexture_createFromMemory,[:pointer, :size_t, :pointer], :texture_t
+      attach_function :sfTexture_create,             [System::Vector2u.by_value], :texture_t
+      attach_function :sfTexture_createSrgb,         [System::Vector2u.by_value], :texture_t
+      attach_function :sfTexture_createFromFile,     [:string, :pointer], :texture_t
+      attach_function :sfTexture_createSrgbFromFile, [:string, :pointer], :texture_t
+      attach_function :sfTexture_createFromImage,    [:image_t, :pointer], :texture_t
+      attach_function :sfTexture_createSrgbFromImage,[:image_t, :pointer], :texture_t
+      attach_function :sfTexture_createFromMemory,   [:pointer, :size_t, :pointer], :texture_t
+      attach_function :sfTexture_createSrgbFromMemory,[:pointer, :size_t, :pointer], :texture_t
+      attach_function :sfTexture_createFromStream,    [:pointer, :pointer], :texture_t
+      attach_function :sfTexture_createSrgbFromStream,[:pointer, :pointer], :texture_t
+      attach_function :sfTexture_resizeSrgb,         [:texture_t, System::Vector2u.by_value], :bool
       attach_function :sfTexture_copy,           [:texture_t], :texture_t
       attach_function :sfTexture_resize,         [:texture_t, System::Vector2u.by_value], :bool
       attach_function :sfTexture_swap,           [:texture_t, :texture_t], :void
@@ -259,6 +292,7 @@ module SFML
       attach_function :sfImage_createFromPixels,  [System::Vector2u.by_value, :pointer], :image_t
       attach_function :sfImage_createFromFile,    [:string], :image_t
       attach_function :sfImage_createFromMemory,  [:pointer, :size_t], :image_t
+      attach_function :sfImage_createFromStream,  [:pointer], :image_t
       attach_function :sfImage_copy,              [:image_t], :image_t
       attach_function :sfImage_copyImage,         [:image_t, :image_t, System::Vector2u.by_value, IntRect.by_value, :bool], :bool
       attach_function :sfImage_destroy,           [:image_t], :void
@@ -318,6 +352,17 @@ module SFML
       attach_function :sfCircleShape_move,               [:circle_shape_t, System::Vector2f.by_value], :void
       attach_function :sfCircleShape_rotate,             [:circle_shape_t, :float], :void
       attach_function :sfCircleShape_scale,              [:circle_shape_t, System::Vector2f.by_value], :void
+      attach_function :sfCircleShape_copy,               [:circle_shape_t], :circle_shape_t
+      attach_function :sfCircleShape_getPoint,           [:circle_shape_t, :size_t], System::Vector2f.by_value
+      attach_function :sfCircleShape_getGeometricCenter, [:circle_shape_t], System::Vector2f.by_value
+      attach_function :sfCircleShape_getLocalBounds,     [:circle_shape_t], FloatRect.by_value
+      attach_function :sfCircleShape_getGlobalBounds,    [:circle_shape_t], FloatRect.by_value
+      attach_function :sfCircleShape_getTransform,       [:circle_shape_t], Transform.by_value
+      attach_function :sfCircleShape_getInverseTransform,[:circle_shape_t], Transform.by_value
+      attach_function :sfCircleShape_setTexture,         [:circle_shape_t, :texture_t, :bool], :void
+      attach_function :sfCircleShape_getTexture,         [:circle_shape_t], :texture_t
+      attach_function :sfCircleShape_setTextureRect,     [:circle_shape_t, IntRect.by_value], :void
+      attach_function :sfCircleShape_getTextureRect,     [:circle_shape_t], IntRect.by_value
 
       # ---- RectangleShape ----
       attach_function :sfRectangleShape_create,             [], :rectangle_shape_t
@@ -341,6 +386,18 @@ module SFML
       attach_function :sfRectangleShape_move,               [:rectangle_shape_t, System::Vector2f.by_value], :void
       attach_function :sfRectangleShape_rotate,             [:rectangle_shape_t, :float], :void
       attach_function :sfRectangleShape_scale,              [:rectangle_shape_t, System::Vector2f.by_value], :void
+      attach_function :sfRectangleShape_copy,               [:rectangle_shape_t], :rectangle_shape_t
+      attach_function :sfRectangleShape_getPointCount,      [:rectangle_shape_t], :size_t
+      attach_function :sfRectangleShape_getPoint,           [:rectangle_shape_t, :size_t], System::Vector2f.by_value
+      attach_function :sfRectangleShape_getGeometricCenter, [:rectangle_shape_t], System::Vector2f.by_value
+      attach_function :sfRectangleShape_getLocalBounds,     [:rectangle_shape_t], FloatRect.by_value
+      attach_function :sfRectangleShape_getGlobalBounds,    [:rectangle_shape_t], FloatRect.by_value
+      attach_function :sfRectangleShape_getTransform,       [:rectangle_shape_t], Transform.by_value
+      attach_function :sfRectangleShape_getInverseTransform,[:rectangle_shape_t], Transform.by_value
+      attach_function :sfRectangleShape_setTexture,         [:rectangle_shape_t, :texture_t, :bool], :void
+      attach_function :sfRectangleShape_getTexture,         [:rectangle_shape_t], :texture_t
+      attach_function :sfRectangleShape_setTextureRect,     [:rectangle_shape_t, IntRect.by_value], :void
+      attach_function :sfRectangleShape_getTextureRect,     [:rectangle_shape_t], IntRect.by_value
 
       # ---- ConvexShape ----
       attach_function :sfConvexShape_create,                [], :convex_shape_t
@@ -366,6 +423,16 @@ module SFML
       attach_function :sfConvexShape_move,                  [:convex_shape_t, System::Vector2f.by_value], :void
       attach_function :sfConvexShape_rotate,                [:convex_shape_t, :float], :void
       attach_function :sfConvexShape_scale,                 [:convex_shape_t, System::Vector2f.by_value], :void
+      attach_function :sfConvexShape_copy,                  [:convex_shape_t], :convex_shape_t
+      attach_function :sfConvexShape_getGeometricCenter,    [:convex_shape_t], System::Vector2f.by_value
+      attach_function :sfConvexShape_getLocalBounds,        [:convex_shape_t], FloatRect.by_value
+      attach_function :sfConvexShape_getGlobalBounds,       [:convex_shape_t], FloatRect.by_value
+      attach_function :sfConvexShape_getTransform,          [:convex_shape_t], Transform.by_value
+      attach_function :sfConvexShape_getInverseTransform,   [:convex_shape_t], Transform.by_value
+      attach_function :sfConvexShape_setTexture,            [:convex_shape_t, :texture_t, :bool], :void
+      attach_function :sfConvexShape_getTexture,            [:convex_shape_t], :texture_t
+      attach_function :sfConvexShape_setTextureRect,        [:convex_shape_t, IntRect.by_value], :void
+      attach_function :sfConvexShape_getTextureRect,        [:convex_shape_t], IntRect.by_value
 
       # ---- VertexArray ----
       attach_function :sfVertexArray_create,            [], :vertex_array_t
@@ -378,6 +445,7 @@ module SFML
       attach_function :sfVertexArray_setPrimitiveType,  [:vertex_array_t, :int], :void
       attach_function :sfVertexArray_getPrimitiveType,  [:vertex_array_t], :int
       attach_function :sfVertexArray_getBounds,         [:vertex_array_t], FloatRect.by_value
+      attach_function :sfVertexArray_copy,              [:vertex_array_t], :vertex_array_t
 
       # ---- RenderTexture ----
       attach_function :sfRenderTexture_create,          [System::Vector2u.by_value, :pointer], :render_texture_t
@@ -433,6 +501,7 @@ module SFML
       # ---- Shader ----
       attach_function :sfShader_createFromFile,   [:string, :string, :string], :shader_t
       attach_function :sfShader_createFromMemory, [:string, :string, :string], :shader_t
+      attach_function :sfShader_createFromStream, [:pointer, :pointer, :pointer], :shader_t
       attach_function :sfShader_destroy,          [:shader_t], :void
       attach_function :sfShader_isAvailable,      [], :bool
       attach_function :sfShader_bind,             [:shader_t], :void
@@ -471,6 +540,7 @@ module SFML
       attach_function :sfVertexBuffer_setUsage,       [:vertex_buffer_t, :int], :void
       attach_function :sfVertexBuffer_getUsage,       [:vertex_buffer_t], :int
       attach_function :sfVertexBuffer_isAvailable,    [], :bool
+      attach_function :sfVertexBuffer_bind,           [:vertex_buffer_t], :void
 
       # Bulk array uniform setters. The array argument is a packed
       # buffer of N elements (N×{1,2,3,4} floats); the length argument
@@ -479,6 +549,14 @@ module SFML
       attach_function :sfShader_setVec2UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
       attach_function :sfShader_setVec3UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
       attach_function :sfShader_setVec4UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
+
+      attach_function :sfShader_setBvec2Uniform,      [:shader_t, :string, GlslBvec2.by_value], :void
+      attach_function :sfShader_setBvec3Uniform,      [:shader_t, :string, GlslBvec3.by_value], :void
+      attach_function :sfShader_setBvec4Uniform,      [:shader_t, :string, GlslBvec4.by_value], :void
+      attach_function :sfShader_setMat3Uniform,       [:shader_t, :string, :pointer], :void
+      attach_function :sfShader_setMat4Uniform,       [:shader_t, :string, :pointer], :void
+      attach_function :sfShader_setMat3UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
+      attach_function :sfShader_setMat4UniformArray,  [:shader_t, :string, :pointer, :size_t], :void
 
       # ---- Font ----
       # `sfFontInfo` carries one field — the human-readable font
@@ -491,6 +569,7 @@ module SFML
 
       attach_function :sfFont_createFromFile,        [:string], :font_t
       attach_function :sfFont_createFromMemory,      [:pointer, :size_t], :font_t
+      attach_function :sfFont_createFromStream,      [:pointer], :font_t
       attach_function :sfFont_copy,                  [:font_t], :font_t
       attach_function :sfFont_destroy,               [:font_t], :void
       attach_function :sfFont_setSmooth,             [:font_t, :bool], :void
@@ -552,6 +631,69 @@ module SFML
       attach_function :sfSprite_getTextureRect,   [:sprite_t], IntRect.by_value
       attach_function :sfSprite_getLocalBounds,   [:sprite_t], FloatRect.by_value
       attach_function :sfSprite_getGlobalBounds,  [:sprite_t], FloatRect.by_value
+
+      # ---- Abstract Shape (callback-based custom polygon) ----
+      typedef :pointer, :shape_t
+      callback :shape_get_point_count, [:pointer], :size_t
+      callback :shape_get_point,       [:size_t, :pointer], System::Vector2f.by_value
+
+      attach_function :sfShape_create,                [:shape_get_point_count, :shape_get_point, :pointer], :shape_t
+      attach_function :sfShape_destroy,               [:shape_t], :void
+      attach_function :sfShape_setPosition,           [:shape_t, System::Vector2f.by_value], :void
+      attach_function :sfShape_getPosition,           [:shape_t], System::Vector2f.by_value
+      attach_function :sfShape_setRotation,           [:shape_t, :float], :void
+      attach_function :sfShape_getRotation,           [:shape_t], :float
+      attach_function :sfShape_setScale,              [:shape_t, System::Vector2f.by_value], :void
+      attach_function :sfShape_getScale,              [:shape_t], System::Vector2f.by_value
+      attach_function :sfShape_setOrigin,             [:shape_t, System::Vector2f.by_value], :void
+      attach_function :sfShape_getOrigin,             [:shape_t], System::Vector2f.by_value
+      attach_function :sfShape_move,                  [:shape_t, System::Vector2f.by_value], :void
+      attach_function :sfShape_rotate,                [:shape_t, :float], :void
+      attach_function :sfShape_scale,                 [:shape_t, System::Vector2f.by_value], :void
+      attach_function :sfShape_getTransform,          [:shape_t], Transform.by_value
+      attach_function :sfShape_getInverseTransform,   [:shape_t], Transform.by_value
+      attach_function :sfShape_setTexture,            [:shape_t, :texture_t, :bool], :void
+      attach_function :sfShape_getTexture,            [:shape_t], :texture_t
+      attach_function :sfShape_setTextureRect,        [:shape_t, IntRect.by_value], :void
+      attach_function :sfShape_getTextureRect,        [:shape_t], IntRect.by_value
+      attach_function :sfShape_setFillColor,          [:shape_t, Color.by_value], :void
+      attach_function :sfShape_getFillColor,          [:shape_t], Color.by_value
+      attach_function :sfShape_setOutlineColor,       [:shape_t, Color.by_value], :void
+      attach_function :sfShape_getOutlineColor,       [:shape_t], Color.by_value
+      attach_function :sfShape_setOutlineThickness,   [:shape_t, :float], :void
+      attach_function :sfShape_getOutlineThickness,   [:shape_t], :float
+      attach_function :sfShape_getPointCount,         [:shape_t], :size_t
+      attach_function :sfShape_getPoint,              [:shape_t, :size_t], System::Vector2f.by_value
+      attach_function :sfShape_getGeometricCenter,    [:shape_t], System::Vector2f.by_value
+      attach_function :sfShape_getLocalBounds,        [:shape_t], FloatRect.by_value
+      attach_function :sfShape_getGlobalBounds,       [:shape_t], FloatRect.by_value
+      attach_function :sfShape_update,                [:shape_t], :void
+
+      # CSFML draw entry-point for the abstract shape (same shape as
+      # the concrete CircleShape/RectangleShape/ConvexShape variants).
+      attach_function :sfRenderWindow_drawShape,
+                      [:render_window_t, :shape_t, :render_states_t], :void
+      attach_function :sfRenderTexture_drawShape,
+                      [:render_texture_t, :shape_t, :render_states_t], :void
+
+      # ---- Standalone Transformable ----
+      typedef :pointer, :transformable_t
+      attach_function :sfTransformable_create,                [], :transformable_t
+      attach_function :sfTransformable_copy,                  [:transformable_t], :transformable_t
+      attach_function :sfTransformable_destroy,               [:transformable_t], :void
+      attach_function :sfTransformable_setPosition,           [:transformable_t, System::Vector2f.by_value], :void
+      attach_function :sfTransformable_getPosition,           [:transformable_t], System::Vector2f.by_value
+      attach_function :sfTransformable_setRotation,           [:transformable_t, :float], :void
+      attach_function :sfTransformable_getRotation,           [:transformable_t], :float
+      attach_function :sfTransformable_setScale,              [:transformable_t, System::Vector2f.by_value], :void
+      attach_function :sfTransformable_getScale,              [:transformable_t], System::Vector2f.by_value
+      attach_function :sfTransformable_setOrigin,             [:transformable_t, System::Vector2f.by_value], :void
+      attach_function :sfTransformable_getOrigin,             [:transformable_t], System::Vector2f.by_value
+      attach_function :sfTransformable_move,                  [:transformable_t, System::Vector2f.by_value], :void
+      attach_function :sfTransformable_rotate,                [:transformable_t, :float], :void
+      attach_function :sfTransformable_scale,                 [:transformable_t, System::Vector2f.by_value], :void
+      attach_function :sfTransformable_getTransform,          [:transformable_t], Transform.by_value
+      attach_function :sfTransformable_getInverseTransform,   [:transformable_t], Transform.by_value
     end
   end
 end

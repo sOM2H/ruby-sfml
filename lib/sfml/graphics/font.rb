@@ -41,6 +41,25 @@ module SFML
 
       font = allocate
       font.send(:_take_ownership, ptr)
+      # CSFML doesn't copy the font bytes — keep them pinned so the
+      # GC doesn't free them while CSFML still references the buffer.
+      font.instance_variable_set(:@_memory_pin, buf)
+      font
+    end
+
+    # Load a TTF/OTF from any Ruby IO-like object — file, in-memory,
+    # network-backed reader. Keep the IO open until the Font is no
+    # longer in use; CSFML reads glyphs lazily.
+    def self.from_stream(io)
+      stream = SFML::InputStream.new(io)
+      ptr = C::Graphics.sfFont_createFromStream(stream.to_ptr)
+      raise Error, "sfFont_createFromStream returned NULL" if ptr.null?
+
+      font = allocate
+      font.send(:_take_ownership, ptr)
+      # CSFML reads the font lazily from this stream — keep it pinned.
+      font.instance_variable_set(:@_stream_pin, stream)
+      font.instance_variable_set(:@_io_pin, io)
       font
     end
 

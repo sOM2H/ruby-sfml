@@ -17,6 +17,28 @@ module SFML
       from_native(C::Window.sfVideoMode_getDesktopMode)
     end
 
+    # All video modes the current display supports for true-fullscreen
+    # window creation, sorted from most to least pixels. Filter by
+    # bpp or aspect ratio in Ruby as needed.
+    def self.fullscreen_modes
+      count_buf = FFI::MemoryPointer.new(:size_t)
+      array_ptr = C::Window.sfVideoMode_getFullscreenModes(count_buf)
+      n = count_buf.read(:size_t)
+      return [] if array_ptr.null? || n.zero?
+
+      stride = C::Window::VideoMode.size
+      Array.new(n) do |i|
+        from_native(C::Window::VideoMode.new(array_ptr + i * stride))
+      end
+    end
+
+    # Does the display actually support this mode at fullscreen?
+    # Always `true` for windowed-mode use (only fullscreen is constrained
+    # to the OS's allowed mode list).
+    def valid?
+      C::Window.sfVideoMode_isValid(to_native)
+    end
+
     def size = Vector2.new(@width, @height)
 
     def to_s = "#<SFML::VideoMode #{@width}x#{@height}@#{@bits_per_pixel}>"

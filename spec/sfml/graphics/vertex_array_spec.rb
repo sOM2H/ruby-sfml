@@ -98,4 +98,16 @@ RSpec.describe SFML::VertexArray do
       expect(va.bounds.height).to eq(80)
     end
   end
+
+  describe "#dup" do
+    it "copies vertices into an independent array" do
+      va = described_class.new(:triangles, [
+        SFML::Vertex.new([1, 0]), SFML::Vertex.new([2, 0]), SFML::Vertex.new([3, 0]),
+      ])
+      copy = va.dup
+      copy << SFML::Vertex.new([4, 0])
+      expect(va.size).to eq(3)
+      expect(copy.size).to eq(4)
+    end
+  end
 end

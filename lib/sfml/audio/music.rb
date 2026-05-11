@@ -29,6 +29,20 @@ module SFML
       m
     end
 
+    # Stream music straight from a Ruby IO-like object. CSFML reads
+    # the audio lazily on its decoding thread — keep the IO open
+    # until you stop the Music.
+    def self.from_stream(io, **opts)
+      stream = SFML::InputStream.new(io)
+      ptr = C::Audio.sfMusic_createFromStream(stream.to_ptr)
+      raise Error, "sfMusic_createFromStream returned NULL — unsupported format?" if ptr.null?
+
+      m = _wrap(ptr, opts)
+      m.instance_variable_set(:@_stream_pin, stream)
+      m.instance_variable_set(:@_io_pin, io)
+      m
+    end
+
     # Internal — finish initialising a Music from an already-built
     # CSFML pointer.
     def self._wrap(ptr, opts)

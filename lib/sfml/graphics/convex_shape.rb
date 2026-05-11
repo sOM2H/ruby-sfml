@@ -13,6 +13,7 @@ module SFML
   #   window.draw(star)
   class ConvexShape
     include Graphics::Transformable
+    include Graphics::ShapeInspectable
     CSFML_PREFIX = :sfConvexShape
 
     def initialize(points: nil, **opts)
@@ -24,6 +25,8 @@ module SFML
       self.fill_color        = opts[:fill_color]        if opts.key?(:fill_color)
       self.outline_color     = opts[:outline_color]     if opts.key?(:outline_color)
       self.outline_thickness = opts[:outline_thickness] if opts.key?(:outline_thickness)
+      self.texture           = opts[:texture]           if opts.key?(:texture)
+      self.texture_rect      = opts[:texture_rect]      if opts.key?(:texture_rect)
       self.position          = opts[:position]          if opts.key?(:position)
       self.origin            = opts[:origin]            if opts.key?(:origin)
       self.rotation          = opts[:rotation]          if opts.key?(:rotation)

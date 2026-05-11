@@ -46,6 +46,21 @@ RSpec.describe SFML::Texture do
       expect(described_class.create(8, 8).srgb?).to be false
     end
 
+    it "create(..., srgb: true) tags the texture sRGB" do
+      expect(described_class.create(8, 8, srgb: true).srgb?).to be true
+    end
+
+    it "from_image(..., srgb: true) tags the texture sRGB" do
+      img = SFML::Image.from_pixels(2, 2, "\xff\x00\x00\xff" * 4)
+      expect(described_class.from_image(img, srgb: true).srgb?).to be true
+    end
+
+    it "#resize(..., srgb: true) re-allocates as sRGB" do
+      tex = described_class.create(4, 4)
+      expect(tex.resize(8, 8, srgb: true)).to be true
+      expect(tex.srgb?).to be true
+    end
+
     it "#generate_mipmap returns a boolean" do
       expect([true, false]).to include(described_class.create(8, 8).generate_mipmap)
     end

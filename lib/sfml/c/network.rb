@@ -69,11 +69,51 @@ module SFML
       attach_function :sfUdpSocket_maxDatagramSize,  [], :uint32
 
       # ---- Packet (typed serializer) ----
-      attach_function :sfPacket_create,         [], :packet_t
-      attach_function :sfPacket_destroy,        [:packet_t], :void
-      attach_function :sfPacket_append,         [:packet_t, :pointer, :size_t], :void
-      attach_function :sfPacket_clear,          [:packet_t], :void
-      attach_function :sfPacket_getData,        [:packet_t], :pointer
+      attach_function :sfPacket_create,           [], :packet_t
+      attach_function :sfPacket_copy,             [:packet_t], :packet_t
+      attach_function :sfPacket_destroy,          [:packet_t], :void
+      attach_function :sfPacket_append,           [:packet_t, :pointer, :size_t], :void
+      attach_function :sfPacket_clear,            [:packet_t], :void
+      attach_function :sfPacket_getData,          [:packet_t], :pointer
+      attach_function :sfPacket_getDataSize,      [:packet_t], :size_t
+      attach_function :sfPacket_getReadPosition,  [:packet_t], :size_t
+      attach_function :sfPacket_endOfPacket,      [:packet_t], :bool
+      attach_function :sfPacket_canRead,          [:packet_t], :bool
+
+      attach_function :sfPacket_readBool,    [:packet_t], :bool
+      attach_function :sfPacket_readInt8,    [:packet_t], :int8
+      attach_function :sfPacket_readUint8,   [:packet_t], :uint8
+      attach_function :sfPacket_readInt16,   [:packet_t], :int16
+      attach_function :sfPacket_readUint16,  [:packet_t], :uint16
+      attach_function :sfPacket_readInt32,   [:packet_t], :int32
+      attach_function :sfPacket_readUint32,  [:packet_t], :uint32
+      attach_function :sfPacket_readInt64,   [:packet_t], :int64
+      attach_function :sfPacket_readUint64,  [:packet_t], :uint64
+      attach_function :sfPacket_readFloat,   [:packet_t], :float
+      attach_function :sfPacket_readDouble,  [:packet_t], :double
+      # CSFML's `readString` writes a NUL-terminated C string into a
+      # caller-allocated buffer. We size the buffer from the packet's
+      # remaining bytes — the encoded length precedes the chars, so
+      # `getDataSize - getReadPosition` is a safe upper bound.
+      attach_function :sfPacket_readString,  [:packet_t, :pointer], :void
+
+      attach_function :sfPacket_writeBool,    [:packet_t, :bool], :void
+      attach_function :sfPacket_writeInt8,    [:packet_t, :int8], :void
+      attach_function :sfPacket_writeUint8,   [:packet_t, :uint8], :void
+      attach_function :sfPacket_writeInt16,   [:packet_t, :int16], :void
+      attach_function :sfPacket_writeUint16,  [:packet_t, :uint16], :void
+      attach_function :sfPacket_writeInt32,   [:packet_t, :int32], :void
+      attach_function :sfPacket_writeUint32,  [:packet_t, :uint32], :void
+      attach_function :sfPacket_writeInt64,   [:packet_t, :int64], :void
+      attach_function :sfPacket_writeUint64,  [:packet_t, :uint64], :void
+      attach_function :sfPacket_writeFloat,   [:packet_t, :float], :void
+      attach_function :sfPacket_writeDouble,  [:packet_t, :double], :void
+      attach_function :sfPacket_writeString,  [:packet_t, :string], :void
+
+      attach_function :sfTcpSocket_sendPacket,    [:tcp_socket_t, :packet_t], :int
+      attach_function :sfTcpSocket_receivePacket, [:tcp_socket_t, :packet_t], :int, blocking: true
+      attach_function :sfUdpSocket_sendPacket,    [:udp_socket_t, :packet_t, IpAddress.by_value, :uint16], :int
+      attach_function :sfUdpSocket_receivePacket, [:udp_socket_t, :packet_t, :pointer, :pointer], :int, blocking: true
 
       # ---- HTTP ----
       typedef :pointer, :http_t

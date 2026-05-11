@@ -36,4 +36,20 @@ RSpec.describe SFML::ConvexShape do
   it "responds to draw_on" do
     expect(described_class.new(points: tri)).to respond_to(:draw_on)
   end
+
+  describe "introspection" do
+    let(:shape) { described_class.new(points: [[0, 0], [10, 0], [10, 10], [0, 10]]) }
+
+    it "exposes geometric_center + bounds" do
+      expect(shape.geometric_center).to eq(SFML::Vector2[5, 5])
+      expect(shape.local_bounds).to     eq(SFML::Rect.new([0, 0], [10, 10]))
+    end
+
+    it "#dup is independent" do
+      copy = shape.dup
+      copy.set_point(0, [-5, -5])
+      expect(shape.points.first).to eq(SFML::Vector2[0, 0])
+      expect(copy.points.first).to  eq(SFML::Vector2[-5, -5])
+    end
+  end
 end

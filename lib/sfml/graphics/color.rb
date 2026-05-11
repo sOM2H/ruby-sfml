@@ -59,6 +59,36 @@ module SFML
       new(struct[:r], struct[:g], struct[:b], struct[:a])
     end
 
+    # Build from a packed 0xRRGGBBAA integer.
+    def self.from_integer(value)
+      from_native(C::Graphics.sfColor_fromInteger(Integer(value)))
+    end
+
+    # Pack this color into a single 0xRRGGBBAA integer.
+    def to_integer = C::Graphics.sfColor_toInteger(to_native)
+
+    # Component-wise channel arithmetic (saturating in CSFML — values
+    # clamp to [0, 255]).
+
+    def +(other)
+      raise ArgumentError, "Color +: expected SFML::Color" unless other.is_a?(Color)
+      self.class.from_native(C::Graphics.sfColor_add(to_native, other.to_native))
+    end
+
+    def -(other)
+      raise ArgumentError, "Color -: expected SFML::Color" unless other.is_a?(Color)
+      self.class.from_native(C::Graphics.sfColor_subtract(to_native, other.to_native))
+    end
+
+    # Channel-wise multiply, e.g. for tinting (white modulates to
+    # input; black modulates to black). Uses CSFML's normalised
+    # formula `(a * b) / 255`.
+    def *(other)
+      raise ArgumentError, "Color *: expected SFML::Color" unless other.is_a?(Color)
+      self.class.from_native(C::Graphics.sfColor_modulate(to_native, other.to_native))
+    end
+    alias modulate *
+
     # Standard SFML colors.
     BLACK       = new(0,   0,   0)
     WHITE       = new(255, 255, 255)

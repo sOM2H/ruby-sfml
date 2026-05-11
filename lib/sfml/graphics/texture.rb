@@ -5,8 +5,17 @@ module SFML
   #   tex = SFML::Texture.load("assets/hero.png")
   #   tex = SFML::Texture.load("assets/tile.png", smooth: true, repeated: true)
   class Texture
-    def self.load(path, smooth: false, repeated: false)
-      ptr = C::Graphics.sfTexture_createFromFile(path.to_s, nil)
+    # Load a texture from a file on disk.
+    #
+    # Pass `srgb: true` if the source pixels are in sRGB-encoded
+    # gamma space (most photo/PNG art assets) and you want the GPU
+    # to gamma-decode on sample so blending happens in linear space.
+    # Pair with `RenderWindow#new(..., srgb_capable: true)` and your
+    # final framebuffer will gamma-encode on present.
+    def self.load(path, smooth: false, repeated: false, srgb: false)
+      ptr = srgb \
+        ? C::Graphics.sfTexture_createSrgbFromFile(path.to_s, nil) \
+        : C::Graphics.sfTexture_createFromFile(path.to_s, nil)
       raise Error, "Could not load texture from #{path.inspect}" if ptr.null?
 
       tex = allocate
@@ -20,10 +29,10 @@ module SFML
     # `update(image)` afterwards to upload pixels. Useful when
     # you'll be filling the texture from a procedurally-generated
     # Image or repeatedly streaming pixel data into it.
-    def self.create(width, height)
+    def self.create(width, height, srgb: false)
       size = C::System::Vector2u.new
       size[:x] = Integer(width); size[:y] = Integer(height)
-      ptr = C::Graphics.sfTexture_create(size)
+      ptr = srgb ? C::Graphics.sfTexture_createSrgb(size) : C::Graphics.sfTexture_create(size)
       raise Error, "sfTexture_create returned NULL — out of GPU memory?" if ptr.null?
 
       tex = allocate
@@ -34,13 +43,33 @@ module SFML
     # Decode + upload a Ruby String of bytes (PNG, JPG, BMP, …) as
     # a texture. Useful for embedded assets / network responses
     # that bypass the disk.
-    def self.from_memory(bytes, smooth: false, repeated: false)
+    def self.from_memory(bytes, smooth: false, repeated: false, srgb: false)
       raise ArgumentError, "expected a String, got #{bytes.class}" unless bytes.is_a?(String)
 
       buf = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
       buf.write_bytes(bytes)
-      ptr = C::Graphics.sfTexture_createFromMemory(buf, bytes.bytesize, nil)
+      ptr = srgb \
+        ? C::Graphics.sfTexture_createSrgbFromMemory(buf, bytes.bytesize, nil) \
+        : C::Graphics.sfTexture_createFromMemory(buf, bytes.bytesize, nil)
       raise Error, "sfTexture_createFromMemory returned NULL — unsupported format?" if ptr.null?
+
+      tex = allocate
+      tex.send(:_take_ownership, ptr)
+      tex.smooth   = smooth
+      tex.repeated = repeated
+      tex
+    end
+
+    # Load a texture from any Ruby IO-like object (File, StringIO,
+    # or anything answering read/seek/pos/size). Useful for assets
+    # inside a zip archive, served over a socket, or generated on
+    # the fly.
+    def self.from_stream(io, smooth: false, repeated: false, srgb: false)
+      stream = SFML::InputStream.new(io)
+      ptr = srgb \
+        ? C::Graphics.sfTexture_createSrgbFromStream(stream.to_ptr, nil) \
+        : C::Graphics.sfTexture_createFromStream(stream.to_ptr, nil)
+      raise Error, "sfTexture_createFromStream returned NULL — unsupported format?" if ptr.null?
 
       tex = allocate
       tex.send(:_take_ownership, ptr)
@@ -51,10 +80,12 @@ module SFML
 
     # Upload a CPU-side SFML::Image to the GPU as a new Texture. Keeps
     # the RGBA byte order and dimensions of the source image.
-    def self.from_image(image, smooth: false, repeated: false)
+    def self.from_image(image, smooth: false, repeated: false, srgb: false)
       raise ArgumentError, "Texture.from_image needs a SFML::Image" unless image.is_a?(Image)
 
-      ptr = C::Graphics.sfTexture_createFromImage(image.handle, nil)
+      ptr = srgb \
+        ? C::Graphics.sfTexture_createSrgbFromImage(image.handle, nil) \
+        : C::Graphics.sfTexture_createFromImage(image.handle, nil)
       raise Error, "sfTexture_createFromImage returned NULL" if ptr.null?
 
       tex = allocate
@@ -144,10 +175,15 @@ module SFML
     # Reallocate this texture's GPU memory at a new size. Returns
     # `false` if the GPU rejects the size (driver limit / OOM);
     # the texture's contents become undefined on success.
-    def resize(width, height)
+    # Pass `srgb: true` to re-allocate as an sRGB-encoded texture.
+    def resize(width, height, srgb: false)
       size = C::System::Vector2u.new
       size[:x] = Integer(width); size[:y] = Integer(height)
-      C::Graphics.sfTexture_resize(@handle, size)
+      if srgb
+        C::Graphics.sfTexture_resizeSrgb(@handle, size)
+      else
+        C::Graphics.sfTexture_resize(@handle, size)
+      end
     end
 
     # Atomically swap the GPU memory between two textures —

@@ -28,6 +28,7 @@ module SFML
       attach_function :sfSoundBuffer_getChannelCount,[:sound_buffer_t], :uint32
       attach_function :sfSoundBuffer_copy,           [:sound_buffer_t], :sound_buffer_t
       attach_function :sfSoundBuffer_createFromMemory, [:pointer, :size_t], :sound_buffer_t
+      attach_function :sfSoundBuffer_createFromStream, [:pointer], :sound_buffer_t
       attach_function :sfSoundBuffer_createFromSamples,
                       [:pointer, :uint64, :uint32, :uint32, :pointer, :size_t], :sound_buffer_t
       attach_function :sfSoundBuffer_getSampleCount, [:sound_buffer_t], :uint64
@@ -94,6 +95,7 @@ module SFML
 
       attach_function :sfMusic_createFromFile, [:string], :music_t
       attach_function :sfMusic_createFromMemory, [:pointer, :size_t], :music_t
+      attach_function :sfMusic_createFromStream, [:pointer], :music_t
       attach_function :sfMusic_destroy,        [:music_t], :void
       attach_function :sfMusic_getChannelCount, [:music_t], :uint32
       attach_function :sfMusic_getSampleRate,   [:music_t], :uint32
@@ -187,6 +189,30 @@ module SFML
       attach_function :sfSoundStream_setRelativeToListener, [:sound_stream_t, :bool], :void
       attach_function :sfSoundStream_isRelativeToListener,  [:sound_stream_t], :bool
 
+      # 3D-audio surface — symmetric with sfSound / sfMusic.
+      attach_function :sfSoundStream_setPan,                          [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getPan,                          [:sound_stream_t], :float
+      attach_function :sfSoundStream_setMaxDistance,                  [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getMaxDistance,                  [:sound_stream_t], :float
+      attach_function :sfSoundStream_setMinGain,                      [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getMinGain,                      [:sound_stream_t], :float
+      attach_function :sfSoundStream_setMaxGain,                      [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getMaxGain,                      [:sound_stream_t], :float
+      attach_function :sfSoundStream_setSpatializationEnabled,        [:sound_stream_t, :bool], :void
+      attach_function :sfSoundStream_isSpatializationEnabled,         [:sound_stream_t], :bool
+      attach_function :sfSoundStream_setDirection,                    [:sound_stream_t, System::Vector3f.by_value], :void
+      attach_function :sfSoundStream_getDirection,                    [:sound_stream_t], System::Vector3f.by_value
+      attach_function :sfSoundStream_setCone,                         [:sound_stream_t, SoundSourceCone.by_value], :void
+      attach_function :sfSoundStream_getCone,                         [:sound_stream_t], SoundSourceCone.by_value
+      attach_function :sfSoundStream_setVelocity,                     [:sound_stream_t, System::Vector3f.by_value], :void
+      attach_function :sfSoundStream_getVelocity,                     [:sound_stream_t], System::Vector3f.by_value
+      attach_function :sfSoundStream_setDopplerFactor,                [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getDopplerFactor,                [:sound_stream_t], :float
+      attach_function :sfSoundStream_setDirectionalAttenuationFactor, [:sound_stream_t, :float], :void
+      attach_function :sfSoundStream_getDirectionalAttenuationFactor, [:sound_stream_t], :float
+      attach_function :sfSoundStream_setEffectProcessor,              [:sound_stream_t, :sf_effect_processor, :pointer], :void
+      attach_function :sfSoundStream_getChannelMap,                   [:sound_stream_t, :pointer], :pointer
+
       # ---- SoundBufferRecorder ----
       # The simple "record into a SoundBuffer" path. Raw sfSoundRecorder
       # (callback-based) and sfSoundStream (custom audio source via
@@ -209,6 +235,27 @@ module SFML
       attach_function :sfSoundRecorder_isAvailable,            [], :bool
       attach_function :sfSoundRecorder_getDefaultDevice,       [], :string
       attach_function :sfSoundRecorder_getAvailableDevices,    [:pointer], :pointer
+
+      # Callback-based recorder. The three callbacks run on CSFML's
+      # audio thread; the Ruby SoundRecorder must hold strong refs to
+      # the FFI::Function objects for the lifetime of the recorder.
+      typedef :pointer, :sound_recorder_t
+      callback :sound_recorder_start,   [:pointer], :bool
+      callback :sound_recorder_process, [:pointer, :size_t, :pointer], :bool
+      callback :sound_recorder_stop,    [:pointer], :void
+
+      attach_function :sfSoundRecorder_create,
+                      [:sound_recorder_start, :sound_recorder_process, :sound_recorder_stop, :pointer],
+                      :sound_recorder_t
+      attach_function :sfSoundRecorder_destroy,         [:sound_recorder_t], :void
+      attach_function :sfSoundRecorder_start,           [:sound_recorder_t, :uint32], :bool
+      attach_function :sfSoundRecorder_stop,            [:sound_recorder_t], :void
+      attach_function :sfSoundRecorder_getSampleRate,   [:sound_recorder_t], :uint32
+      attach_function :sfSoundRecorder_setDevice,       [:sound_recorder_t, :string], :bool
+      attach_function :sfSoundRecorder_getDevice,       [:sound_recorder_t], :string
+      attach_function :sfSoundRecorder_setChannelCount, [:sound_recorder_t, :uint32], :void
+      attach_function :sfSoundRecorder_getChannelCount, [:sound_recorder_t], :uint32
+      attach_function :sfSoundRecorder_getChannelMap,   [:sound_recorder_t, :pointer], :pointer
 
       # ---- Listener (the "ear" — global, no handle) ----
       attach_function :sfListener_setGlobalVolume, [:float], :void

@@ -89,4 +89,47 @@ RSpec.describe SFML::SoundStream do
       expect(stream.position).to eq(SFML::Vector3[1.5, -2.0, 3.25])
     end
   end
+
+  describe "3D-audio surface" do
+    let(:stream) { PulseStream.new }
+
+    it "round-trips pan / max_distance / spatialization_enabled" do
+      stream.pan = -0.4
+      stream.max_distance = 25.0
+      stream.spatialization_enabled = false
+      expect(stream.pan).to be_within(0.001).of(-0.4)
+      expect(stream.max_distance).to be_within(0.001).of(25.0)
+      expect(stream.spatialization_enabled?).to be false
+    end
+
+    it "round-trips direction / velocity as Vector3" do
+      stream.direction = [1.0, 0.0, 0.0]
+      stream.velocity  = [0.0, 0.5, 0.0]
+      expect(stream.direction).to eq(SFML::Vector3[1.0, 0.0, 0.0])
+      expect(stream.velocity).to  eq(SFML::Vector3[0.0, 0.5, 0.0])
+    end
+
+    it "round-trips cone" do
+      stream.cone = SFML::SoundCone.new(inner_angle: 30, outer_angle: 60, outer_gain: 0.4)
+      expect(stream.cone.inner_angle).to eq(30.0)
+      expect(stream.cone.outer_angle).to eq(60.0)
+      expect(stream.cone.outer_gain).to  be_within(0.001).of(0.4)
+    end
+
+    it "round-trips doppler_factor" do
+      stream.doppler_factor = 0.75
+      expect(stream.doppler_factor).to be_within(0.001).of(0.75)
+    end
+
+    it "directional_attenuation_factor is settable + readable" do
+      expect { stream.directional_attenuation_factor = 0.5 }.not_to raise_error
+      expect(stream.directional_attenuation_factor).to be_a(Float)
+    end
+
+    it "min_gain / max_gain are settable" do
+      expect { stream.min_gain = 0.1; stream.max_gain = 0.9 }.not_to raise_error
+      expect(stream.min_gain).to be_a(Float)
+      expect(stream.max_gain).to be_a(Float)
+    end
+  end
 end

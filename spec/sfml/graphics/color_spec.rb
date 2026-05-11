@@ -46,4 +46,38 @@ RSpec.describe SFML::Color do
     native = color.to_native
     expect(described_class.from_native(native)).to eq(color)
   end
+
+  describe "arithmetic" do
+    let(:c1) { described_class.new(100, 50, 25, 200) }
+    let(:c2) { described_class.new(50,  50, 50, 50)  }
+
+    it "+ saturates per channel" do
+      expect(c1 + c2).to eq(described_class.new(150, 100, 75, 250))
+    end
+
+    it "+ clamps at 255" do
+      expect(described_class.new(200, 200, 200) + described_class.new(100, 100, 100))
+        .to eq(described_class.new(255, 255, 255))
+    end
+
+    it "- saturates at 0" do
+      expect(c1 - c2).to eq(described_class.new(50, 0, 0, 150))
+    end
+
+    it "* modulates (a * b) / 255" do
+      expect(c1 * described_class.white).to eq(c1)
+      expect(c1 * described_class.new(0, 0, 0, 255)).to eq(described_class.new(0, 0, 0, 200))
+    end
+
+    it "+ raises on non-Color rhs" do
+      expect { c1 + 5 }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe "integer packing" do
+    it "round-trips through to_integer / from_integer" do
+      c = described_class.new(100, 50, 25, 200)
+      expect(described_class.from_integer(c.to_integer)).to eq(c)
+    end
+  end
 end

@@ -169,6 +169,109 @@ module SFML
       C::Audio.sfSoundStream_setRelativeToListener(@handle, !!value)
     end
 
+    # ---- 3D-audio surface (mirror of Sound / Music) -------------------
+
+    def pan = C::Audio.sfSoundStream_getPan(@handle)
+
+    def pan=(value)
+      C::Audio.sfSoundStream_setPan(@handle, value.to_f)
+    end
+
+    def max_distance = C::Audio.sfSoundStream_getMaxDistance(@handle)
+
+    def max_distance=(value)
+      C::Audio.sfSoundStream_setMaxDistance(@handle, value.to_f)
+    end
+
+    def min_gain = C::Audio.sfSoundStream_getMinGain(@handle)
+
+    def min_gain=(value)
+      C::Audio.sfSoundStream_setMinGain(@handle, value.to_f)
+    end
+
+    def max_gain = C::Audio.sfSoundStream_getMaxGain(@handle)
+
+    def max_gain=(value)
+      C::Audio.sfSoundStream_setMaxGain(@handle, value.to_f)
+    end
+
+    def spatialization_enabled? = C::Audio.sfSoundStream_isSpatializationEnabled(@handle)
+
+    def spatialization_enabled=(value)
+      C::Audio.sfSoundStream_setSpatializationEnabled(@handle, !!value)
+    end
+
+    def direction
+      v = C::Audio.sfSoundStream_getDirection(@handle)
+      Vector3.new(v[:x], v[:y], v[:z])
+    end
+
+    def direction=(value)
+      vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
+      packed = C::System::Vector3f.new
+      packed[:x] = vec.x.to_f; packed[:y] = vec.y.to_f; packed[:z] = vec.z.to_f
+      C::Audio.sfSoundStream_setDirection(@handle, packed)
+    end
+
+    def cone
+      SoundCone.from_native(C::Audio.sfSoundStream_getCone(@handle))
+    end
+
+    def cone=(value)
+      cone =
+        case value
+        when SoundCone then value
+        when Hash      then SoundCone.new(**value)
+        else
+          raise ArgumentError, "SoundStream#cone= expects SoundCone or Hash; got #{value.class}"
+        end
+      C::Audio.sfSoundStream_setCone(@handle, cone.to_native)
+    end
+
+    def velocity
+      v = C::Audio.sfSoundStream_getVelocity(@handle)
+      Vector3.new(v[:x], v[:y], v[:z])
+    end
+
+    def velocity=(value)
+      vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
+      packed = C::System::Vector3f.new
+      packed[:x] = vec.x.to_f; packed[:y] = vec.y.to_f; packed[:z] = vec.z.to_f
+      C::Audio.sfSoundStream_setVelocity(@handle, packed)
+    end
+
+    def doppler_factor = C::Audio.sfSoundStream_getDopplerFactor(@handle)
+
+    def doppler_factor=(value)
+      C::Audio.sfSoundStream_setDopplerFactor(@handle, value.to_f)
+    end
+
+    def directional_attenuation_factor
+      C::Audio.sfSoundStream_getDirectionalAttenuationFactor(@handle)
+    end
+
+    def directional_attenuation_factor=(value)
+      C::Audio.sfSoundStream_setDirectionalAttenuationFactor(@handle, value.to_f)
+    end
+
+    # Install a real-time DSP filter (same contract as Sound /
+    # Music — see Sound#effect_processor=). Pass `nil` to remove.
+    def effect_processor=(callable)
+      @effect_cb = callable.nil? ? nil : Audio._build_effect_processor(callable)
+      C::Audio.sfSoundStream_setEffectProcessor(@handle, @effect_cb, nil)
+    end
+
+    # The channel layout the stream is producing, as an Array of
+    # `sfSoundChannel` enum values (1 = Mono, 2 = FrontLeft,
+    # 3 = FrontRight, etc — see SoundBuffer::DEFAULT_CHANNEL_MAPS).
+    def channel_map
+      count_buf = FFI::MemoryPointer.new(:size_t)
+      ptr = C::Audio.sfSoundStream_getChannelMap(@handle, count_buf)
+      n = count_buf.read(:size_t)
+      return [] if ptr.null? || n.zero?
+      ptr.read_array_of_int32(n)
+    end
+
     attr_reader :handle # :nodoc:
 
     private

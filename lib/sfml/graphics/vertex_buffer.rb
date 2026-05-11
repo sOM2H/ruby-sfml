@@ -108,6 +108,18 @@ module SFML
 
     def native_handle = C::Graphics.sfVertexBuffer_getNativeHandle(@handle)
 
+    # Bind this VBO as the active vertex buffer for the GL pipeline.
+    # Useful when mixing raw GL with SFML rendering — pair with
+    # `SFML::VertexBuffer.unbind` (or any other draw) to release.
+    def bind
+      C::Graphics.sfVertexBuffer_bind(@handle)
+      self
+    end
+
+    def self.unbind
+      C::Graphics.sfVertexBuffer_bind(nil)
+    end
+
     def draw_on(target, states_ptr = nil) # :nodoc:
       target._draw_native(:VertexBuffer, @handle, states_ptr)
     end

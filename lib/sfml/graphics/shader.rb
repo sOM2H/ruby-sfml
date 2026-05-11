@@ -68,6 +68,18 @@ module SFML
       _wrap(ptr)
     end
 
+    # Build a shader from one or more IO-like streams (any object
+    # answering read/seek/pos/size). Useful when shader source lives
+    # inside an archive or a network resource.
+    def self.from_stream(vertex: nil, geometry: nil, fragment: nil)
+      _check_at_least_one(vertex, geometry, fragment)
+      streams = [vertex, geometry, fragment].map { |io| io && SFML::InputStream.new(io) }
+      ptrs    = streams.map { |s| s ? s.to_ptr : nil }
+      ptr = C::Graphics.sfShader_createFromStream(*ptrs)
+      raise Error, "sfShader_createFromStream failed (GLSL compile error?)" if ptr.null?
+      _wrap(ptr)
+    end
+
     # Set a uniform by name. Dispatches to the right CSFML setter based
     # on the Ruby value's type — see the class-level docs for the table.
     def []=(name, value)
@@ -139,6 +151,56 @@ module SFML
       C::Graphics.sfShader_setFloatUniformArray(@handle, name.to_s, buf, values.length)
     end
 
+    # Set a `uniform bvec2/3/4` from a Ruby Array of booleans. Length
+    # picks the dimensionality.
+    def set_bvec(name, *components)
+      flat = components.flatten
+      case flat.length
+      when 2
+        s = C::Graphics::GlslBvec2.new
+        s[:x] = !!flat[0]; s[:y] = !!flat[1]
+        C::Graphics.sfShader_setBvec2Uniform(@handle, name.to_s, s)
+      when 3
+        s = C::Graphics::GlslBvec3.new
+        s[:x] = !!flat[0]; s[:y] = !!flat[1]; s[:z] = !!flat[2]
+        C::Graphics.sfShader_setBvec3Uniform(@handle, name.to_s, s)
+      when 4
+        s = C::Graphics::GlslBvec4.new
+        s[:x] = !!flat[0]; s[:y] = !!flat[1]; s[:z] = !!flat[2]; s[:w] = !!flat[3]
+        C::Graphics.sfShader_setBvec4Uniform(@handle, name.to_s, s)
+      else
+        raise ArgumentError, "bvec uniform must have 2, 3, or 4 components (got #{flat.length})"
+      end
+    end
+
+    # Set a `uniform mat3` from a 9-element row-major float array (or
+    # an SFML::Transform — its 3×3 matrix is read directly).
+    def set_mat3(name, matrix)
+      values = _coerce_matrix(matrix, 9, "mat3")
+      mat = C::Graphics::GlslMat3.new
+      values.each_with_index { |v, i| mat[:array][i] = v }
+      C::Graphics.sfShader_setMat3Uniform(@handle, name.to_s, mat.pointer)
+    end
+
+    # Set a `uniform mat4` from a 16-element row-major float array.
+    def set_mat4(name, matrix)
+      values = _coerce_matrix(matrix, 16, "mat4")
+      mat = C::Graphics::GlslMat4.new
+      values.each_with_index { |v, i| mat[:array][i] = v }
+      C::Graphics.sfShader_setMat4Uniform(@handle, name.to_s, mat.pointer)
+    end
+
+    # Set a `uniform mat3 arr[N];` / `uniform mat4 arr[N];` from a
+    # list of matrices (each a 9- or 16-element flat array, or an
+    # SFML::Transform for mat3).
+    def set_mat3_array(name, matrices)
+      _set_mat_array(name, matrices, 9, :sfShader_setMat3UniformArray)
+    end
+
+    def set_mat4_array(name, matrices)
+      _set_mat_array(name, matrices, 16, :sfShader_setMat4UniformArray)
+    end
+
     # Bind this shader as the active GL program. Useful when you
     # want to issue raw GL draw calls under SFML's context. Pair
     # with `Shader.unbind` to restore SFML's default. Most users
@@ -164,6 +226,30 @@ module SFML
     attr_reader :handle # :nodoc:
 
     private
+
+    def _coerce_matrix(matrix, expected_length, label)
+      values =
+        case matrix
+        when Transform then matrix.matrix
+        when Array     then matrix.flatten
+        else
+          raise ArgumentError, "#{label} uniform requires an Array or SFML::Transform (got #{matrix.class})"
+        end
+      unless values.length == expected_length
+        raise ArgumentError, "#{label} uniform needs #{expected_length} elements (got #{values.length})"
+      end
+      values.map(&:to_f)
+    end
+
+    def _set_mat_array(name, matrices, stride, setter)
+      raise ArgumentError, "matrix array must not be empty" if matrices.empty?
+
+      label = stride == 9 ? "mat3" : "mat4"
+      flat = matrices.flat_map { |m| _coerce_matrix(m, stride, label) }
+      buf  = FFI::MemoryPointer.new(:float, flat.length)
+      buf.write_array_of_float(flat)
+      C::Graphics.public_send(setter, @handle, name.to_s, buf, matrices.length)
+    end
 
     # Detect the inner length (2/3/4), pack a contiguous float buffer,
     # and dispatch to the matching CSFML setVec*UniformArray.

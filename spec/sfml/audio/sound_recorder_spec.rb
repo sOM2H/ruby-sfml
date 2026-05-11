@@ -21,6 +21,42 @@ RSpec.describe SFML::SoundRecorder do
       expect(described_class.devices).to include(default)
     end
   end
+
+  describe "callback-based subclassing" do
+    before { skip "no input device on this host" unless described_class.available? }
+
+    let(:level_meter_class) do
+      Class.new(described_class) do
+        attr_reader :peak
+
+        def on_start
+          @peak = 0
+          true
+        end
+
+        def on_process_samples(samples, _channels)
+          @peak = [@peak, *samples.map(&:abs)].max
+          true
+        end
+      end
+    end
+
+    it "channel_count defaults to 1 and is settable before start" do
+      rec = level_meter_class.new
+      expect(rec.channel_count).to eq(1)
+      rec.channel_count = 2
+      expect(rec.channel_count).to eq(2)
+    end
+
+    it "fires on_start / on_process_samples once started" do
+      rec = level_meter_class.new
+      rec.start(sample_rate: 44_100)
+      sleep 0.05
+      rec.stop
+      # peak may be 0 on a silent input — just confirm callback ran
+      expect(rec.peak).to be_a(Integer)
+    end
+  end
 end
 
 RSpec.describe SFML::SoundBufferRecorder do

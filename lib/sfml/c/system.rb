@@ -48,6 +48,18 @@ module SFML
       attach_function :sfBuffer_destroy, [:buffer_t],               :void
       attach_function :sfBuffer_getSize, [:buffer_t],               :size_t
       attach_function :sfBuffer_getData, [:buffer_t],               :pointer
+
+      # sfInputStream — a struct of 4 function pointers Ruby fills in
+      # to expose a Ruby IO-like object to CSFML's loader functions.
+      # User-data is ignored; we close over the Ruby object in each
+      # callback closure directly.
+      class InputStream < FFI::Struct
+        layout :read,      :pointer,
+               :seek,      :pointer,
+               :tell,      :pointer,
+               :get_size,  :pointer,
+               :user_data, :pointer
+      end
     end
   end
 end

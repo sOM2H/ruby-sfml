@@ -235,4 +235,54 @@ RSpec.describe SFML::Shader do
       expect { shader.set_int_color("tint", "red") }.to raise_error(ArgumentError, /Color/)
     end
   end
+
+  describe "mat / bvec uniforms" do
+    let(:fragment) do
+      <<~GLSL
+        uniform mat3  m3;
+        uniform mat4  m4;
+        uniform bvec2 b2;
+        uniform bvec3 b3;
+        uniform bvec4 b4;
+        void main() {
+          gl_FragColor = vec4(0, 0, 0, 1);
+          if (b2.x) gl_FragColor.r = m3[0][0];
+          if (b3.x) gl_FragColor.g = m4[0][0];
+          if (b4.x) gl_FragColor.b = 1.0;
+        }
+      GLSL
+    end
+
+    it "set_mat3 / set_mat4 / set_bvec accept arrays" do
+      next unless described_class.available?
+
+      shader = described_class.from_source(fragment: fragment)
+      expect { shader.set_mat3("m3", [1,0,0, 0,1,0, 0,0,1]) }.not_to raise_error
+      expect { shader.set_mat4("m4", (0..15).to_a) }.not_to raise_error
+      expect { shader.set_bvec("b2", true, false) }.not_to raise_error
+      expect { shader.set_bvec("b3", [true, false, true]) }.not_to raise_error
+      expect { shader.set_bvec("b4", true, false, true, false) }.not_to raise_error
+    end
+
+    it "set_mat3 accepts an SFML::Transform" do
+      next unless described_class.available?
+
+      shader = described_class.from_source(fragment: fragment)
+      expect { shader.set_mat3("m3", SFML::Transform.identity) }.not_to raise_error
+    end
+
+    it "set_mat4 raises on wrong length" do
+      next unless described_class.available?
+
+      shader = described_class.from_source(fragment: fragment)
+      expect { shader.set_mat4("m4", [1, 2, 3]) }.to raise_error(ArgumentError, /16 elements/)
+    end
+
+    it "set_bvec raises on bad arity" do
+      next unless described_class.available?
+
+      shader = described_class.from_source(fragment: fragment)
+      expect { shader.set_bvec("x", true) }.to raise_error(ArgumentError, /2, 3, or 4/)
+    end
+  end
 end

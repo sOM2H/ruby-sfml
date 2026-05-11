@@ -55,6 +55,25 @@ module SFML
         [status, buf.read_bytes(n)]
       end
 
+      # Send a structured SFML::Network::Packet. CSFML frames the wire
+      # bytes with a length prefix so the peer's receive_packet always
+      # gets a whole packet (no need to handle TCP boundary fragments
+      # at the Ruby layer).
+      def send_packet(packet)
+        raise ArgumentError, "expected SFML::Network::Packet" unless packet.is_a?(Packet)
+        code = C::Network.sfTcpSocket_sendPacket(@handle, packet.handle)
+        C::Network::STATUSES[code]
+      end
+
+      # Receive into a fresh Packet. Returns [status, packet]; the
+      # packet is nil for non-:done statuses.
+      def receive_packet
+        pkt  = Packet.new
+        code = C::Network.sfTcpSocket_receivePacket(@handle, pkt.handle)
+        status = C::Network::STATUSES[code]
+        [status, status == :done ? pkt : nil]
+      end
+
       def blocking? = C::Network.sfTcpSocket_isBlocking(@handle)
 
       def blocking=(value)

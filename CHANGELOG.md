@@ -8,6 +8,105 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+## [3.0.0.5] — 2026-05-11
+
+Round-trip release: closes every remaining CSFML 3.0 gap that's
+useful from Ruby. The library now covers the surface area you'd
+expect for porting a CSFML application straight across.
+
+### Added — graphics
+
+- `Color#+`, `Color#-`, `Color#*` (alias `modulate`),
+  `Color#to_integer` / `Color.from_integer(value)` — channel-wise
+  saturating arithmetic, plus packed 0xRRGGBBAA round-trips.
+- Texture binding + geometric introspection on the three concrete
+  shapes via the new `Graphics::ShapeInspectable` mixin:
+  `CircleShape`/`RectangleShape`/`ConvexShape` all gain
+  `texture` / `texture=` / `set_texture(tex, reset_rect:)`,
+  `texture_rect` / `texture_rect=`, `point(i)`, `geometric_center`,
+  `local_bounds`, `global_bounds`, `transform`, `inverse_transform`,
+  `dup` / `clone`. `RectangleShape` additionally exposes
+  `point_count`.
+- `SFML::Shape` — callback-driven abstract shape. Subclass and
+  override `#point_count` / `#point(i)` to drive geometry from
+  live Ruby data; call `#update` after the source data changes.
+- `SFML::TransformableObject` — standalone transform container
+  (CSFML's `sfTransformable*`). Useful as a base for custom
+  drawables that combine a transform with their own rendering.
+- `VertexArray#dup` / `#clone` — independent deep copy.
+- `VertexBuffer#bind` / `VertexBuffer.unbind` — bind a VBO as the
+  active GL vertex buffer (for mixing raw GL with SFML rendering).
+- Texture sRGB variants via the `srgb:` kwarg on
+  `Texture.load`, `Texture.create`, `Texture.from_memory`,
+  `Texture.from_image`, and `Texture#resize`.
+- `Shader#set_mat3` / `#set_mat4` / `#set_mat3_array` /
+  `#set_mat4_array` and `Shader#set_bvec(name, *components)` —
+  matrix and bool-vector uniforms.
+- `Shader.from_stream(vertex:, geometry:, fragment:)`,
+  `Font.from_stream(io)`, `Image.from_stream(io)`,
+  `Texture.from_stream(io, srgb:, ...)` — load any of these from a
+  Ruby IO-like object (File, StringIO, network reader). Backed by
+  the new `SFML::InputStream` adapter that wraps a Ruby IO as
+  CSFML's `sfInputStream*`.
+
+### Added — audio
+
+- Full 3D-audio surface on `SoundStream` (mirror of Sound / Music):
+  `pan`, `min_gain` / `max_gain`, `max_distance`,
+  `spatialization_enabled?`, `direction`, `cone`, `velocity`,
+  `doppler_factor`, `directional_attenuation_factor`,
+  `effect_processor=` (real-time DSP filter), `channel_map` — and
+  the `=` setters.
+- `SoundRecorder#channel_map` — read the channel layout the
+  recorder is producing.
+- `SFML::SoundRecorder` — callback-based mic capture. Subclass
+  and override `#on_start` / `#on_process_samples(samples,
+  channels)` / `#on_stop`. The pre-existing module-level helpers
+  (`SoundRecorder.available?` / `.devices` / `.default_device`)
+  are preserved as class methods.
+- `Music.from_stream(io, **opts)` and
+  `SoundBuffer.from_stream(io)` — stream-backed audio loaders.
+
+### Added — network
+
+- `SFML::Network::Packet` — wire-compatible with `sf::Packet`. Typed
+  read / write for `Bool`, `Int8`–`Int64`, `Uint8`–`Uint64`,
+  `Float`, `Double`, `String`; `#data` / `#size` / `#read_position`
+  / `#end_of_packet?` / `#ok?` / `#clear` / `#dup`.
+- `TcpSocket#send_packet` / `#receive_packet` and
+  `UdpSocket#send_packet(packet, to:, port:)` /
+  `#receive_packet` — structured framing on top of the existing
+  raw byte send/receive.
+
+### Added — window
+
+- `Keyboard::SCAN_CODES` — full layout-independent scancode table
+  (146 entries matching `sfScancode`).
+- `Keyboard.scancode_pressed?(:scan_w)` — query the physical key
+  regardless of keyboard layout (the standard for WASD-style games).
+- `Keyboard.localize(scancode)` / `.delocalize(key)` /
+  `.description(scancode)` — convert between physical scancodes
+  and logical keys under the current OS layout, plus the
+  human-readable description string.
+- `Keyboard.virtual_keyboard_visible=` — on-screen keyboard toggle
+  for touchscreen / mobile builds (no-op on desktop).
+- `VideoMode.fullscreen_modes` — all video modes the display
+  supports for true-fullscreen window creation, sorted from most
+  to least pixels.
+- `VideoMode#valid?` — does the display actually support this mode
+  at fullscreen?
+- `SFML::Context` — headless GL context. Activate it on a thread
+  to compile shaders / make raw GL calls without a window. Static
+  `Context.active_context_id`, `.extension_available?(name)`,
+  `.gl_function(name)`.
+
+### Added — system
+
+- `SFML::InputStream(io)` — wraps a Ruby IO-like object (anything
+  answering `read` / `seek` / `pos` / `size`) as the
+  `sfInputStream*` argument CSFML loader functions take. Used
+  internally by every `*.from_stream` factory.
+
 ## [3.0.0.4] — 2026-05-09
 
 ### Added — graphics

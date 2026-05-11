@@ -109,6 +109,18 @@ module SFML
       target._draw_native(:VertexArray, @handle, states_ptr)
     end
 
+    # Independent copy — vertices duplicated, future appends to one
+    # don't affect the other.
+    def dup
+      ptr = C::Graphics.sfVertexArray_copy(@handle)
+      raise Error, "sfVertexArray_copy returned NULL" if ptr.null?
+      copy = self.class.allocate
+      copy.instance_variable_set(:@handle,
+        FFI::AutoPointer.new(ptr, C::Graphics.method(:sfVertexArray_destroy)))
+      copy
+    end
+    alias clone dup
+
     attr_reader :handle # :nodoc:
   end
 end

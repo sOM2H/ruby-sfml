@@ -9,6 +9,7 @@ module SFML
   #   window.draw(wall)
   class RectangleShape
     include Graphics::Transformable
+    include Graphics::ShapeInspectable
     CSFML_PREFIX = :sfRectangleShape
 
     def initialize(size:, **opts)
@@ -20,11 +21,15 @@ module SFML
       self.fill_color         = opts[:fill_color]         if opts.key?(:fill_color)
       self.outline_color      = opts[:outline_color]      if opts.key?(:outline_color)
       self.outline_thickness  = opts[:outline_thickness]  if opts.key?(:outline_thickness)
+      self.texture            = opts[:texture]            if opts.key?(:texture)
+      self.texture_rect       = opts[:texture_rect]       if opts.key?(:texture_rect)
       self.position           = opts[:position]           if opts.key?(:position)
       self.origin             = opts[:origin]             if opts.key?(:origin)
       self.rotation           = opts[:rotation]           if opts.key?(:rotation)
       self.scale              = opts[:scale]              if opts.key?(:scale)
     end
+
+    def point_count = C::Graphics.sfRectangleShape_getPointCount(@handle)
 
     def size
       Vector2.from_native(C::Graphics.sfRectangleShape_getSize(@handle))

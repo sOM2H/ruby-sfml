@@ -29,6 +29,19 @@ module SFML
       buf
     end
 
+    # Load fully-decoded audio from any Ruby IO-like object. The
+    # whole stream is decoded into RAM — for streaming playback,
+    # use `Music.from_stream` instead.
+    def self.from_stream(io)
+      stream = SFML::InputStream.new(io)
+      ptr = C::Audio.sfSoundBuffer_createFromStream(stream.to_ptr)
+      raise Error, "sfSoundBuffer_createFromStream returned NULL — unsupported format?" if ptr.null?
+
+      buf = allocate
+      buf.send(:_take_ownership, ptr)
+      buf
+    end
+
     # Default channel-layout map for the common 1- and 2-channel
     # cases — saves callers from spelling out the SoundChannel
     # enum just to build a mono blip or stereo waveform.

@@ -50,7 +50,16 @@ RSpec.describe SFML::SoundRecorder do
 
     it "fires on_start / on_process_samples once started" do
       rec = level_meter_class.new
-      rec.start(sample_rate: 44_100)
+      # CSFML 3 reports `available?` true whenever any backend
+      # responded — but real device access can still fail on headless
+      # CI (PulseAudio without a sink, null OpenAL backend, etc).
+      # Skip rather than failing the suite there.
+      begin
+        rec.start(sample_rate: 44_100)
+      rescue SFML::Error
+        skip "input device not actually startable on this host"
+      end
+
       sleep 0.05
       rec.stop
       # peak may be 0 on a silent input — just confirm callback ran

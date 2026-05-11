@@ -1,5 +1,14 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
+# Warm-load Ripper before RSpec needs it. RSpec's source extractor
+# (used when formatting failed / pending examples) lazy-requires
+# Ripper, and on Ruby 3.3.x macOS that require goes through the
+# `bundled_gems` deprecation hook with a hard IO timeout — slow CI
+# disks crash the runner with IO::TimeoutError mid-summary. Loading
+# Ripper here puts it in $LOADED_FEATURES before any spec runs, so
+# the hook is a no-op when RSpec later asks for it.
+require "ripper"
+
 require "sfml"
 require "tmpdir"
 

@@ -24,15 +24,18 @@ module SFML
       C::Audio.sfSoundBufferRecorder_start(@handle, Integer(sample_rate))
     end
 
+    # Returns the stop.
     def stop
       C::Audio.sfSoundBufferRecorder_stop(@handle)
       self
     end
 
+    # Returns the sample rate.
     def sample_rate
       C::Audio.sfSoundBufferRecorder_getSampleRate(@handle)
     end
 
+    # Returns the channel count.
     def channel_count
       C::Audio.sfSoundBufferRecorder_getChannelCount(@handle)
     end

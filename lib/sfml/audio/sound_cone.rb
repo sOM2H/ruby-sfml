@@ -12,6 +12,7 @@ module SFML
   #     inner_angle: 30, outer_angle: 90, outer_gain: 0.2,
   #   )
   class SoundCone
+    # The inner angle, outer angle, outer gain components.
     attr_reader :inner_angle, :outer_angle, :outer_gain
 
     def initialize(inner_angle:, outer_angle:, outer_gain:)
@@ -31,6 +32,7 @@ module SFML
     # Returns the hash.
     def hash = [inner_angle, outer_angle, outer_gain].hash
 
+    # Returns the to s.
     def to_s
       "SoundCone(inner=#{inner_angle}°, outer=#{outer_angle}°, outer_gain=#{outer_gain})"
     end

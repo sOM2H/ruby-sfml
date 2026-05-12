@@ -22,11 +22,15 @@ module SFML
       zero one src_color one_minus_src_color dst_color one_minus_dst_color
       src_alpha one_minus_src_alpha dst_alpha one_minus_dst_alpha
     ].freeze
+    # Blend-factor symbol → integer Hash.
     FACTOR_INDEX = FACTORS.each_with_index.to_h.freeze
 
+    # Blend-equation symbols in CSFML enum order.
     EQUATIONS = %i[add subtract reverse_subtract min max].freeze
+    # Blend-equation symbol → integer Hash.
     EQUATION_INDEX = EQUATIONS.each_with_index.to_h.freeze
 
+    # The color src, color dst, color eq components.
     attr_reader :color_src, :color_dst, :color_eq,
                 :alpha_src, :alpha_dst, :alpha_eq
 
@@ -50,6 +54,7 @@ module SFML
     # Returns the hash.
     def hash = [color_src, color_dst, color_eq, alpha_src, alpha_dst, alpha_eq].hash
 
+    # Returns the to s.
     def to_s
       "BlendMode(color: #{color_src}/#{color_dst}/#{color_eq}, alpha: #{alpha_src}/#{alpha_dst}/#{alpha_eq})"
     end
@@ -104,6 +109,7 @@ module SFML
     MULTIPLY = from_native(C::Graphics.sfBlendMultiply)
     MIN      = from_native(C::Graphics.sfBlendMin)
     MAX      = from_native(C::Graphics.sfBlendMax)
+    # The 0.0.0.0 / empty placeholder address.
     NONE     = from_native(C::Graphics.sfBlendNone)
   end
 end

@@ -9,6 +9,7 @@ module SFML
     # to the bound texture in @texture so the GC doesn't collect the GPU
     # resource while the shape still draws with it.
     module ShapeInspectable
+      # Returns the texture.
       def texture
         ptr = _csfml(:getTexture, @handle)
         return nil if ptr.null?
@@ -29,6 +30,7 @@ module SFML
         set_texture(tex, reset_rect: false)
       end
 
+      # Returns the texture rect.
       def texture_rect
         Rect.from_native(_csfml(:getTextureRect, @handle))
       end
@@ -68,10 +70,12 @@ module SFML
         Rect.from_native(_csfml(:getGlobalBounds, @handle))
       end
 
+      # Returns the transform.
       def transform
         _csfml(:getTransform, @handle)
       end
 
+      # Returns the inverse transform.
       def inverse_transform
         _csfml(:getInverseTransform, @handle)
       end

@@ -35,6 +35,7 @@ module SFML
         self
       end
 
+      # Returns the display.
       def display
         _csfml(:display, @handle)
         self
@@ -122,6 +123,7 @@ module SFML
         @view = value
       end
 
+      # Returns the view.
       def view
         View.from_borrowed(_csfml(:getView, @handle))
       end
@@ -132,6 +134,7 @@ module SFML
         @default_view ||= View.from_borrowed(_csfml(:getDefaultView, @handle))
       end
 
+      # Returns the map pixel to coords.
       def map_pixel_to_coords(pixel, view: nil)
         vec = C::System::Vector2i.new
         px, py = pixel.is_a?(Vector2) ? [pixel.x, pixel.y] : pixel
@@ -142,6 +145,7 @@ module SFML
         Vector2.new(result[:x], result[:y])
       end
 
+      # Returns the map coords to pixel.
       def map_coords_to_pixel(coord, view: nil)
         vec = C::System::Vector2f.new
         cx, cy = coord.is_a?(Vector2) ? [coord.x, coord.y] : coord

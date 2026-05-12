@@ -36,6 +36,7 @@ module SFML
   # case-by-case basis. Subclasses inherit their parent's settings
   # — set one in a base class, override in a subclass.
   class App
+    # Names of every class-level configuration macro on `SFML::App`.
     CONFIG_KEYS = %i[
       width height title
       framerate vsync background
@@ -84,7 +85,9 @@ module SFML
 
     include InputQueries
 
+    # The Backing SFML::RenderWindow.
     attr_reader   :window
+    # The background color.
     attr_accessor :background_color
 
     # Per-instance kwargs override anything set at the class level.
@@ -241,10 +244,12 @@ module SFML
       end
     end
 
+    # Returns the update.
     def update(dt)
       @current_scene&.update(dt)
     end
 
+    # Returns the draw.
     def draw
       @current_scene&.draw
     end

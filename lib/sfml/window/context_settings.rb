@@ -28,6 +28,7 @@ module SFML
       debug:   C::Window::ContextAttribute::DEBUG,
     }.freeze
 
+    # The depth bits, stencil bits, antialiasing components.
     attr_reader :depth_bits, :stencil_bits, :antialiasing,
                 :major_version, :minor_version, :attribute_flags,
                 :srgb_capable
@@ -64,6 +65,7 @@ module SFML
       s
     end
 
+    # Returns the self.
     def self.from_native(struct)
       attrs = ATTRIBUTE_FLAGS.find { |_, v| v == struct[:attribute_flags] }&.first || :default
       new(
@@ -94,6 +96,7 @@ module SFML
                 @major_version, @minor_version, @attribute_flags,
                 @srgb_capable].hash
 
+    # Returns the to s.
     def to_s
       "ContextSettings(aa=#{@antialiasing}, depth=#{@depth_bits}, " \
         "stencil=#{@stencil_bits}, gl=#{@major_version}.#{@minor_version})"

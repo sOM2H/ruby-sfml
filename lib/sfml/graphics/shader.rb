@@ -45,6 +45,7 @@ module SFML
       C::Graphics.sfShader_isAvailable
     end
 
+    # Returns the self.
     def self.geometry_available?
       C::Graphics.sfShader_isGeometryAvailable
     end
@@ -136,6 +137,7 @@ module SFML
       C::Graphics.sfShader_setIntUniform(@handle, name.to_s, Integer(value))
     end
 
+    # Returns the ivec2.
     def set_ivec2(name, x, y)
       v = C::System::Vector2i.new
       v[:x] = Integer(x); v[:y] = Integer(y)
@@ -197,6 +199,7 @@ module SFML
       _set_mat_array(name, matrices, 9, :sfShader_setMat3UniformArray)
     end
 
+    # Returns the mat4 array.
     def set_mat4_array(name, matrices)
       _set_mat_array(name, matrices, 16, :sfShader_setMat4UniformArray)
     end
@@ -208,6 +211,7 @@ module SFML
     # render_states: SFML::RenderStates.new(shader: self))`.
     def bind = C::Graphics.sfShader_bind(@handle)
 
+    # Returns the self.
     def self.unbind = C::Graphics.sfShader_bind(nil)
 
     # The OpenGL program ID. Useful for debug printf / interop

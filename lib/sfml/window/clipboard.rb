@@ -11,6 +11,7 @@ module SFML
   module Clipboard
     module_function
 
+    # Returns the text.
     def text
       ptr = C::Window.sfClipboard_getUnicodeString
       return "" if ptr.null?

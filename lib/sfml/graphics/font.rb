@@ -18,6 +18,7 @@ module SFML
     # license, redistributable). See lib/sfml/assets/fonts/DejaVuSans.LICENSE.txt.
     DEFAULT_PATH = File.expand_path("../assets/fonts/DejaVuSans.ttf", __dir__).freeze
 
+    # Returns the self.
     def self.load(path)
       ptr = C::Graphics.sfFont_createFromFile(path.to_s)
       raise LoadError, "Could not load font from #{path.inspect}" if ptr.null?

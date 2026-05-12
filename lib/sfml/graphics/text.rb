@@ -15,6 +15,7 @@ module SFML
     include Graphics::Transformable
     CSFML_PREFIX = :sfText
 
+    # Bitmask values for each style symbol.
     STYLES = {
       regular:        0,
       bold:           1 << 0,
@@ -47,6 +48,7 @@ module SFML
       self.scale              = opts[:scale]             if opts.key?(:scale)
     end
 
+    # The font.
     attr_reader :font
 
     # Replace the font used to render this Text.
@@ -201,6 +203,7 @@ module SFML
       Rect.from_native(C::Graphics.sfText_getGlobalBounds(@handle))
     end
 
+    # Returns the draw on.
     def draw_on(target, states_ptr = nil) # :nodoc:
       target._draw_native(:Text, @handle, states_ptr)
     end

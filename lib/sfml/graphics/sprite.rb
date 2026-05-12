@@ -11,6 +11,8 @@ module SFML
     include Graphics::Transformable
     CSFML_PREFIX = :sfSprite
 
+    # Build a Sprite. `texture` is required (SFML 3 dropped the
+    # default constructor). Kwargs cover color / transform.
     def initialize(texture, **opts)
       raise ArgumentError, "Sprite requires a SFML::Texture" unless texture.is_a?(Texture)
 
@@ -26,6 +28,7 @@ module SFML
       self.scale    = opts[:scale]    if opts.key?(:scale)
     end
 
+    # The texture.
     attr_reader :texture
 
     # Set the texture.
@@ -62,14 +65,17 @@ module SFML
       C::Graphics.sfSprite_setTextureRect(@handle, native)
     end
 
+    # Bounding box of the sprite in its own (untransformed) coords.
     def local_bounds
       Rect.from_native(C::Graphics.sfSprite_getLocalBounds(@handle))
     end
 
+    # Bounding box after applying the sprite's transform.
     def global_bounds
       Rect.from_native(C::Graphics.sfSprite_getGlobalBounds(@handle))
     end
 
+    # Returns the draw on.
     def draw_on(target, states_ptr = nil) # :nodoc:
       target._draw_native(:Sprite, @handle, states_ptr)
     end
@@ -88,6 +94,8 @@ module SFML
       C::Graphics.sfSprite_getTransform(@handle)
     end
 
+    # Inverse of `#transform` — maps world-space coords back to
+    # the sprite's local space.
     def inverse_transform
       C::Graphics.sfSprite_getInverseTransform(@handle)
     end

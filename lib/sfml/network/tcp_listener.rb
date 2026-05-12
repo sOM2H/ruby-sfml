@@ -26,6 +26,7 @@ module SFML
         C::Network::STATUSES[code]
       end
 
+      # Returns the close.
       def close
         C::Network.sfTcpListener_close(@handle)
         self

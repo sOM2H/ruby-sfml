@@ -19,6 +19,7 @@ module SFML
       size_top_left size_bottom_right size_bottom_left size_top_right
       size_all cross help not_allowed
     ].freeze
+    # Type symbol → integer index Hash.
     TYPE_INDEX = TYPES.each_with_index.to_h.freeze
 
     # Build a cursor matching one of the OS-supplied shapes. Some types

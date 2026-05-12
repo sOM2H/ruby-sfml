@@ -29,11 +29,13 @@ module SFML
         C::Network::STATUSES[code]
       end
 
+      # Returns the disconnect.
       def disconnect
         C::Network.sfTcpSocket_disconnect(@handle)
         self
       end
 
+      # Returns the send.
       def send(data)
         bytes = data.to_s
         buf   = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
@@ -87,6 +89,7 @@ module SFML
       # Returns the remote port.
       def remote_port = C::Network.sfTcpSocket_getRemotePort(@handle)
 
+      # Returns the remote address.
       def remote_address
         IpAddress.wrap(C::Network.sfTcpSocket_getRemoteAddress(@handle))
       end

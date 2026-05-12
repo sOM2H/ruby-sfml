@@ -14,9 +14,12 @@ module SFML
   #
   # All fields default to the CSFML `sfRenderStates_default` value.
   class RenderStates
+    # Texture coordinate-type symbols.
     COORDINATE_TYPES = %i[normalized pixels].freeze
+    # Coordinate-type symbol → integer Hash.
     COORDINATE_INDEX = COORDINATE_TYPES.each_with_index.to_h.freeze
 
+    # The blend mode, stencil mode, texture, shader, coordinate type components.
     attr_reader :blend_mode, :stencil_mode, :texture, :shader, :coordinate_type
 
     def initialize(blend_mode: nil, stencil_mode: nil, texture: nil, shader: nil, coordinate_type: :normalized)

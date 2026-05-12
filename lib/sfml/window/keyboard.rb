@@ -14,6 +14,7 @@ module SFML
   # The KEY_CODES / SCAN_CODES arrays are load-bearing: order matches
   # the sfKeyCode / sfScancode enums in CSFML/Window/Keyboard.h.
   module Keyboard
+    # All key symbols in CSFML `sfKeyCode` enum order.
     KEY_CODES = %i[
       a b c d e f g h i j k l m n o p q r s t u v w x y z
       num0 num1 num2 num3 num4 num5 num6 num7 num8 num9
@@ -33,6 +34,7 @@ module SFML
       pause
     ].freeze
 
+    # Key symbol → integer code Hash.
     SYMBOL_TO_CODE = KEY_CODES.each_with_index.to_h.freeze
 
     # Matches sfScancode in CSFML/Window/Keyboard.h exactly.
@@ -68,6 +70,7 @@ module SFML
       scan_launch_application1 scan_launch_application2 scan_launch_mail scan_launch_media_select
     ].freeze
 
+    # Scancode symbol → integer code Hash.
     SCAN_SYMBOL_TO_CODE = SCAN_CODES.each_with_index.to_h.freeze
 
     # Friendly aliases users might reach for naturally.
@@ -83,11 +86,13 @@ module SFML
 
     module_function
 
+    # Returns the code to symbol.
     def code_to_symbol(code)
       return :unknown if code < 0 || code >= KEY_CODES.length
       KEY_CODES[code]
     end
 
+    # Returns the symbol to code.
     def symbol_to_code(symbol)
       symbol = ALIASES.fetch(symbol, symbol)
       SYMBOL_TO_CODE.fetch(symbol) do
@@ -96,11 +101,13 @@ module SFML
       end
     end
 
+    # Returns the scancode to symbol.
     def scancode_to_symbol(code)
       return :scan_unknown if code < 0 || code >= SCAN_CODES.length
       SCAN_CODES[code]
     end
 
+    # Returns the symbol to scancode.
     def symbol_to_scancode(symbol)
       SCAN_SYMBOL_TO_CODE.fetch(symbol) do
         raise ArgumentError, "Unknown scancode symbol: #{symbol.inspect}. " \

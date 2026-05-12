@@ -11,6 +11,7 @@ module SFML
   #
   # Used by Text#local_bounds, Text#global_bounds, Sprite#texture_rect, etc.
   class Rect
+    # The position, size components.
     attr_reader :position, :size
 
     # `position` and `size` may each be a `Vector2` OR a `[x, y]` Array.
@@ -76,6 +77,7 @@ module SFML
     def to_s = "Rect(x=#{x}, y=#{y}, w=#{width}, h=#{height})"
     alias inspect to_s
 
+    # Returns the self.
     def self.from_native(struct) # :nodoc:
       new(
         Vector2.new(struct[:position][:x], struct[:position][:y]),

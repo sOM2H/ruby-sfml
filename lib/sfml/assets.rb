@@ -14,29 +14,41 @@ module SFML
   #
   # Cache survives until you call .clear or the process exits.
   module Assets
+    # File extensions recognised as image / texture assets.
     TEXTURE_EXTS = %w[.png .jpg .jpeg .bmp .gif .tga].freeze
+    # File extensions recognised as short-sound assets.
     SOUND_EXTS   = %w[.wav .ogg .flac .mp3].freeze
+    # File extensions recognised as music (streamed) assets — same as `SOUND_EXTS`.
     MUSIC_EXTS   = SOUND_EXTS
+    # File extensions recognised as font assets.
     FONT_EXTS    = %w[.ttf .otf].freeze
 
     class NotFound < SFML::Error; end
 
     class << self
+      # Current list of directories scanned by `#font`, `#texture`,
+      # etc. Defaults to `<dir of $0>/assets/`. Mutate via
+      # `#root=` / `#add_search_path` / `#search_paths=`.
       def search_paths
         @search_paths ||= [default_root]
       end
 
-      # Set the search paths.
+      # Replace the entire search-path list. Resets the cache so
+      # the next load re-resolves from the new locations.
       def search_paths=(paths)
         @search_paths = Array(paths).map { |p| File.expand_path(p) }
         @cache&.clear
       end
 
-      # Set the root.
+      # Convenience for "use exactly this one directory" — shorthand
+      # for `search_paths = [path]`.
       def root=(path)
         self.search_paths = [path]
       end
 
+      # Append a directory to the end of `#search_paths` unless it's
+      # already present. Useful for adding mod / DLC directories
+      # without nuking the default search root.
       def add_search_path(path)
         search_paths << File.expand_path(path) unless search_paths.include?(File.expand_path(path))
       end
@@ -48,20 +60,25 @@ module SFML
         self
       end
 
+      # Load (or fetch from cache) an `SFML::Font` by name — searches
+      # `#search_paths` for any of `FONT_EXTS`, falls back to system
+      # fonts via `Font.find`.
       def font(name)
         cache[[:font, name]] ||= load_font(name)
       end
 
+      # Load (or fetch from cache) an `SFML::Texture` by name.
       def texture(name)
         cache[[:texture, name]] ||= load_texture(name)
       end
 
+      # Load (or fetch from cache) an `SFML::SoundBuffer` by name.
       def sound(name)
         cache[[:sound, name]] ||= load_sound_buffer(name)
       end
 
-      # Music is intentionally NOT cached — it owns a streaming position and
-      # play state, so each caller wants its own instance.
+      # Load a fresh `SFML::Music` by name. **Not cached** — each
+      # caller gets its own playback position.
       def music(name)
         path = locate(name, MUSIC_EXTS) or raise NotFound,
           "Music #{name.inspect} not found. Searched: #{search_paths.inspect}"
@@ -70,14 +87,17 @@ module SFML
 
       private
 
+      # Returns the cache.
       def cache
         @cache ||= {}
       end
 
+      # Returns the default root.
       def default_root
         File.expand_path("assets", File.dirname($PROGRAM_NAME || "."))
       end
 
+      # Returns the load font.
       def load_font(name)
         path = locate(name, FONT_EXTS)
         return Font.load(path) if path
@@ -87,12 +107,14 @@ module SFML
           "Font #{name.inspect} not found in #{search_paths.inspect} or system fonts"
       end
 
+      # Returns the load texture.
       def load_texture(name)
         path = locate(name, TEXTURE_EXTS) or raise NotFound,
           "Texture #{name.inspect} not found. Searched: #{search_paths.inspect}"
         Texture.load(path)
       end
 
+      # Returns the load sound buffer.
       def load_sound_buffer(name)
         path = locate(name, SOUND_EXTS) or raise NotFound,
           "Sound #{name.inspect} not found. Searched: #{search_paths.inspect}"

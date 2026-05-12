@@ -11,7 +11,9 @@ module SFML
   # Buttons are addressed by symbol; the raw sfMouseButton enum order is
   # exposed via BUTTONS for users who need it.
   module Mouse
+    # Recognised button symbols.
     BUTTONS = %i[left right middle extra1 extra2].freeze
+    # Symbol → integer index for each button.
     BUTTON_INDEX = BUTTONS.each_with_index.to_h.freeze
 
     # Friendly aliases — SFML 2 used "X-button" terminology; some users

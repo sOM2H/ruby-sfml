@@ -20,6 +20,7 @@ module SFML
   # Frame lookups are tolerant of the `.png` extension — Aseprite
   # exports `walk-0.png`, but you can write `atlas.region("walk-0")`.
   class TextureAtlas
+    # File-extension regex for atlas image files.
     IMAGE_EXTS = /\.(?:png|jpg|jpeg|bmp|tga|gif)\z/i
 
     # @param json_path [String] path to the atlas JSON
@@ -46,6 +47,7 @@ module SFML
       @source    = source
     end
 
+    # The texture, source components.
     attr_reader :texture, :source
 
     # Returns the frame names.

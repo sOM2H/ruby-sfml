@@ -21,6 +21,7 @@ module SFML
 
     # Order matches sfPrimitiveType in CSFML/Graphics/PrimitiveType.h.
     PRIMITIVE_TYPES = %i[points lines line_strip triangles triangle_strip triangle_fan].freeze
+    # Primitive symbol → integer index Hash.
     PRIMITIVE_INDEX = PRIMITIVE_TYPES.each_with_index.to_h.freeze
 
     # Build an empty VertexArray. `primitive_type` chooses how
@@ -123,6 +124,7 @@ module SFML
       Rect.from_native(C::Graphics.sfVertexArray_getBounds(@handle))
     end
 
+    # Returns the draw on.
     def draw_on(target, states_ptr = nil) # :nodoc:
       target._draw_native(:VertexArray, @handle, states_ptr)
     end

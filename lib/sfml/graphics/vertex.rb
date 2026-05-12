@@ -7,6 +7,7 @@ module SFML
   #   SFML::Vertex.new([10, 20], color: SFML::Color.red)
   #   SFML::Vertex.new([10, 20], color: SFML::Color.red, tex_coords: [0, 0])
   class Vertex
+    # The position, color, tex coords components.
     attr_accessor :position, :color, :tex_coords
 
     def initialize(position = Vector2.zero, color: Color::WHITE, tex_coords: Vector2.zero)
@@ -15,6 +16,7 @@ module SFML
       @tex_coords = _coerce_vec2(tex_coords)
     end
 
+    # Returns the to s.
     def to_s
       "Vertex(#{@position.x}, #{@position.y})"
     end

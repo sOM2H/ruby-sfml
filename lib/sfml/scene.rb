@@ -39,6 +39,7 @@ module SFML
 
     include InputQueries
 
+    # The Host SFML::App.
     attr_reader :app
     alias host app
 

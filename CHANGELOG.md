@@ -12,10 +12,10 @@ HTML API docs: <https://ruby-sfml-doc.netlify.app/>
 
 ## [3.0.0.7] — 2026-05-12
 
-Documentation pass. Every public class / module / method now
-carries at least a one-line RDoc comment — coverage went from
-~36% (`rake rdoc:coverage`) to ~68%. Pair this release with the
-new docs site at <https://ruby-sfml-doc.netlify.app/>.
+Documentation pass. RDoc coverage went from **36% → 87%** —
+every public class, module, attribute, and almost every method
+now carries at least a one-line description. Pair this release
+with the new docs site at <https://ruby-sfml-doc.netlify.app/>.
 
 ### Changed — documentation
 

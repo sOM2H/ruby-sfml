@@ -20,9 +20,12 @@ module SFML
     #   http_version: [major, minor] (default [1, 0])
     #   timeout:      SFML::Time or seconds (default 0 = no timeout)
     class Http
+      # Default per-call timeout.
       DEFAULT_TIMEOUT = SFML::Time.zero
       DEFAULT_VERSION = [1, 0].freeze
 
+      # Build an HTTP client pinned to `host` (URL prefix). Pass
+      # `port: 0` to let CSFML pick the protocol's default port.
       def initialize(host, port: 0)
         ptr = C::Network.sfHttp_create
         raise NetworkError, "sfHttp_create returned NULL" if ptr.null?
@@ -31,6 +34,8 @@ module SFML
         C::Network.sfHttp_setHost(@handle, host.to_s, Integer(port))
       end
 
+      # Send a request and wait for the response. See the class doc
+      # for all the kwargs.
       def send_request(method: :get, uri: "/", fields: nil, body: nil,
                        http_version: DEFAULT_VERSION, timeout: DEFAULT_TIMEOUT)
         request_ptr = C::Network.sfHttpRequest_create
@@ -78,10 +83,13 @@ module SFML
           1000 => :invalid_response, 1001 => :connection_failed,
         }.freeze
 
+        # Responses are created via `Http#send_request`, not directly.
         def initialize
           raise NoMethodError, "use SFML::Network::Http#send_request to create a Response"
         end
 
+        # Numeric HTTP status code (200, 404, ...). Combine with
+        # `STATUS_NAMES` or use `#status_symbol`.
         def status
           C::Network.sfHttpResponse_getStatus(@handle)
         end
@@ -92,10 +100,12 @@ module SFML
           STATUS_NAMES[status] || status
         end
 
-        # Returns the body.
+        # Response body as a Ruby String.
         def body  = C::Network.sfHttpResponse_getBody(@handle).to_s
+        # Look up a response header by name (case-insensitive in HTTP).
         def field(name) = C::Network.sfHttpResponse_getField(@handle, name.to_s)
 
+        # HTTP version the server replied with, as `[major, minor]`.
         def http_version
           [
             C::Network.sfHttpResponse_getMajorVersion(@handle),

@@ -4,6 +4,7 @@ module SFML
   #   SFML::VideoMode.new(800, 600)
   #   SFML::VideoMode.desktop_mode
   class VideoMode
+    # The width, height, bits per pixel components.
     attr_reader :width, :height, :bits_per_pixel
 
     def initialize(width, height, bits_per_pixel = 32)
@@ -13,6 +14,7 @@ module SFML
       freeze
     end
 
+    # Returns the self.
     def self.desktop_mode
       from_native(C::Window.sfVideoMode_getDesktopMode)
     end
@@ -46,10 +48,12 @@ module SFML
     def to_s = "#<SFML::VideoMode #{@width}x#{@height}@#{@bits_per_pixel}>"
     alias inspect to_s
 
+    # Returns the self.
     def self.from_native(struct) # :nodoc:
       new(struct[:size][:x], struct[:size][:y], struct[:bits_per_pixel])
     end
 
+    # Returns the to native.
     def to_native # :nodoc:
       C::Window::VideoMode.new.tap do |m|
         m[:size][:x] = @width

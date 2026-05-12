@@ -9,6 +9,7 @@ module SFML
     #   sock.send("hello", to: SFML::Network::IpAddress::LOCALHOST, port: 9000)
     #   status, bytes, addr, port = sock.receive(max: 1024)
     class UdpSocket
+      # Max UDP payload CSFML will send in one call.
       MAX_DATAGRAM_SIZE = C::Network.sfUdpSocket_maxDatagramSize
 
       def initialize
@@ -17,17 +18,20 @@ module SFML
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfUdpSocket_destroy))
       end
 
+      # Returns the bind.
       def bind(port:, address: IpAddress::ANY)
         addr = address.is_a?(IpAddress) ? address : IpAddress.from_string(address)
         code = C::Network.sfUdpSocket_bind(@handle, Integer(port), addr.struct)
         C::Network::STATUSES[code]
       end
 
+      # Returns the unbind.
       def unbind
         C::Network.sfUdpSocket_unbind(@handle)
         self
       end
 
+      # Returns the send.
       def send(data, to:, port:)
         bytes = data.to_s
         addr  = to.is_a?(IpAddress) ? to : IpAddress.from_string(to)

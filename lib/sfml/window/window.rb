@@ -20,8 +20,11 @@ module SFML
   #     win.display
   #   end
   class Window
+    # Default window style bitmask.
     DEFAULT_STYLE = C::Window::Style::DEFAULT
 
+    # Construct a Window. Same constructor forms as `RenderWindow.new`
+    # (`(w, h, title, **opts)` or `(video_mode, title, **opts)`).
     def initialize(*args, **opts)
       mode, title = parse_args(args)
       style = opts.fetch(:style, DEFAULT_STYLE)
@@ -43,16 +46,20 @@ module SFML
       self.vsync = opts[:vsync]               unless opts[:vsync].nil?
     end
 
-    # `true` if open.
+    # `true` while the window is alive (not closed by `#close` or
+    # the user).
     def open?
       C::Window.sfWindow_isOpen(@handle)
     end
 
+    # Close the window.
     def close
       C::Window.sfWindow_close(@handle)
       self
     end
 
+    # Swap front/back buffers, presenting whatever was rendered
+    # since the last call.
     def display
       C::Window.sfWindow_display(@handle)
       self
@@ -64,6 +71,8 @@ module SFML
       Event.from_native(@event_buffer)
     end
 
+    # Yields each pending event then returns. Without a block,
+    # returns an Enumerator.
     def each_event
       return enum_for(:each_event) unless block_given?
       while (event = poll_event)
@@ -77,6 +86,7 @@ module SFML
       C::Window.sfWindow_setTitle(@handle, value.to_s)
     end
 
+    # Current window size as a `Vector2`.
     def size
       v = C::Window.sfWindow_getSize(@handle)
       Vector2.new(v[:x], v[:y])
@@ -90,6 +100,7 @@ module SFML
       C::Window.sfWindow_setSize(@handle, v)
     end
 
+    # Window top-left in desktop coordinates.
     def position
       v = C::Window.sfWindow_getPosition(@handle)
       Vector2.new(v[:x], v[:y])
@@ -123,6 +134,8 @@ module SFML
       C::Window.sfWindow_setKeyRepeatEnabled(@handle, value ? true : false)
     end
 
+    # Ask the OS to give this window focus. Cooperative — most
+    # window managers will defer until the user clicks.
     def request_focus
       C::Window.sfWindow_requestFocus(@handle)
     end
@@ -140,6 +153,8 @@ module SFML
 
     # ---- Mouse cursor ----
 
+    # Apply a `SFML::Cursor` as the visible mouse pointer over this
+    # window. Keeps a Ruby reference so the Cursor outlives the call.
     def cursor=(cursor)
       raise ArgumentError, "Window#cursor= requires a SFML::Cursor" unless cursor.is_a?(Cursor)
       C::Window.sfWindow_setMouseCursor(@handle, cursor.handle)
@@ -158,6 +173,8 @@ module SFML
 
     # ---- Misc state ----
 
+    # Dead-zone for joystick axis events in [0, 100]. Axes whose
+    # absolute value is below this are reported as 0.
     def joystick_threshold=(value)
       C::Window.sfWindow_setJoystickThreshold(@handle, Float(value))
     end
@@ -240,6 +257,7 @@ module SFML
       v
     end
 
+    # Returns the parse args.
     def parse_args(args)
       case args.length
       when 2

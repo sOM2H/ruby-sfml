@@ -51,6 +51,7 @@ module SFML
       def normalized_age = age / lifetime
     end
 
+    # No gravity by default `[0.0, 0.0]`.
     DEFAULT_GRAVITY = [0.0, 0.0].freeze
 
     def initialize(max: 1000, gravity: DEFAULT_GRAVITY, texture: nil)
@@ -62,6 +63,7 @@ module SFML
       @vertex_array = VertexArray.new(:triangles)
     end
 
+    # The particles, texture components.
     attr_reader :particles, :texture
     # Returns the size.
     def size = @particles.size

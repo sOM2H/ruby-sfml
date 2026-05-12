@@ -6,6 +6,7 @@ module SFML
   #   sound  = SFML::Sound.new(buffer)
   #   sound.play
   class SoundBuffer
+    # Returns the self.
     def self.load(path)
       ptr = C::Audio.sfSoundBuffer_createFromFile(path.to_s)
       raise LoadError, "Could not load sound buffer from #{path.inspect}" if ptr.null?

@@ -51,6 +51,7 @@ module SFML
       @done          = false
     end
 
+    # The sprite, frame index components.
     attr_reader :sprite, :frame_index
 
     # Returns whether the animation has reached the end (only

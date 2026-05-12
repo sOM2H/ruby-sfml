@@ -21,12 +21,17 @@ module SFML
   # `SFML::VertexBuffer.available?` returns false and you should
   # fall back to `VertexArray`.
   class VertexBuffer
+    # VBO usage hints in CSFML enum order.
     USAGES       = C::Graphics::VERTEX_BUFFER_USAGES
+    # Usage symbol → integer Hash.
     USAGE_INDEX  = USAGES.each_with_index.to_h.freeze
 
+    # Primitive type symbols in `sfPrimitiveType` order.
     PRIMITIVE_TYPES = VertexArray::PRIMITIVE_TYPES
+    # Primitive symbol → integer index Hash.
     PRIMITIVE_INDEX = VertexArray::PRIMITIVE_INDEX
 
+    # Returns the self.
     def self.available?
       C::Graphics.sfVertexBuffer_isAvailable
     end
@@ -61,6 +66,7 @@ module SFML
     alias size  count
     alias length count
 
+    # Returns the primitive type.
     def primitive_type
       PRIMITIVE_TYPES[C::Graphics.sfVertexBuffer_getPrimitiveType(@handle)] || :unknown
     end
@@ -73,6 +79,7 @@ module SFML
       C::Graphics.sfVertexBuffer_setPrimitiveType(@handle, idx)
     end
 
+    # Returns the usage.
     def usage
       USAGES[C::Graphics.sfVertexBuffer_getUsage(@handle)] || :unknown
     end
@@ -120,10 +127,12 @@ module SFML
       self
     end
 
+    # Returns the self.
     def self.unbind
       C::Graphics.sfVertexBuffer_bind(nil)
     end
 
+    # Returns the draw on.
     def draw_on(target, states_ptr = nil) # :nodoc:
       target._draw_native(:VertexBuffer, @handle, states_ptr)
     end

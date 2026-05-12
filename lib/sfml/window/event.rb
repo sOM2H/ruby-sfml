@@ -17,28 +17,38 @@ module SFML
     # extra1, extra2. (CSFML 2 called the last two x_button1/x_button2,
     # but SFML 3 dropped the X-button terminology.)
     MOUSE_BUTTONS = %i[left right middle extra1 extra2].freeze
+    # Mouse wheel axes — `:vertical` / `:horizontal`.
     MOUSE_WHEELS  = %i[vertical horizontal].freeze
 
+    # The type, data components.
     attr_reader :type, :data
 
+    # Build directly (rare — `Event.from_native` is the usual path).
     def initialize(type, data = {})
       @type = type
       @data = data.freeze
       freeze
     end
 
+    # Hash-style lookup into the event payload.
     def [](key)        = @data[key]
+    # Hash-style fetch with the standard fallback / block behaviour.
     def fetch(*args, &) = @data.fetch(*args, &)
 
+    # Pattern-match hook — flattens `{type:, ...payload}` into one
+    # hash so callers can write `in {type: :key_pressed, code:}`.
     def deconstruct_keys(_keys)
       { type: @type, **@data }
     end
 
-    # `true` if respond to missing.
+    # `respond_to?` answer for payload keys — keeps `#method_missing`
+    # safe under introspection.
     def respond_to_missing?(name, _private = false)
       @data.key?(name) || super
     end
 
+    # Payload keys are exposed as method calls so `event.code` works
+    # alongside `event[:code]`.
     def method_missing(name, *args)
       return @data[name] if args.empty? && @data.key?(name)
       super
@@ -60,6 +70,7 @@ module SFML
       new(type_sym, data)
     end
 
+    # Returns the self.
     def self.decode(type_sym, ptr)
       case type_sym
       when :closed, :focus_lost, :focus_gained,
@@ -143,6 +154,7 @@ module SFML
       end
     end
 
+    # Frozen empty Hash — shared default for missing event payloads.
     EMPTY = {}.freeze
     private_constant :EMPTY
   end

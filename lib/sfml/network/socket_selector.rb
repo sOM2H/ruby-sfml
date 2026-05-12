@@ -24,6 +24,7 @@ module SFML
     # objects; this binding exists for game code that's already using
     # `SFML::Network::Tcp{Socket,Listener}` / `UdpSocket`.
     class SocketSelector
+      # Create an empty selector. Use `#add` to register sockets.
       def initialize
         ptr = C::Network.sfSocketSelector_create
         raise NetworkError, "sfSocketSelector_create returned NULL" if ptr.null?
@@ -31,6 +32,8 @@ module SFML
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfSocketSelector_destroy))
       end
 
+      # Register a `TcpListener`, `TcpSocket`, or `UdpSocket` for
+      # monitoring. Chainable.
       def add(socket)
         case socket
         when TcpListener then C::Network.sfSocketSelector_addTcpListener(@handle, socket.handle)
@@ -43,6 +46,7 @@ module SFML
         self
       end
 
+      # Stop monitoring a previously-added socket. Chainable.
       def remove(socket)
         case socket
         when TcpListener then C::Network.sfSocketSelector_removeTcpListener(@handle, socket.handle)
@@ -55,6 +59,7 @@ module SFML
         self
       end
 
+      # Unregister all sockets.
       def clear
         C::Network.sfSocketSelector_clear(@handle)
         self

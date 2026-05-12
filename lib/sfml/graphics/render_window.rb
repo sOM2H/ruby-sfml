@@ -18,6 +18,7 @@ module SFML
     include Graphics::RenderTarget
     CSFML_PREFIX = :sfRenderWindow
 
+    # Default window style bitmask.
     DEFAULT_STYLE = C::Window::Style::DEFAULT
 
     # The first form takes (width, height, title, **opts).
@@ -350,6 +351,7 @@ module SFML
       v
     end
 
+    # Returns the parse args.
     def parse_args(args)
       case args.length
       when 2

@@ -17,7 +17,9 @@ module SFML
   # Sensor data also surfaces through the event loop as
   # `{type: :sensor_changed, sensor: :accelerometer, value: Vector3}`.
   module Sensor
+    # Recognised type symbols.
     TYPES       = C::Window::SENSOR_TYPES
+    # Type symbol → integer index Hash.
     TYPE_INDEX  = TYPES.each_with_index.to_h.freeze
 
     module_function
@@ -27,14 +29,17 @@ module SFML
       C::Window.sfSensor_isAvailable(_index(type))
     end
 
+    # Returns the enable.
     def enable(type)
       C::Window.sfSensor_setEnabled(_index(type), true)
     end
 
+    # Returns the disable.
     def disable(type)
       C::Window.sfSensor_setEnabled(_index(type), false)
     end
 
+    # Returns the value.
     def value(type)
       v = C::Window.sfSensor_getValue(_index(type))
       Vector3.new(v[:x], v[:y], v[:z])

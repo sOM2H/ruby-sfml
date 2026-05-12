@@ -4,6 +4,7 @@ module SFML
   # support. Used by the 3D-audio API (`Sound#position`, `Listener`,
   # …) and as a back-end for `Image` size hints.
   class Vector3
+    # The X coordinate, Y coordinate, Z coordinate components.
     attr_reader :x, :y, :z
 
     # Compact constructor: `Vector3[1, 2, 3]`.
@@ -148,10 +149,12 @@ module SFML
     def to_s = "Vector3(#{@x}, #{@y}, #{@z})"
     alias inspect to_s
 
+    # Returns the self.
     def self.from_native(struct) # :nodoc:
       new(struct[:x], struct[:y], struct[:z])
     end
 
+    # Returns the to native f.
     def to_native_f # :nodoc:
       C::System::Vector3f.new.tap { |v| v[:x] = @x; v[:y] = @y; v[:z] = @z }
     end

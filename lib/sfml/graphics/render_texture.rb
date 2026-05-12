@@ -34,6 +34,7 @@ module SFML
       self.repeated = repeated
     end
 
+    # Returns the size.
     def size
       v = C::Graphics.sfRenderTexture_getSize(@handle)
       Vector2.new(v[:x], v[:y])
@@ -92,6 +93,7 @@ module SFML
       Rect.from_native(C::Graphics.sfRenderTexture_getViewport(@handle, view.handle))
     end
 
+    # Returns the scissor.
     def scissor(view = self.view)
       raise ArgumentError, "expected a SFML::View" unless view.is_a?(View)
       Rect.from_native(C::Graphics.sfRenderTexture_getScissor(@handle, view.handle))

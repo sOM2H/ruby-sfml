@@ -13,6 +13,7 @@ module SFML
   class Time
     include Comparable
 
+    # The microseconds.
     attr_reader :microseconds
 
     # Build a Time from a Float of seconds.
@@ -57,10 +58,12 @@ module SFML
     def to_s = "#<SFML::Time #{as_seconds}s>"
     alias inspect to_s
 
+    # Returns the self.
     def self.from_native(struct) # :nodoc:
       new(struct[:microseconds])
     end
 
+    # Returns the to native.
     def to_native # :nodoc:
       C::System::Time.new.tap { |t| t[:microseconds] = @microseconds }
     end

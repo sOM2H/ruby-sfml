@@ -27,6 +27,7 @@ module SFML
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfPacket_destroy))
       end
 
+      # Returns the clear.
       def clear
         C::Network.sfPacket_clear(@handle)
         self
@@ -134,6 +135,7 @@ module SFML
         buf.read_string.force_encoding(Encoding::UTF_8)
       end
 
+      # Returns the dup.
       def dup
         ptr = C::Network.sfPacket_copy(@handle)
         raise NetworkError, "sfPacket_copy returned NULL" if ptr.null?

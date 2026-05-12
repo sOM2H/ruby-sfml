@@ -77,6 +77,7 @@ module SFML
       C::Graphics.sfCircleShape_setOutlineThickness(@handle, t.to_f)
     end
 
+    # Returns the draw on.
     def draw_on(target, states_ptr = nil) # :nodoc:
       target._draw_native(:CircleShape, @handle, states_ptr)
     end

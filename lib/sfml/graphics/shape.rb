@@ -67,6 +67,7 @@ module SFML
       raise NoMethodError, "#{self.class} must override #point_count"
     end
 
+    # Returns the point.
     def point(_index)
       raise NoMethodError, "#{self.class} must override #point(index)"
     end
@@ -105,6 +106,7 @@ module SFML
       self
     end
 
+    # Returns the draw on.
     def draw_on(target, states_ptr = nil) # :nodoc:
       target._draw_native(:Shape, @handle, states_ptr)
     end

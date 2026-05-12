@@ -27,12 +27,15 @@ module SFML
   class StencilMode
     # Order matches sfStencilComparison in CSFML 3.
     COMPARISONS = %i[never less less_equal greater greater_equal equal not_equal always].freeze
+    # Comparison symbol → integer Hash.
     COMPARISON_INDEX = COMPARISONS.each_with_index.to_h.freeze
 
     # Order matches sfStencilUpdateOperation in CSFML 3.
     OPERATIONS = %i[keep zero replace increment decrement invert].freeze
+    # Update-op symbol → integer Hash.
     OPERATION_INDEX = OPERATIONS.each_with_index.to_h.freeze
 
+    # The comparison, update operation, reference, mask, only write mask components.
     attr_reader :comparison, :update_operation, :reference, :mask, :only_write_mask
 
     def initialize(comparison: :always, update_operation: :keep,
@@ -62,6 +65,7 @@ module SFML
     # Returns the hash.
     def hash = [comparison, update_operation, reference, mask, only_write_mask].hash
 
+    # Returns the to s.
     def to_s
       "StencilMode(#{comparison}, #{update_operation}, ref=#{reference}, " \
         "mask=#{format('0x%08X', mask)}, only_write=#{only_write_mask})"

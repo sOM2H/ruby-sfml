@@ -34,6 +34,7 @@ module SFML
       C::Window.sfJoystick_isConnected(_id(joystick))
     end
 
+    # Returns the button count.
     def button_count(joystick)
       C::Window.sfJoystick_getButtonCount(_id(joystick))
     end

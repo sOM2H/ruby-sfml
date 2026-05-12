@@ -20,6 +20,8 @@ module SFML
   # work with a fresh copy use `t.dup`. The CSFML constant for the
   # identity is exposed via `Transform.identity`.
   class Transform
+    # Build a fresh identity Transform. Compose with `#translate` /
+    # `#rotate` / `#scale`.
     def initialize
       @struct = C::Graphics::Transform.new
       # Start as identity by copying CSFML's sfTransform_Identity.
@@ -27,6 +29,7 @@ module SFML
       @struct.pointer.write_bytes(identity_bytes)
     end
 
+    # Alias for `Transform.new` — reads better at call site.
     def self.identity
       new
     end
@@ -42,6 +45,8 @@ module SFML
       t
     end
 
+    # Deep-copy hook — `t.dup` clones the underlying matrix, not just
+    # the pointer.
     def initialize_dup(other)
       super
       @struct = C::Graphics::Transform.new
@@ -137,6 +142,7 @@ module SFML
 
     private
 
+    # Returns the allocate new with.
     def allocate_new_with(native_struct)
       t = self.class.allocate
       new_buf = C::Graphics::Transform.new

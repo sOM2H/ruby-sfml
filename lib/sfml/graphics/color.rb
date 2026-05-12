@@ -8,6 +8,7 @@ module SFML
   #   SFML::Color["#ff6432"]               # hex (RGB or RRGGBB or RRGGBBAA)
   #   SFML::Color.cornflower_blue          # named
   class Color
+    # The Red channel (0–255), Green channel (0–255), Blue channel (0–255), Alpha channel (0–255) components.
     attr_reader :r, :g, :b, :a
 
     # Build a Color from individual channel values. Each must be an
@@ -67,12 +68,14 @@ module SFML
     def to_s = "Color(#{@r}, #{@g}, #{@b}, #{@a})"
     alias inspect to_s
 
+    # Returns the to native.
     def to_native # :nodoc:
       C::Graphics::Color.new.tap do |c|
         c[:r] = @r; c[:g] = @g; c[:b] = @b; c[:a] = @a
       end
     end
 
+    # Returns the self.
     def self.from_native(struct) # :nodoc:
       new(struct[:r], struct[:g], struct[:b], struct[:a])
     end
@@ -110,13 +113,21 @@ module SFML
 
     # Standard SFML colors.
     BLACK       = new(0,   0,   0)
+    # Pure white, opaque.
     WHITE       = new(255, 255, 255)
+    # Pure red, opaque.
     RED         = new(255, 0,   0)
+    # Pure green, opaque.
     GREEN       = new(0,   255, 0)
+    # Pure blue, opaque.
     BLUE        = new(0,   0,   255)
+    # Pure yellow, opaque.
     YELLOW      = new(255, 255, 0)
+    # Pure magenta, opaque.
     MAGENTA     = new(255, 0,   255)
+    # Pure cyan, opaque.
     CYAN        = new(0,   255, 255)
+    # Fully transparent (alpha = 0).
     TRANSPARENT = new(0,   0,   0,   0)
 
     # A nicer default than pure black for empty windows.

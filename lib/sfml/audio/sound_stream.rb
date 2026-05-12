@@ -44,6 +44,7 @@ module SFML
   #   variable, store in an instance var). If the Ruby object is GC'd
   #   while CSFML is still calling callbacks, the process crashes.
   class SoundStream
+    # Per-callback PCM-buffer size for the sample queue.
     DEFAULT_CHUNK_FRAMES = 4096
 
     def initialize(channel_count:, sample_rate:)

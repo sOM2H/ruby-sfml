@@ -24,6 +24,7 @@ module SFML
       self.looping = looping
     end
 
+    # The buffer.
     attr_reader :buffer
 
     # Replace the `SoundBuffer` this Sound is bound to. Stopping

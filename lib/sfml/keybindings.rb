@@ -10,6 +10,7 @@ module SFML
   # so `class Sub < Parent; on_key :x, :foo; end` keeps the parent's
   # other bindings while overriding (or adding) `:x`.
   module Keybindings
+    # Returns the on key.
     def on_key(code, target = nil, &block)
       @key_handlers ||= {}
       handler = block || target

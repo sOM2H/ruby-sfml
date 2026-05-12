@@ -33,6 +33,7 @@ module SFML
       _take_ownership(ptr)
     end
 
+    # Returns the self.
     def self.load(path)
       ptr = C::Graphics.sfImage_createFromFile(path.to_s)
       raise LoadError, "Could not load image from #{path.inspect}" if ptr.null?
@@ -90,6 +91,7 @@ module SFML
       img
     end
 
+    # Returns the size.
     def size
       Vector2.from_native(C::Graphics.sfImage_getSize(@handle))
     end
@@ -151,6 +153,7 @@ module SFML
       self
     end
 
+    # Returns the save.
     def save(path)
       ok = C::Graphics.sfImage_saveToFile(@handle, path.to_s)
       raise LoadError, "Could not save image to #{path.inspect}" unless ok
@@ -188,11 +191,13 @@ module SFML
       self
     end
 
+    # Returns the flip horizontally.
     def flip_horizontally
       C::Graphics.sfImage_flipHorizontally(@handle)
       self
     end
 
+    # Returns the flip vertically.
     def flip_vertically
       C::Graphics.sfImage_flipVertically(@handle)
       self

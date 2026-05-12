@@ -25,14 +25,17 @@ module SFML
       self.scale    = opts[:scale]    if opts.key?(:scale)
     end
 
+    # Returns the transform.
     def transform
       C::Graphics.sfTransformable_getTransform(@handle)
     end
 
+    # Returns the inverse transform.
     def inverse_transform
       C::Graphics.sfTransformable_getInverseTransform(@handle)
     end
 
+    # Returns the dup.
     def dup
       ptr = C::Graphics.sfTransformable_copy(@handle)
       raise GraphicsError, "sfTransformable_copy returned NULL" if ptr.null?

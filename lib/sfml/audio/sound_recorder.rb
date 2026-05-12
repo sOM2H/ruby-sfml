@@ -43,6 +43,7 @@ module SFML
       C::Audio.sfSoundRecorder_isAvailable
     end
 
+    # Returns the self.
     def self.default_device
       C::Audio.sfSoundRecorder_getDefaultDevice
     end
@@ -108,6 +109,7 @@ module SFML
       self
     end
 
+    # Returns the stop.
     def stop
       C::Audio.sfSoundRecorder_stop(@handle)
       self

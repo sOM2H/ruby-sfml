@@ -16,7 +16,9 @@ module SFML
     # for commands that return a path or a list). All responses expose
     # `#ok?`, `#status` (Integer), `#status_symbol`, `#message`.
     class Ftp
+      # Standard port for the protocol.
       DEFAULT_PORT    = 21
+      # Default per-call timeout.
       DEFAULT_TIMEOUT = SFML::Time.zero
 
       # FTP status codes mapped to symbols. The transport-error ones

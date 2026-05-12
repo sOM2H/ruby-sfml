@@ -19,6 +19,8 @@ module SFML
   #
   # All coordinate inputs accept either a SFML::Vector2 or a [x, y] array.
   class View
+    # Build a View. All four kwargs may be passed up-front or set
+    # later. `_handle:` is for internal wrapping of CSFML pointers.
     def initialize(center: nil, size: nil, rotation: nil, viewport: nil, _handle: nil)
       ptr = _handle || C::Graphics.sfView_create
       raise GraphicsError, "sfView_create returned NULL" if ptr.null?
@@ -55,6 +57,7 @@ module SFML
       new(_handle: copy)
     end
 
+    # Centre point of the view in world coordinates.
     def center
       Vector2.from_native(C::Graphics.sfView_getCenter(@handle))
     end
@@ -64,6 +67,7 @@ module SFML
       C::Graphics.sfView_setCenter(@handle, _vec2(value).to_native_f)
     end
 
+    # Visible area in world units (NOT pixels). Halving this zooms in.
     def size
       Vector2.from_native(C::Graphics.sfView_getSize(@handle))
     end
@@ -73,6 +77,7 @@ module SFML
       C::Graphics.sfView_setSize(@handle, _vec2(value).to_native_f)
     end
 
+    # Rotation in degrees (counter-clockwise).
     def rotation
       C::Graphics.sfView_getRotation(@handle)
     end

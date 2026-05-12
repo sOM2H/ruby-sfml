@@ -19,6 +19,7 @@ module SFML
   # the source image has separators or a 1px outline to prevent
   # bleed.
   class SpriteSheet
+    # Returns the self.
     def self.load(path, frame_size:, padding: 0, margin: 0, smooth: true)
       new(texture: Texture.load(path, smooth: smooth),
           frame_size: frame_size, padding: padding, margin: margin)
@@ -46,6 +47,7 @@ module SFML
       end.freeze
     end
 
+    # The texture, cols, rows, frame w, frame h components.
     attr_reader :texture, :cols, :rows, :frame_w, :frame_h
 
     # Returns the frame count.

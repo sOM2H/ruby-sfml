@@ -7,6 +7,7 @@ module SFML
   #   v * 2             #=> Vector2(6, 8)
   #   x, y = v          # destructures via to_a
   class Vector2
+    # The X coordinate, Y coordinate components.
     attr_reader :x, :y
 
     # Compact constructor: `Vector2[3, 4]` reads naturally as a literal.
@@ -161,10 +162,12 @@ module SFML
     def to_s = "Vector2(#{@x}, #{@y})"
     alias inspect to_s
 
+    # Returns the self.
     def self.from_native(struct) # :nodoc:
       new(struct[:x], struct[:y])
     end
 
+    # Returns the to native f.
     def to_native_f # :nodoc:
       C::System::Vector2f.new.tap { |v| v[:x] = @x; v[:y] = @y }
     end

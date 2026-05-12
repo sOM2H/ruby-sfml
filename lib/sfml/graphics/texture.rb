@@ -116,6 +116,7 @@ module SFML
       img
     end
 
+    # Returns the size.
     def size
       Vector2.from_native(C::Graphics.sfTexture_getSize(@handle))
     end
@@ -151,11 +152,13 @@ module SFML
     #   `SFML::Texture.unbind`.
     COORDINATE_TYPES = {normalized: 0, pixels: 1}.freeze
 
+    # Returns the bind.
     def bind(coord: :normalized)
       raise ArgumentError, "coord must be :normalized or :pixels" unless COORDINATE_TYPES.key?(coord)
       C::Graphics.sfTexture_bind(@handle, COORDINATE_TYPES[coord])
     end
 
+    # Returns the self.
     def self.unbind
       C::Graphics.sfTexture_bind(nil, 0)
     end

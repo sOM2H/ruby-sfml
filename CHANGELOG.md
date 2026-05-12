@@ -10,12 +10,34 @@ HTML API docs: <https://ruby-sfml-doc.netlify.app/>
 
 ## [Unreleased]
 
+## [3.0.0.8] — 2026-05-12
+
+Continued documentation pass. RDoc coverage went from **68% → 87%**
+on top of 3.0.0.7's first pass — every public class, module, and
+attribute is now documented, plus all the simple
+setter/getter/predicate methods. Docs site:
+<https://ruby-sfml-doc.netlify.app/>.
+
+### Changed — documentation
+
+- All 63 `attr_reader` / `attr_accessor` declarations now carry a
+  one-line description (62 → 0 undocumented).
+- 72 of 97 module-level constants now documented (was 23) — every
+  `CODES` / `INDEX` table, `STATUSES` enum, `DEFAULT_*` sentinel,
+  and named-color singleton has a sentence.
+- Hand-written docstrings on `Assets`, `Clock`, `Window` (bare),
+  `Sprite`, `View`, `Transform`, `SocketSelector`, `Http`,
+  `IpAddress`, `Event` — the methods that survived the previous
+  pass without docs.
+- Final aggressive auto-doc pass fills setter / getter /
+  predicate / accessor patterns the conservative pass skipped.
+
 ## [3.0.0.7] — 2026-05-12
 
-Documentation pass. RDoc coverage went from **36% → 87%** —
-every public class, module, attribute, and almost every method
-now carries at least a one-line description. Pair this release
-with the new docs site at <https://ruby-sfml-doc.netlify.app/>.
+Documentation pass. RDoc coverage went from **36% → 68%** —
+every public class, module, and the high-traffic methods now
+carry at least a one-line description. Pair this release with
+the new docs site at <https://ruby-sfml-doc.netlify.app/>.
 
 ### Changed — documentation
 

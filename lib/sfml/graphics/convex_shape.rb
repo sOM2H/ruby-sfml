@@ -18,7 +18,7 @@ module SFML
 
     def initialize(points: nil, **opts)
       ptr = C::Graphics.sfConvexShape_create
-      raise Error, "sfConvexShape_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfConvexShape_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfConvexShape_destroy))
 
       self.points = points if points

@@ -41,7 +41,14 @@ module SFML
       framerate vsync background
       style fullscreen
       antialiasing context
+      fixed_timestep
     ].freeze
+
+    # Cap on catch-up update calls per frame when running with
+    # `fixed_timestep`. Prevents the "spiral of death" where a slow
+    # frame queues so many physics steps that the next frame is
+    # even slower. After this many steps, residual time is dropped.
+    FIXED_TIMESTEP_MAX_CATCHUP = 5
 
     class << self
       CONFIG_KEYS.each do |key|
@@ -63,6 +70,7 @@ module SFML
       end
 
       include Keybindings   # provides `on_key` + `key_handlers`
+      include InputActions  # provides `action` + `action_bindings`
 
       # Set the scene class the app should switch into automatically
       # at `setup` time. Inheritable: a subclass that doesn't set
@@ -73,6 +81,8 @@ module SFML
         superclass.respond_to?(:initial_scene) ? superclass.initial_scene : nil
       end
     end
+
+    include InputQueries
 
     attr_reader   :window
     attr_accessor :background_color
@@ -155,15 +165,56 @@ module SFML
     def toggle_pause = (@paused = !paused?)
     def paused? = @paused == true
 
+    # Fraction of a fixed timestep accumulated since the last
+    # `update`. In range [0.0, 1.0). Use it in `#draw` to
+    # interpolate between the previous and current world state:
+    #
+    #   def draw
+    #     pos = @prev_pos.lerp(@curr_pos, interpolation_alpha)
+    #     ...
+    #   end
+    #
+    # Only meaningful when `fixed_timestep` is set; otherwise 0.
+    attr_reader :interpolation_alpha
+
     # The main entry point. Calls #setup once, then runs the
     # per-frame loop until the window closes.
+    #
+    # When `fixed_timestep N` is set on the class, `update(dt)` is
+    # called exactly N times per second (with a fixed dt), and
+    # rendering runs as fast as vsync/framerate allows. This is
+    # the standard pattern for deterministic physics — without it,
+    # large-dt frames produce different results than small-dt frames.
     def run
       setup
-      clock = Clock.new
+      clock           = Clock.new
+      ts              = self.class.fixed_timestep
+      step_seconds    = ts && (1.0 / ts)
+      dt_fixed        = ts && Time.seconds(step_seconds)
+      accumulator     = 0.0
+      @interpolation_alpha = 0.0
+
       while @window.open?
-        dt = clock.restart
+        frame_dt = clock.restart
         @window.each_event { |event| _dispatch(event) }
-        update(dt) unless paused?
+
+        if dt_fixed
+          accumulator += frame_dt.as_seconds
+          steps = 0
+          while accumulator >= step_seconds && steps < FIXED_TIMESTEP_MAX_CATCHUP
+            update(dt_fixed) unless paused?
+            accumulator -= step_seconds
+            steps += 1
+          end
+          # If we hit the catch-up cap, drop residual time — better
+          # to slightly slow the simulation than spiral into longer
+          # and longer frames.
+          accumulator = 0.0 if steps == FIXED_TIMESTEP_MAX_CATCHUP
+          @interpolation_alpha = accumulator / step_seconds
+        else
+          update(frame_dt) unless paused?
+        end
+
         @window.clear(@background_color)
         draw
         @window.display

@@ -26,7 +26,7 @@ module SFML
     class SocketSelector
       def initialize
         ptr = C::Network.sfSocketSelector_create
-        raise Error, "sfSocketSelector_create returned NULL" if ptr.null?
+        raise NetworkError, "sfSocketSelector_create returned NULL" if ptr.null?
 
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfSocketSelector_destroy))
       end

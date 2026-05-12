@@ -20,7 +20,7 @@ module SFML
 
     def self.load(path)
       ptr = C::Graphics.sfFont_createFromFile(path.to_s)
-      raise Error, "Could not load font from #{path.inspect}" if ptr.null?
+      raise LoadError, "Could not load font from #{path.inspect}" if ptr.null?
 
       font = allocate
       font.send(:_take_ownership, ptr)
@@ -37,7 +37,7 @@ module SFML
       buf = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
       buf.write_bytes(bytes)
       ptr = C::Graphics.sfFont_createFromMemory(buf, bytes.bytesize)
-      raise Error, "sfFont_createFromMemory returned NULL" if ptr.null?
+      raise LoadError, "sfFont_createFromMemory returned NULL" if ptr.null?
 
       font = allocate
       font.send(:_take_ownership, ptr)
@@ -53,7 +53,7 @@ module SFML
     def self.from_stream(io)
       stream = SFML::InputStream.new(io)
       ptr = C::Graphics.sfFont_createFromStream(stream.to_ptr)
-      raise Error, "sfFont_createFromStream returned NULL" if ptr.null?
+      raise LoadError, "sfFont_createFromStream returned NULL" if ptr.null?
 
       font = allocate
       font.send(:_take_ownership, ptr)
@@ -147,7 +147,7 @@ module SFML
     # one without affecting the other.
     def dup
       ptr = C::Graphics.sfFont_copy(@handle)
-      raise Error, "sfFont_copy returned NULL" if ptr.null?
+      raise GraphicsError, "sfFont_copy returned NULL" if ptr.null?
 
       font = self.class.allocate
       font.send(:_take_ownership, ptr)

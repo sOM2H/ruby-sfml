@@ -7,7 +7,7 @@ module SFML
   class Music
     def self.load(path, **opts)
       ptr = C::Audio.sfMusic_createFromFile(path.to_s)
-      raise Error, "Could not load music from #{path.inspect}" if ptr.null?
+      raise LoadError, "Could not load music from #{path.inspect}" if ptr.null?
 
       _wrap(ptr, opts)
     end
@@ -22,7 +22,7 @@ module SFML
       buf = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
       buf.write_bytes(bytes)
       ptr = C::Audio.sfMusic_createFromMemory(buf, bytes.bytesize)
-      raise Error, "sfMusic_createFromMemory returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfMusic_createFromMemory returned NULL — unsupported format?" if ptr.null?
 
       m = _wrap(ptr, opts)
       m.instance_variable_set(:@_memory_pin, buf)   # keep buffer alive
@@ -35,7 +35,7 @@ module SFML
     def self.from_stream(io, **opts)
       stream = SFML::InputStream.new(io)
       ptr = C::Audio.sfMusic_createFromStream(stream.to_ptr)
-      raise Error, "sfMusic_createFromStream returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfMusic_createFromStream returned NULL — unsupported format?" if ptr.null?
 
       m = _wrap(ptr, opts)
       m.instance_variable_set(:@_stream_pin, stream)

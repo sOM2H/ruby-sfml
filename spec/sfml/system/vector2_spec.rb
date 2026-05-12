@@ -84,4 +84,74 @@ RSpec.describe SFML::Vector2 do
       expect(result).to eq(:ok)
     end
   end
+
+  describe "math helpers" do
+    let(:v) { described_class[3, 4] }
+
+    it "#distance and #distance_sq accept Vector2 or [x, y]" do
+      expect(v.distance(described_class.zero)).to eq(5.0)
+      expect(v.distance([0, 0])).to eq(5.0)
+      expect(v.distance_sq(described_class.zero)).to eq(25)
+    end
+
+    it "#angle returns the +X axis-relative angle in radians" do
+      expect(described_class[1, 0].angle).to eq(0.0)
+      expect(described_class[0, 1].angle).to be_within(1e-9).of(Math::PI / 2)
+    end
+
+    it "#angle_to gives the direction from self to other" do
+      expect(described_class[0, 0].angle_to([1, 0])).to eq(0.0)
+      expect(described_class[0, 0].angle_to([0, 1])).to be_within(1e-9).of(Math::PI / 2)
+    end
+
+    it "#rotated rotates CCW by degrees" do
+      r = described_class[1, 0].rotated(90)
+      expect(r.x).to be_within(1e-9).of(0.0)
+      expect(r.y).to be_within(1e-9).of(1.0)
+    end
+
+    it "#perpendicular returns a 90° CCW vector" do
+      expect(described_class[3, 4].perpendicular).to eq(described_class[-4, 3])
+    end
+
+    it "#lerp interpolates linearly" do
+      expect(described_class[0, 0].lerp([10, 20], 0.25)).to eq(described_class[2.5, 5.0])
+    end
+
+    it "#project_on projects onto another vector" do
+      expect(described_class[3, 4].project_on([1, 0])).to eq(described_class[3, 0])
+    end
+
+    it "#project_on a zero vector returns zero" do
+      expect(described_class[1, 2].project_on([0, 0])).to eq(described_class.zero)
+    end
+
+    it "#reflect bounces across a unit normal" do
+      expect(described_class[3, -4].reflect([0, 1])).to eq(described_class[3, 4])
+    end
+
+    it "#clamp_length caps the magnitude" do
+      v = described_class[3, 4].clamp_length(2)
+      expect(v.length).to be_within(1e-9).of(2.0)
+    end
+
+    it "#clamp_length raises the magnitude up to min" do
+      v = described_class[0.5, 0].clamp_length(1, nil)
+      expect(v.length).to be_within(1e-9).of(1.0)
+    end
+
+    it "#zero? recognises the zero vector" do
+      expect(described_class.zero.zero?).to be true
+      expect(described_class[1, 0].zero?).to be false
+    end
+
+    it "#abs returns per-component absolute values" do
+      expect(described_class[-3, 4].abs).to eq(described_class[3, 4])
+    end
+
+    it "#to_v3 promotes with optional z" do
+      expect(described_class[1, 2].to_v3).to eq(SFML::Vector3[1, 2, 0])
+      expect(described_class[1, 2].to_v3(5)).to eq(SFML::Vector3[1, 2, 5])
+    end
+  end
 end

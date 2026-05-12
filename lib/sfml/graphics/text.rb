@@ -27,7 +27,7 @@ module SFML
       raise ArgumentError, "Text requires a SFML::Font" unless font.is_a?(Font)
 
       ptr = C::Graphics.sfText_create(font.handle)
-      raise Error, "sfText_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfText_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfText_destroy))
       @font   = font # keep alive for GC
 
@@ -161,7 +161,7 @@ module SFML
     # (Fonts are shareable; each owns its own glyph atlas).
     def dup
       ptr = C::Graphics.sfText_copy(@handle)
-      raise Error, "sfText_copy returned NULL" if ptr.null?
+      raise GraphicsError, "sfText_copy returned NULL" if ptr.null?
 
       copy = self.class.allocate
       copy.instance_variable_set(:@handle, FFI::AutoPointer.new(ptr, C::Graphics.method(:sfText_destroy)))

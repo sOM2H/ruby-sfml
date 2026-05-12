@@ -16,7 +16,7 @@ module SFML
       ptr = srgb \
         ? C::Graphics.sfTexture_createSrgbFromFile(path.to_s, nil) \
         : C::Graphics.sfTexture_createFromFile(path.to_s, nil)
-      raise Error, "Could not load texture from #{path.inspect}" if ptr.null?
+      raise LoadError, "Could not load texture from #{path.inspect}" if ptr.null?
 
       tex = allocate
       tex.send(:_take_ownership, ptr)
@@ -33,7 +33,7 @@ module SFML
       size = C::System::Vector2u.new
       size[:x] = Integer(width); size[:y] = Integer(height)
       ptr = srgb ? C::Graphics.sfTexture_createSrgb(size) : C::Graphics.sfTexture_create(size)
-      raise Error, "sfTexture_create returned NULL — out of GPU memory?" if ptr.null?
+      raise GraphicsError, "sfTexture_create returned NULL — out of GPU memory?" if ptr.null?
 
       tex = allocate
       tex.send(:_take_ownership, ptr)
@@ -51,7 +51,7 @@ module SFML
       ptr = srgb \
         ? C::Graphics.sfTexture_createSrgbFromMemory(buf, bytes.bytesize, nil) \
         : C::Graphics.sfTexture_createFromMemory(buf, bytes.bytesize, nil)
-      raise Error, "sfTexture_createFromMemory returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfTexture_createFromMemory returned NULL — unsupported format?" if ptr.null?
 
       tex = allocate
       tex.send(:_take_ownership, ptr)
@@ -69,7 +69,7 @@ module SFML
       ptr = srgb \
         ? C::Graphics.sfTexture_createSrgbFromStream(stream.to_ptr, nil) \
         : C::Graphics.sfTexture_createFromStream(stream.to_ptr, nil)
-      raise Error, "sfTexture_createFromStream returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfTexture_createFromStream returned NULL — unsupported format?" if ptr.null?
 
       tex = allocate
       tex.send(:_take_ownership, ptr)
@@ -86,7 +86,7 @@ module SFML
       ptr = srgb \
         ? C::Graphics.sfTexture_createSrgbFromImage(image.handle, nil) \
         : C::Graphics.sfTexture_createFromImage(image.handle, nil)
-      raise Error, "sfTexture_createFromImage returned NULL" if ptr.null?
+      raise LoadError, "sfTexture_createFromImage returned NULL" if ptr.null?
 
       tex = allocate
       tex.send(:_take_ownership, ptr)
@@ -110,7 +110,7 @@ module SFML
     # — useful for screenshots or post-processing inspection.
     def to_image
       ptr = C::Graphics.sfTexture_copyToImage(@handle)
-      raise Error, "sfTexture_copyToImage returned NULL" if ptr.null?
+      raise GraphicsError, "sfTexture_copyToImage returned NULL" if ptr.null?
       img = Image.allocate
       img.send(:_take_ownership, ptr)
       img
@@ -164,7 +164,7 @@ module SFML
     # Deep copy. The returned texture has its own GPU memory.
     def dup
       ptr = C::Graphics.sfTexture_copy(@handle)
-      raise Error, "sfTexture_copy returned NULL" if ptr.null?
+      raise GraphicsError, "sfTexture_copy returned NULL" if ptr.null?
 
       tex = self.class.allocate
       tex.send(:_take_ownership, ptr)

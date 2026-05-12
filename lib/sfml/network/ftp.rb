@@ -47,7 +47,7 @@ module SFML
 
       def initialize
         ptr = C::Network.sfFtp_create
-        raise Error, "sfFtp_create returned NULL" if ptr.null?
+        raise NetworkError, "sfFtp_create returned NULL" if ptr.null?
 
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfFtp_destroy))
       end

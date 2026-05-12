@@ -29,13 +29,13 @@ module SFML
             else
               C::Graphics.sfImage_create(size)
             end
-      raise Error, "sfImage_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfImage_create returned NULL" if ptr.null?
       _take_ownership(ptr)
     end
 
     def self.load(path)
       ptr = C::Graphics.sfImage_createFromFile(path.to_s)
-      raise Error, "Could not load image from #{path.inspect}" if ptr.null?
+      raise LoadError, "Could not load image from #{path.inspect}" if ptr.null?
       img = allocate
       img.send(:_take_ownership, ptr)
       img
@@ -51,7 +51,7 @@ module SFML
       buf = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
       buf.write_bytes(bytes)
       ptr = C::Graphics.sfImage_createFromMemory(buf, bytes.bytesize)
-      raise Error, "sfImage_createFromMemory returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfImage_createFromMemory returned NULL — unsupported format?" if ptr.null?
 
       img = allocate
       img.send(:_take_ownership, ptr)
@@ -63,7 +63,7 @@ module SFML
     def self.from_stream(io)
       stream = SFML::InputStream.new(io)
       ptr = C::Graphics.sfImage_createFromStream(stream.to_ptr)
-      raise Error, "sfImage_createFromStream returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfImage_createFromStream returned NULL — unsupported format?" if ptr.null?
 
       img = allocate
       img.send(:_take_ownership, ptr)
@@ -83,7 +83,7 @@ module SFML
       size[:x] = Integer(width)
       size[:y] = Integer(height)
       ptr = C::Graphics.sfImage_createFromPixels(size, buf)
-      raise Error, "sfImage_createFromPixels returned NULL" if ptr.null?
+      raise LoadError, "sfImage_createFromPixels returned NULL" if ptr.null?
 
       img = allocate
       img.send(:_take_ownership, ptr)
@@ -151,7 +151,7 @@ module SFML
 
     def save(path)
       ok = C::Graphics.sfImage_saveToFile(@handle, path.to_s)
-      raise Error, "Could not save image to #{path.inspect}" unless ok
+      raise LoadError, "Could not save image to #{path.inspect}" unless ok
       path
     end
 
@@ -164,11 +164,11 @@ module SFML
     #   File.binwrite("out.png", png_bytes)
     def save_to_memory(format)
       buffer = C::System.sfBuffer_create
-      raise Error, "sfBuffer_create returned NULL" if buffer.null?
+      raise GraphicsError, "sfBuffer_create returned NULL" if buffer.null?
 
       begin
         ok = C::Graphics.sfImage_saveToMemory(@handle, buffer, format.to_s)
-        raise Error, "Could not encode image as #{format.inspect}" unless ok
+        raise LoadError, "Could not encode image as #{format.inspect}" unless ok
 
         size = C::System.sfBuffer_getSize(buffer)
         data = C::System.sfBuffer_getData(buffer)

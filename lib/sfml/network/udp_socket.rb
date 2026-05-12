@@ -13,7 +13,7 @@ module SFML
 
       def initialize
         ptr = C::Network.sfUdpSocket_create
-        raise Error, "sfUdpSocket_create returned NULL" if ptr.null?
+        raise NetworkError, "sfUdpSocket_create returned NULL" if ptr.null?
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfUdpSocket_destroy))
       end
 

@@ -75,7 +75,7 @@ module SFML
       end
 
       ptr = C::Audio.sfSoundRecorder_create(@start_cb, @process_cb, @stop_cb, nil)
-      raise Error, "sfSoundRecorder_create returned NULL" if ptr.null?
+      raise AudioError, "sfSoundRecorder_create returned NULL" if ptr.null?
 
       @handle = FFI::AutoPointer.new(ptr, C::Audio.method(:sfSoundRecorder_destroy))
     end
@@ -104,7 +104,7 @@ module SFML
 
     def start(sample_rate: 44_100)
       C::Audio.sfSoundRecorder_start(@handle, Integer(sample_rate)) ||
-        raise(Error, "sfSoundRecorder_start failed (no input device or driver error)")
+        raise(AudioError, "sfSoundRecorder_start failed (no input device or driver error)")
       self
     end
 
@@ -124,7 +124,7 @@ module SFML
 
     def device=(name)
       C::Audio.sfSoundRecorder_setDevice(@handle, name.to_s) ||
-        raise(Error, "sfSoundRecorder_setDevice failed for #{name.inspect}")
+        raise(AudioError, "sfSoundRecorder_setDevice failed for #{name.inspect}")
     end
 
     # The channel layout the recorder is producing, as an Array of

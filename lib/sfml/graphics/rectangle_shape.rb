@@ -14,7 +14,7 @@ module SFML
 
     def initialize(size:, **opts)
       ptr = C::Graphics.sfRectangleShape_create
-      raise Error, "sfRectangleShape_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfRectangleShape_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfRectangleShape_destroy))
 
       self.size = size

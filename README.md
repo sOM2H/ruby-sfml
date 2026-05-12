@@ -6,6 +6,7 @@
 Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [CSFML](https://github.com/SFML/CSFML) and [Ruby FFI](https://github.com/ffi/ffi).
 
 [![gem version](https://img.shields.io/gem/v/ruby-sfml.svg)](https://rubygems.org/gems/ruby-sfml)
+[![CI](https://github.com/sOM2H/ruby-sfml/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sOM2H/ruby-sfml/actions/workflows/ci.yml)
 [![docs](https://img.shields.io/badge/docs-rubydoc.info-blue.svg)](https://www.rubydoc.info/gems/ruby-sfml)
 
 > **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `App` / `Scene` / `Assets` helpers. 410 RSpec examples, 24 runnable example folders.

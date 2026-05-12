@@ -1,8 +1,47 @@
 require "sfml/version"
 
 module SFML
+  # Root of the ruby-sfml exception hierarchy. Every CSFML-side
+  # failure surfaces as something inheriting from `SFML::Error`, so
+  # `rescue SFML::Error` is the catch-all.
+  #
+  # Subclasses let callers target a domain:
+  #
+  #   rescue SFML::LoadError       # file / decode / GPU upload failed
+  #   rescue SFML::AudioError      # OpenAL / capture / playback issues
+  #   rescue SFML::NetworkError    # socket / packet framing
+  #   rescue SFML::ShaderError     # GLSL compile / uniform / link
+  #   rescue SFML::GraphicsError   # render-side issues other than load
+  #   rescue SFML::WindowError     # window/context creation / events
   class Error < StandardError; end
+
+  # An asset failed to load — file missing, format unsupported, GPU
+  # upload rejected, etc. Raised by `Texture.load` / `Font.load` /
+  # `Image.load` / `SoundBuffer.load` / `Music.load` and their
+  # `from_memory` / `from_stream` siblings.
   class LoadError < Error; end
+
+  # An audio operation failed at the OpenAL or CSFML capture layer —
+  # `SoundRecorder#start` couldn't open the device, channel-map was
+  # rejected, etc.
+  class AudioError < Error; end
+
+  # A network operation failed — socket couldn't open, packet framing
+  # was malformed, HTTP/FTP transport rejected the request.
+  class NetworkError < Error; end
+
+  # A shader couldn't compile or link, or an unknown uniform name was
+  # set. CSFML logs the compiler error to stderr; this exception just
+  # signals the failure.
+  class ShaderError < Error; end
+
+  # Generic graphics-side failure that isn't a load. Render-texture
+  # allocation, framebuffer setup, view/scissor math, etc.
+  class GraphicsError < Error; end
+
+  # Window or GL context couldn't be created, or a windowing primitive
+  # (cursor, clipboard) failed.
+  class WindowError < Error; end
 end
 
 # Tame process-exit teardown so CSFML doesn't crash.
@@ -109,6 +148,10 @@ require "sfml/graphics/render_states"
 require "sfml/graphics/render_target"
 require "sfml/graphics/render_window"
 require "sfml/graphics/render_texture"
+require "sfml/graphics/texture_atlas"
+require "sfml/graphics/sprite_sheet"
+require "sfml/graphics/animation"
+require "sfml/graphics/particle_system"
 require "sfml/audio/internal"
 require "sfml/audio/sound_buffer"
 require "sfml/audio/sound_cone"
@@ -128,5 +171,6 @@ require "sfml/network/http"
 require "sfml/network/ftp"
 require "sfml/assets"
 require "sfml/keybindings"
+require "sfml/input_actions"
 require "sfml/scene"
 require "sfml/app"

@@ -14,7 +14,7 @@ module SFML
   class Context
     def initialize
       ptr = C::Window.sfContext_create
-      raise Error, "sfContext_create returned NULL" if ptr.null?
+      raise WindowError, "sfContext_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Window.method(:sfContext_destroy))
     end
 

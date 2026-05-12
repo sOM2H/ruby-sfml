@@ -15,7 +15,7 @@ module SFML
       raise ArgumentError, "Sprite requires a SFML::Texture" unless texture.is_a?(Texture)
 
       ptr = C::Graphics.sfSprite_create(texture.handle)
-      raise Error, "sfSprite_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfSprite_create returned NULL" if ptr.null?
       @handle  = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfSprite_destroy))
       @texture = texture # keep alive for GC
 
@@ -92,7 +92,7 @@ module SFML
     # objects), independent transform / colour state.
     def dup
       ptr = C::Graphics.sfSprite_copy(@handle)
-      raise Error, "sfSprite_copy returned NULL" if ptr.null?
+      raise GraphicsError, "sfSprite_copy returned NULL" if ptr.null?
 
       copy = self.class.allocate
       copy.instance_variable_set(:@handle,

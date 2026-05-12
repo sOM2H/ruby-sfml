@@ -49,7 +49,7 @@ module SFML
       end
 
       ptr = C::Graphics.sfVertexBuffer_create(n, ptype, uidx)
-      raise Error, "sfVertexBuffer_create returned NULL " \
+      raise GraphicsError, "sfVertexBuffer_create returned NULL " \
                    "(VBOs unavailable on this GPU?)" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfVertexBuffer_destroy))
 
@@ -101,7 +101,7 @@ module SFML
       end
 
       ok = C::Graphics.sfVertexBuffer_update(@handle, buf, n, Integer(offset))
-      raise Error, "sfVertexBuffer_update failed " \
+      raise GraphicsError, "sfVertexBuffer_update failed " \
                    "(buffer too small or driver rejected the upload?)" unless ok
       self
     end

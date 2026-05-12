@@ -13,7 +13,7 @@ module SFML
     class TcpListener
       def initialize
         ptr = C::Network.sfTcpListener_create
-        raise Error, "sfTcpListener_create returned NULL" if ptr.null?
+        raise NetworkError, "sfTcpListener_create returned NULL" if ptr.null?
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfTcpListener_destroy))
       end
 

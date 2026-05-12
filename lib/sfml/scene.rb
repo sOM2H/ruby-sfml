@@ -34,9 +34,13 @@ module SFML
   class Scene
     class << self
       include Keybindings
+      include InputActions
     end
 
+    include InputQueries
+
     attr_reader :app
+    alias host app
 
     def initialize(app)
       @app = app

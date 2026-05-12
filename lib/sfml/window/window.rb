@@ -34,7 +34,7 @@ module SFML
         C::Window::State[state],
         nil,
       )
-      raise Error, "sfWindow_create returned NULL" if ptr.null?
+      raise WindowError, "sfWindow_create returned NULL" if ptr.null?
 
       @handle       = FFI::AutoPointer.new(ptr, C::Window.method(:sfWindow_destroy))
       @event_buffer = C::Window::Event.new
@@ -206,7 +206,7 @@ module SFML
     def self.from_handle(handle)
       ptr = handle.is_a?(FFI::Pointer) ? handle : FFI::Pointer.new(:void, Integer(handle))
       raw = C::Window.sfWindow_createFromHandle(ptr, nil)
-      raise Error, "sfWindow_createFromHandle returned NULL" if raw.null?
+      raise WindowError, "sfWindow_createFromHandle returned NULL" if raw.null?
 
       win = allocate
       win.instance_variable_set(:@handle,

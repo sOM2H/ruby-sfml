@@ -47,7 +47,7 @@ module SFML
       end
 
       ptr = C::Graphics.sfShape_create(@get_point_count_cb, @get_point_cb, nil)
-      raise Error, "sfShape_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfShape_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfShape_destroy))
 
       self.fill_color         = opts[:fill_color]         if opts.key?(:fill_color)

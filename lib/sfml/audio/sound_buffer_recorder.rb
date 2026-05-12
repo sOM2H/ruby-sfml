@@ -14,7 +14,7 @@ module SFML
   class SoundBufferRecorder
     def initialize
       ptr = C::Audio.sfSoundBufferRecorder_create
-      raise Error, "sfSoundBufferRecorder_create returned NULL" if ptr.null?
+      raise AudioError, "sfSoundBufferRecorder_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Audio.method(:sfSoundBufferRecorder_destroy))
     end
 
@@ -47,7 +47,7 @@ module SFML
     # outlives the recorder via the buffer's data.
     def buffer
       ptr = C::Audio.sfSoundBufferRecorder_getBuffer(@handle)
-      raise Error, "sfSoundBufferRecorder_getBuffer returned NULL" if ptr.null?
+      raise AudioError, "sfSoundBufferRecorder_getBuffer returned NULL" if ptr.null?
       # Borrowed — recorder owns the underlying sf::SoundBuffer.
       buf = SoundBuffer.allocate
       buf.instance_variable_set(:@handle, ptr)
@@ -62,7 +62,7 @@ module SFML
 
     def device=(name)
       ok = C::Audio.sfSoundBufferRecorder_setDevice(@handle, name.to_s)
-      raise Error, "could not select recording device #{name.inspect}" unless ok
+      raise AudioError, "could not select recording device #{name.inspect}" unless ok
       name
     end
 

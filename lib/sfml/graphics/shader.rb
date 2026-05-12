@@ -56,7 +56,7 @@ module SFML
       ptr = C::Graphics.sfShader_createFromFile(
         vertex&.to_s, geometry&.to_s, fragment&.to_s,
       )
-      raise Error, "sfShader_createFromFile failed (compile error or missing file?)" if ptr.null?
+      raise ShaderError, "sfShader_createFromFile failed (compile error or missing file?)" if ptr.null?
       _wrap(ptr)
     end
 
@@ -64,7 +64,7 @@ module SFML
     def self.from_source(vertex: nil, geometry: nil, fragment: nil)
       _check_at_least_one(vertex, geometry, fragment)
       ptr = C::Graphics.sfShader_createFromMemory(vertex, geometry, fragment)
-      raise Error, "sfShader_createFromMemory failed (GLSL compile error?)" if ptr.null?
+      raise ShaderError, "sfShader_createFromMemory failed (GLSL compile error?)" if ptr.null?
       _wrap(ptr)
     end
 
@@ -76,7 +76,7 @@ module SFML
       streams = [vertex, geometry, fragment].map { |io| io && SFML::InputStream.new(io) }
       ptrs    = streams.map { |s| s ? s.to_ptr : nil }
       ptr = C::Graphics.sfShader_createFromStream(*ptrs)
-      raise Error, "sfShader_createFromStream failed (GLSL compile error?)" if ptr.null?
+      raise ShaderError, "sfShader_createFromStream failed (GLSL compile error?)" if ptr.null?
       _wrap(ptr)
     end
 

@@ -21,7 +21,7 @@ module SFML
   class View
     def initialize(center: nil, size: nil, rotation: nil, viewport: nil, _handle: nil)
       ptr = _handle || C::Graphics.sfView_create
-      raise Error, "sfView_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfView_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfView_destroy))
 
       self.center   = center   if center
@@ -41,7 +41,7 @@ module SFML
       native[:size][:y]     = rect.height.to_f
 
       ptr = C::Graphics.sfView_createFromRect(native)
-      raise Error, "sfView_createFromRect returned NULL" if ptr.null?
+      raise GraphicsError, "sfView_createFromRect returned NULL" if ptr.null?
       new(_handle: ptr)
     end
 
@@ -50,7 +50,7 @@ module SFML
     # by sfRenderWindow_getView). We deep-copy via sfView_copy so the Ruby
     # object owns its own lifetime.
     def self.from_borrowed(ptr)
-      raise Error, "borrowed view pointer is NULL" if ptr.null?
+      raise GraphicsError, "borrowed view pointer is NULL" if ptr.null?
       copy = C::Graphics.sfView_copy(ptr)
       new(_handle: copy)
     end

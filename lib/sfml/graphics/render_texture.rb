@@ -27,7 +27,7 @@ module SFML
       size[:y] = Integer(height)
 
       ptr = C::Graphics.sfRenderTexture_create(size, nil)
-      raise Error, "sfRenderTexture_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfRenderTexture_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfRenderTexture_destroy))
 
       self.smooth   = smooth
@@ -96,7 +96,7 @@ module SFML
     def texture
       @texture ||= begin
         ptr = C::Graphics.sfRenderTexture_getTexture(@handle)
-        raise Error, "sfRenderTexture_getTexture returned NULL" if ptr.null?
+        raise GraphicsError, "sfRenderTexture_getTexture returned NULL" if ptr.null?
         # Borrowed — RenderTexture owns the underlying sf::Texture, so
         # we wrap with a raw pointer (no AutoPointer / no destructor).
         # Sprite.new(@texture) will still get a valid handle through it.

@@ -78,7 +78,7 @@ module SFML
       # cheap to alias); transform/colour state is independent.
       def dup
         ptr = _csfml(:copy, @handle)
-        raise Error, "#{self.class.name}#dup returned NULL" if ptr.null?
+        raise GraphicsError, "#{self.class.name}#dup returned NULL" if ptr.null?
 
         destroy_fn = C::Graphics.method(:"#{self.class::CSFML_PREFIX}_destroy")
         copy = self.class.allocate

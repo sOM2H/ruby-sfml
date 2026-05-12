@@ -23,7 +23,7 @@ module SFML
     class Packet
       def initialize
         ptr = C::Network.sfPacket_create
-        raise Error, "sfPacket_create returned NULL" if ptr.null?
+        raise NetworkError, "sfPacket_create returned NULL" if ptr.null?
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfPacket_destroy))
       end
 
@@ -108,7 +108,7 @@ module SFML
 
       def dup
         ptr = C::Network.sfPacket_copy(@handle)
-        raise Error, "sfPacket_copy returned NULL" if ptr.null?
+        raise NetworkError, "sfPacket_copy returned NULL" if ptr.null?
 
         copy = self.class.allocate
         copy.instance_variable_set(:@handle,

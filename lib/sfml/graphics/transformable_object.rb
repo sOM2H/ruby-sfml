@@ -16,7 +16,7 @@ module SFML
 
     def initialize(**opts)
       ptr = C::Graphics.sfTransformable_create
-      raise Error, "sfTransformable_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfTransformable_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfTransformable_destroy))
 
       self.position = opts[:position] if opts.key?(:position)
@@ -35,7 +35,7 @@ module SFML
 
     def dup
       ptr = C::Graphics.sfTransformable_copy(@handle)
-      raise Error, "sfTransformable_copy returned NULL" if ptr.null?
+      raise GraphicsError, "sfTransformable_copy returned NULL" if ptr.null?
       copy = self.class.allocate
       copy.instance_variable_set(:@handle,
         FFI::AutoPointer.new(ptr, C::Graphics.method(:sfTransformable_destroy)))

@@ -114,4 +114,28 @@ RSpec.describe SFML::RenderWindow do
       expect { win.scissor(:not_a_view) }.to raise_error(ArgumentError, /View/)
     end
   end
+
+  describe "#screenshot / #capture_image" do
+    let(:win) { described_class.new(64, 32, "screenshot spec") }
+    after     { win.close if win.open? }
+
+    it "#capture_image returns an SFML::Image of the back-buffer" do
+      win.clear(SFML::Color.red)
+      win.display
+      img = win.capture_image
+      expect(img).to be_a(SFML::Image)
+      expect(img.size).to eq(SFML::Vector2[64, 32])
+    end
+
+    it "#screenshot writes a PNG to disk and returns the path" do
+      Dir.mktmpdir do |dir|
+        win.clear(SFML::Color.green)
+        win.display
+        path = File.join(dir, "shot.png")
+        expect(win.screenshot(path)).to eq(path)
+        expect(File.exist?(path)).to be true
+        expect(File.size(path)).to be > 0
+      end
+    end
+  end
 end

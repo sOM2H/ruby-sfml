@@ -8,6 +8,82 @@ ruby-sfml's own patch level.
 
 ## [Unreleased]
 
+## [3.0.0.6] — 2026-05-12
+
+Quality-of-life release: the CSFML 3.0 surface was already covered;
+this round adds the helpers and tooling you reach for when building
+on top of it.
+
+### Added — system
+
+- **Vector2 / Vector3 math** — `#distance`, `#distance_sq`,
+  `#lerp`, `#project_on`, `#reflect`, `#clamp_length`, `#zero?`,
+  `#abs`, plus `Vector2#angle`, `#angle_to(other)`,
+  `#rotated(degrees)` / `#rotated_rad(radians)`,
+  `#perpendicular`, and `Vector3#angle_between`.
+  Both classes gain `#to_v3` / `#to_v2` for cross-dimension
+  promotion + scalar coercion (`2 * vec`).
+
+### Added — graphics
+
+- `RenderWindow#screenshot(path)` — capture the current
+  back-buffer to disk (PNG / JPG / BMP / TGA inferred by
+  extension).
+- `RenderWindow#capture_image` — same capture, returns an
+  in-memory `SFML::Image` for further processing.
+- **`SFML::SpriteSheet`** — slice a uniformly-gridded image into
+  numbered frames. `.load(path, frame_size:, padding:, margin:)`,
+  `#region(i)`, `#region_at(col, row)`, `#sprite(i)`,
+  `#animation(fps:, ...)`.
+- **`SFML::TextureAtlas`** — load Aseprite / TexturePacker JSON
+  descriptors. `.load(json_path)`, `#region(name)`,
+  `#sprite(name)`, `#animation(names, fps:)` (auto-derives fps
+  from Aseprite per-frame durations when present).
+- **`SFML::Animation`** — frame-based animation that drives a
+  Sprite's texture_rect over time. Loop / one-shot,
+  `#update(dt)`, `#reset`, `#done?`. Sprite-style transform
+  setters (`position=`, `rotation=`, `scale=`, `origin=`,
+  `color=`) for ergonomic use.
+- **`SFML::ParticleSystem`** — VertexArray-backed particle pool.
+  `#spawn(position:, velocity:, lifetime:, color:, size:)`,
+  optional `gravity:`, `update_particle` subclass hook for
+  drag / attractors / colour curves.
+
+### Added — game-loop
+
+- **Fixed timestep** — `fixed_timestep N` class macro on
+  `SFML::App` calls `update(dt)` exactly N times per second with
+  a fixed dt (semi-implicit Euler accumulator, capped at 5
+  catch-up steps to prevent the "spiral of death"). Read
+  `interpolation_alpha` from `#draw` to smoothly render between
+  fixed updates.
+- **Input actions DSL** — `action :jump, keys: [...],
+  scancodes: [...], mouse_buttons: [...], joy_buttons: [...]`
+  on `SFML::App` and `SFML::Scene`. Poll with `action_pressed?
+  (:name)` from `update` / `draw`; build digital axes with
+  `axis(negative:, positive:)`. Scene actions inherit from the
+  host App's actions.
+
+### Added — errors
+
+- Domain-specific exception hierarchy:
+  - `SFML::LoadError` — asset load failures (file, memory,
+    stream)
+  - `SFML::AudioError` — capture / OpenAL / channel-map
+  - `SFML::NetworkError` — sockets / packet framing
+  - `SFML::ShaderError` — GLSL compile / link
+  - `SFML::GraphicsError` — generic graphics-side failures
+  - `SFML::WindowError` — window / context creation
+  All inherit from `SFML::Error`, so existing
+  `rescue SFML::Error` blocks keep catching everything.
+
+### Added — CI / tooling
+
+- GitHub Actions release workflow (`release.yml`) — tag
+  `vX.Y.Z.W` triggers a gem build + push to RubyGems. Verifies
+  the tag matches `lib/sfml/version.rb` before publishing.
+- CI badge in `README.md`.
+
 ## [3.0.0.5] — 2026-05-11
 
 Round-trip release: closes every remaining CSFML 3.0 gap that's

@@ -44,6 +44,59 @@ module SFML
       )
     end
 
+    # Lets Ruby evaluate `2 * vec` as `vec * 2`.
+    def coerce(other)
+      raise TypeError, "Vector3 cannot coerce #{other.class}" unless other.is_a?(Numeric)
+      [self, other]
+    end
+
+    def distance(other)    = (self - _coerce(other)).length
+    def distance_sq(other) = (self - _coerce(other)).length_sq
+
+    def lerp(other, t)
+      o = _coerce(other)
+      Vector3.new(@x + (o.x - @x) * t, @y + (o.y - @y) * t, @z + (o.z - @z) * t)
+    end
+
+    # Angle between two direction vectors, in radians. Both vectors
+    # should be non-zero — returns 0 for either side zero.
+    def angle_between(other)
+      o  = _coerce(other)
+      la = length
+      lo = o.length
+      return 0.0 if la.zero? || lo.zero?
+      cos = (dot(o) / (la * lo)).clamp(-1.0, 1.0)
+      Math.acos(cos)
+    end
+
+    def project_on(other)
+      o = _coerce(other)
+      d = o.length_sq
+      return Vector3.zero if d.zero?
+      o * (dot(o) / d)
+    end
+
+    def reflect(normal)
+      n = _coerce(normal)
+      self - (n * (2 * dot(n)))
+    end
+
+    def clamp_length(min_len = nil, max_len)
+      len = length
+      return self if len.zero?
+      target =
+        if    max_len && len > max_len then max_len
+        elsif min_len && len < min_len then min_len
+        else len
+        end
+      return self if target == len
+      self * (target / len)
+    end
+
+    def zero? = @x.zero? && @y.zero? && @z.zero?
+    def abs   = Vector3.new(@x.abs, @y.abs, @z.abs)
+    def to_v2 = Vector2.new(@x, @y)
+
     def to_a = [@x, @y, @z]
     def to_h = { x: @x, y: @y, z: @z }
     def deconstruct = [@x, @y, @z]
@@ -58,6 +111,12 @@ module SFML
 
     def to_native_f # :nodoc:
       C::System::Vector3f.new.tap { |v| v[:x] = @x; v[:y] = @y; v[:z] = @z }
+    end
+
+    private
+
+    def _coerce(value)
+      value.is_a?(Vector3) ? value : Vector3.new(*value)
     end
   end
 end

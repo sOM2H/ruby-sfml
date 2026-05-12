@@ -66,7 +66,7 @@ module SFML
         nil, 0,
         nil,
       )
-      raise Error, "sfSoundStream_create returned NULL" if ptr.null?
+      raise AudioError, "sfSoundStream_create returned NULL" if ptr.null?
 
       @handle = FFI::AutoPointer.new(ptr, C::Audio.method(:sfSoundStream_destroy))
 

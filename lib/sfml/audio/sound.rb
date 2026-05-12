@@ -10,7 +10,7 @@ module SFML
       raise ArgumentError, "Sound requires a SFML::SoundBuffer" unless buffer.is_a?(SoundBuffer)
 
       ptr = C::Audio.sfSound_create(buffer.handle)
-      raise Error, "sfSound_create returned NULL" if ptr.null?
+      raise AudioError, "sfSound_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Audio.method(:sfSound_destroy))
       @buffer  = buffer # keep alive
       # @looping mirrors the loop flag because SFML 3's isLooping reads
@@ -243,7 +243,7 @@ module SFML
     # independent transport state (volume/pan/spatialisation/etc).
     def dup
       ptr = C::Audio.sfSound_copy(@handle)
-      raise Error, "sfSound_copy returned NULL" if ptr.null?
+      raise AudioError, "sfSound_copy returned NULL" if ptr.null?
 
       copy = self.class.allocate
       copy.instance_variable_set(:@handle,

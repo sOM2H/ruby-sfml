@@ -15,7 +15,7 @@ module SFML
 
     def initialize(radius: 10.0, **opts)
       ptr = C::Graphics.sfCircleShape_create
-      raise Error, "sfCircleShape_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfCircleShape_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfCircleShape_destroy))
 
       self.radius = radius

@@ -25,7 +25,7 @@ module SFML
 
       def initialize(host, port: 0)
         ptr = C::Network.sfHttp_create
-        raise Error, "sfHttp_create returned NULL" if ptr.null?
+        raise NetworkError, "sfHttp_create returned NULL" if ptr.null?
 
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfHttp_destroy))
         C::Network.sfHttp_setHost(@handle, host.to_s, Integer(port))
@@ -34,7 +34,7 @@ module SFML
       def send_request(method: :get, uri: "/", fields: nil, body: nil,
                        http_version: DEFAULT_VERSION, timeout: DEFAULT_TIMEOUT)
         request_ptr = C::Network.sfHttpRequest_create
-        raise Error, "sfHttpRequest_create returned NULL" if request_ptr.null?
+        raise NetworkError, "sfHttpRequest_create returned NULL" if request_ptr.null?
 
         begin
           method_idx = C::Network::HTTP_METHODS.index(method) ||
@@ -50,7 +50,7 @@ module SFML
 
           t = timeout.is_a?(Time) ? timeout : Time.seconds(timeout.to_f)
           response_ptr = C::Network.sfHttp_sendRequest(@handle, request_ptr, t.to_native)
-          raise Error, "sfHttp_sendRequest returned NULL" if response_ptr.null?
+          raise NetworkError, "sfHttp_sendRequest returned NULL" if response_ptr.null?
 
           Response.send(:_take_ownership, response_ptr)
         ensure

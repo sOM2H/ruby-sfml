@@ -25,7 +25,7 @@ module SFML
 
     def initialize(primitive_type = :points, vertices = nil)
       ptr = C::Graphics.sfVertexArray_create
-      raise Error, "sfVertexArray_create returned NULL" if ptr.null?
+      raise GraphicsError, "sfVertexArray_create returned NULL" if ptr.null?
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfVertexArray_destroy))
 
       self.primitive_type = primitive_type
@@ -113,7 +113,7 @@ module SFML
     # don't affect the other.
     def dup
       ptr = C::Graphics.sfVertexArray_copy(@handle)
-      raise Error, "sfVertexArray_copy returned NULL" if ptr.null?
+      raise GraphicsError, "sfVertexArray_copy returned NULL" if ptr.null?
       copy = self.class.allocate
       copy.instance_variable_set(:@handle,
         FFI::AutoPointer.new(ptr, C::Graphics.method(:sfVertexArray_destroy)))

@@ -31,7 +31,7 @@ module SFML
                              "Expected one of: #{TYPES.inspect}"
       end
       ptr = C::Window.sfCursor_createFromSystem(code)
-      raise Error, "sfCursor_createFromSystem returned NULL for #{type.inspect}" if ptr.null?
+      raise WindowError, "sfCursor_createFromSystem returned NULL for #{type.inspect}" if ptr.null?
       _wrap(ptr)
     end
 
@@ -52,7 +52,7 @@ module SFML
       hot[:x] = Integer(hotspot[0]); hot[:y] = Integer(hotspot[1])
 
       ptr = C::Window.sfCursor_createFromPixels(buf, size, hot)
-      raise Error, "sfCursor_createFromPixels returned NULL" if ptr.null?
+      raise WindowError, "sfCursor_createFromPixels returned NULL" if ptr.null?
       _wrap(ptr)
     end
 

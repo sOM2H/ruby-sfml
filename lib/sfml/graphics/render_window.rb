@@ -49,7 +49,7 @@ module SFML
         C::Window::State[state],
         ctx_ptr,
       )
-      raise Error, "sfRenderWindow_create returned NULL" if ptr.null?
+      raise WindowError, "sfRenderWindow_create returned NULL" if ptr.null?
 
       @handle = FFI::AutoPointer.new(ptr, C::Graphics.method(:sfRenderWindow_destroy))
       @event_buffer = C::Window::Event.new
@@ -130,6 +130,30 @@ module SFML
     def size
       v = C::Graphics.sfRenderWindow_getSize(@handle)
       Vector2.new(v[:x], v[:y])
+    end
+
+    # Capture the current back-buffer to disk. The format is inferred
+    # from the file extension (png / jpg / bmp / tga supported by
+    # CSFML's stb_image-based saver). Returns the path.
+    #
+    #   window.screenshot("screenshot.png")
+    #
+    # `format:` lets you save under a different name than the
+    # extension. For an in-memory copy, use `#capture_image` instead.
+    def screenshot(path, format: nil)
+      capture_image.save(path.to_s)
+      path
+    end
+
+    # Read the current back-buffer into a fresh CPU-side SFML::Image.
+    # Useful for processing/encoding the frame yourself (sending it
+    # over a socket, encoding as JPEG memory bytes, comparing
+    # against a reference, etc.).
+    def capture_image
+      w, h = size.x, size.y
+      tex  = Texture.create(w, h)
+      tex.update_from_render_window(self)
+      tex.to_image
     end
 
     # Replace the window's title-bar / taskbar icon with the pixels from
@@ -247,7 +271,7 @@ module SFML
     def self.from_handle(handle)
       ptr = handle.is_a?(FFI::Pointer) ? handle : FFI::Pointer.new(:void, Integer(handle))
       raw = C::Graphics.sfRenderWindow_createFromHandle(ptr, nil)
-      raise Error, "sfRenderWindow_createFromHandle returned NULL" if raw.null?
+      raise WindowError, "sfRenderWindow_createFromHandle returned NULL" if raw.null?
 
       win = allocate
       win.instance_variable_set(:@handle,

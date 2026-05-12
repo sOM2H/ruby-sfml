@@ -8,7 +8,7 @@ module SFML
   class SoundBuffer
     def self.load(path)
       ptr = C::Audio.sfSoundBuffer_createFromFile(path.to_s)
-      raise Error, "Could not load sound buffer from #{path.inspect}" if ptr.null?
+      raise LoadError, "Could not load sound buffer from #{path.inspect}" if ptr.null?
       buf = allocate
       buf.send(:_take_ownership, ptr)
       buf
@@ -22,7 +22,7 @@ module SFML
       buf_p = FFI::MemoryPointer.new(:uint8, bytes.bytesize)
       buf_p.write_bytes(bytes)
       ptr = C::Audio.sfSoundBuffer_createFromMemory(buf_p, bytes.bytesize)
-      raise Error, "sfSoundBuffer_createFromMemory returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfSoundBuffer_createFromMemory returned NULL — unsupported format?" if ptr.null?
 
       buf = allocate
       buf.send(:_take_ownership, ptr)
@@ -35,7 +35,7 @@ module SFML
     def self.from_stream(io)
       stream = SFML::InputStream.new(io)
       ptr = C::Audio.sfSoundBuffer_createFromStream(stream.to_ptr)
-      raise Error, "sfSoundBuffer_createFromStream returned NULL — unsupported format?" if ptr.null?
+      raise LoadError, "sfSoundBuffer_createFromStream returned NULL — unsupported format?" if ptr.null?
 
       buf = allocate
       buf.send(:_take_ownership, ptr)
@@ -72,7 +72,7 @@ module SFML
                                                      Integer(channel_count),
                                                      Integer(sample_rate),
                                                      map_buf, map.length)
-      raise Error, "sfSoundBuffer_createFromSamples returned NULL" if ptr.null?
+      raise AudioError, "sfSoundBuffer_createFromSamples returned NULL" if ptr.null?
 
       sb = allocate
       sb.send(:_take_ownership, ptr)
@@ -97,7 +97,7 @@ module SFML
     # underlying memory block.
     def dup
       ptr = C::Audio.sfSoundBuffer_copy(@handle)
-      raise Error, "sfSoundBuffer_copy returned NULL" if ptr.null?
+      raise AudioError, "sfSoundBuffer_copy returned NULL" if ptr.null?
 
       copy = self.class.allocate
       copy.send(:_take_ownership, ptr)
@@ -110,7 +110,7 @@ module SFML
     # with).
     def save(path)
       ok = C::Audio.sfSoundBuffer_saveToFile(@handle, path.to_s)
-      raise Error, "could not save SoundBuffer to #{path.inspect}" unless ok
+      raise AudioError, "could not save SoundBuffer to #{path.inspect}" unless ok
       path
     end
 

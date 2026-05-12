@@ -16,7 +16,7 @@ module SFML
     class TcpSocket
       def initialize
         ptr = C::Network.sfTcpSocket_create
-        raise Error, "sfTcpSocket_create returned NULL" if ptr.null?
+        raise NetworkError, "sfTcpSocket_create returned NULL" if ptr.null?
         @handle = FFI::AutoPointer.new(ptr, C::Network.method(:sfTcpSocket_destroy))
       end
 

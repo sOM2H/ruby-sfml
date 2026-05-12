@@ -37,6 +37,7 @@ module SFML
       C::Audio.sfSoundBufferRecorder_getChannelCount(@handle)
     end
 
+    # Set the channel count.
     def channel_count=(value)
       C::Audio.sfSoundBufferRecorder_setChannelCount(@handle, Integer(value))
     end
@@ -60,6 +61,7 @@ module SFML
       name unless name.nil? || name.empty?
     end
 
+    # Set the device.
     def device=(name)
       ok = C::Audio.sfSoundBufferRecorder_setDevice(@handle, name.to_s)
       raise AudioError, "could not select recording device #{name.inspect}" unless ok

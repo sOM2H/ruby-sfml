@@ -69,10 +69,14 @@ module SFML
     # What we asked for at creation time, if anything (otherwise nil).
     attr_reader :requested_context
 
+    # `true` while the window is still alive (hasn't been closed by
+    # `#close` or the user).
     def open?
       C::Graphics.sfRenderWindow_isOpen(@handle)
     end
 
+    # Close the window — the next iteration of the main loop will
+    # see `#open? == false`.
     def close
       C::Graphics.sfRenderWindow_close(@handle)
       self
@@ -94,6 +98,7 @@ module SFML
       self
     end
 
+    # Change the window's title bar text.
     def title=(value)
       C::Graphics.sfRenderWindow_setTitle(@handle, value.to_s)
     end
@@ -119,14 +124,18 @@ module SFML
       C::Graphics.sfRenderWindow_setMouseCursorGrabbed(@handle, grabbed ? true : false)
     end
 
+    # Cap the render loop to `value` frames per second. Set 0 to
+    # disable the cap.
     def framerate_limit=(value)
       C::Graphics.sfRenderWindow_setFramerateLimit(@handle, Integer(value))
     end
 
+    # Enable / disable vertical sync.
     def vsync=(enabled)
       C::Graphics.sfRenderWindow_setVerticalSyncEnabled(@handle, enabled ? true : false)
     end
 
+    # Current window size in pixels as a Vector2.
     def size
       v = C::Graphics.sfRenderWindow_getSize(@handle)
       Vector2.new(v[:x], v[:y])
@@ -176,6 +185,7 @@ module SFML
       C::Graphics.sfRenderWindow_setMinimumSize(@handle, _vec2u_or_nil(value))
     end
 
+    # Upper bound on user-driven resizes — see `#minimum_size=`.
     def maximum_size=(value)
       C::Graphics.sfRenderWindow_setMaximumSize(@handle, _vec2u_or_nil(value))
     end
@@ -187,7 +197,11 @@ module SFML
     end
 
     # ---- Focus ----
+
+    # `true` if this window currently has OS-level keyboard focus.
     def focused?       = C::Graphics.sfRenderWindow_hasFocus(@handle)
+    # Ask the OS to give this window focus. Cooperative — most
+    # window managers won't steal focus unconditionally.
     def request_focus  = C::Graphics.sfRenderWindow_requestFocus(@handle)
 
     # ---- OS-window state ----
@@ -195,10 +209,14 @@ module SFML
       C::Graphics.sfRenderWindow_setVisible(@handle, value ? true : false)
     end
 
+    # Toggle key repeat. With `true`, holding a key fires repeated
+    # `:key_pressed` events; with `false` only one fires per press.
     def key_repeat_enabled=(value)
       C::Graphics.sfRenderWindow_setKeyRepeatEnabled(@handle, value ? true : false)
     end
 
+    # Dead-zone for joystick axis events in [0, 100]. Axes whose
+    # absolute value is below this are reported as 0.
     def joystick_threshold=(value)
       C::Graphics.sfRenderWindow_setJoystickThreshold(@handle, Float(value))
     end
@@ -208,6 +226,7 @@ module SFML
       Vector2.from_native(C::Graphics.sfRenderWindow_getPosition(@handle))
     end
 
+    # Move the window's top-left corner in desktop coordinates.
     def position=(value)
       vec = value.is_a?(Vector2) ? value : Vector2.new(*value)
       v = C::System::Vector2i.new
@@ -230,11 +249,18 @@ module SFML
     # current thread — the only way to use SFML rendering from a
     # non-main thread.
 
+    # Activate / deactivate the window's GL context on the current
+    # thread. Only one context can be active per thread at a time.
     def active=(value)
       C::Graphics.sfRenderWindow_setActive(@handle, value ? true : false)
     end
+    # Save SFML's GL state before raw GL calls.
     def push_gl_states  = C::Graphics.sfRenderWindow_pushGLStates(@handle)
+    # Restore SFML's GL state after raw GL calls (paired with
+    # `#push_gl_states`).
     def pop_gl_states   = C::Graphics.sfRenderWindow_popGLStates(@handle)
+    # Re-initialise SFML's GL state from scratch — heavier hammer
+    # than push/pop.
     def reset_gl_states = C::Graphics.sfRenderWindow_resetGLStates(@handle)
 
     # Block until an event arrives or `timeout` (a SFML::Time)

@@ -89,6 +89,7 @@ module SFML
     end
     alias eql? ==
 
+    # Returns the hash.
     def hash = [@depth_bits, @stencil_bits, @antialiasing,
                 @major_version, @minor_version, @attribute_flags,
                 @srgb_capable].hash

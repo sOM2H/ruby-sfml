@@ -74,13 +74,17 @@ module SFML
         [status, status == :done ? pkt : nil]
       end
 
+      # `true` if blocking.
       def blocking? = C::Network.sfTcpSocket_isBlocking(@handle)
 
+      # Set the blocking.
       def blocking=(value)
         C::Network.sfTcpSocket_setBlocking(@handle, value ? true : false)
       end
 
+      # Returns the local port.
       def local_port  = C::Network.sfTcpSocket_getLocalPort(@handle)
+      # Returns the remote port.
       def remote_port = C::Network.sfTcpSocket_getRemotePort(@handle)
 
       def remote_address

@@ -86,8 +86,10 @@ module SFML
       nil
     end
 
+    # `true` if smooth.
     def smooth?       = C::Graphics.sfFont_isSmooth(@handle)
 
+    # Set the smooth.
     def smooth=(value)
       C::Graphics.sfFont_setSmooth(@handle, !!value)
     end

@@ -17,6 +17,7 @@ module SFML
     end
     alias elapsed elapsed_time
 
+    # `true` if running.
     def running?
       C::System.sfClock_isRunning(@handle)
     end

@@ -45,7 +45,9 @@ module SFML
       :r, :g, :b, :a,
       :size,
     ) do
+      # `true` if alive.
       def alive? = age < lifetime
+      # Returns the normalized age.
       def normalized_age = age / lifetime
     end
 
@@ -61,8 +63,11 @@ module SFML
     end
 
     attr_reader :particles, :texture
+    # Returns the size.
     def size = @particles.size
+    # `true` if empty.
     def empty? = @particles.empty?
+    # `true` if full.
     def full?  = @particles.size >= @max
 
     # Spawn a new particle. Silently dropped if the pool is full

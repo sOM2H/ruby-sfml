@@ -113,15 +113,20 @@ module SFML
       self
     end
 
+    # Returns the sample rate.
     def sample_rate   = C::Audio.sfSoundRecorder_getSampleRate(@handle)
+    # Returns the channel count.
     def channel_count = C::Audio.sfSoundRecorder_getChannelCount(@handle)
 
+    # Set the channel count.
     def channel_count=(n)
       C::Audio.sfSoundRecorder_setChannelCount(@handle, Integer(n))
     end
 
+    # Returns the device.
     def device = C::Audio.sfSoundRecorder_getDevice(@handle)
 
+    # Set the device.
     def device=(name)
       C::Audio.sfSoundRecorder_setDevice(@handle, name.to_s) ||
         raise(AudioError, "sfSoundRecorder_setDevice failed for #{name.inspect}")

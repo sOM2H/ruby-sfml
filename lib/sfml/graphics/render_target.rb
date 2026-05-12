@@ -115,6 +115,7 @@ module SFML
         self
       end
 
+      # Set the view.
       def view=(value)
         raise ArgumentError, "#{self.class}#view= requires a SFML::View" unless value.is_a?(View)
         _csfml(:setView, @handle, value.handle)

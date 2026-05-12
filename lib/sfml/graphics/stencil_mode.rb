@@ -59,6 +59,7 @@ module SFML
         only_write_mask == other.only_write_mask
     end
     alias eql? ==
+    # Returns the hash.
     def hash = [comparison, update_operation, reference, mask, only_write_mask].hash
 
     def to_s

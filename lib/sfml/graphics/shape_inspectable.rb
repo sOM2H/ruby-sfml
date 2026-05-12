@@ -24,6 +24,7 @@ module SFML
         self
       end
 
+      # Set the texture.
       def texture=(tex)
         set_texture(tex, reset_rect: false)
       end
@@ -32,6 +33,7 @@ module SFML
         Rect.from_native(_csfml(:getTextureRect, @handle))
       end
 
+      # Set the texture rect.
       def texture_rect=(rect)
         raise ArgumentError, "texture_rect= requires a SFML::Rect" unless rect.is_a?(Rect)
         native = C::Graphics::IntRect.new

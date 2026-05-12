@@ -52,8 +52,11 @@ module SFML
         ptr.read_bytes(size).force_encoding(Encoding::ASCII_8BIT)
       end
 
+      # Returns the size.
       def size            = C::Network.sfPacket_getDataSize(@handle)
+      # Returns the read position.
       def read_position   = C::Network.sfPacket_getReadPosition(@handle)
+      # `true` if end of packet.
       def end_of_packet?  = C::Network.sfPacket_endOfPacket(@handle)
 
       # `false` if the last read overran the packet — sfPacket "fails"
@@ -62,20 +65,35 @@ module SFML
       def ok? = C::Network.sfPacket_canRead(@handle)
 
       # ---- typed writers ----
+      # All writers append to the end of the packet and return self
+      # for chaining.
+
+      # Append a Bool.
       def write_bool(v)
         C::Network.sfPacket_writeBool(@handle, v ? true : false); self
       end
+      # Append a signed 8-bit Integer.
       def write_int8(v)   = (C::Network.sfPacket_writeInt8(@handle,   Integer(v)); self)
+      # Append an unsigned 8-bit Integer.
       def write_uint8(v)  = (C::Network.sfPacket_writeUint8(@handle,  Integer(v)); self)
+      # Append a signed 16-bit Integer.
       def write_int16(v)  = (C::Network.sfPacket_writeInt16(@handle,  Integer(v)); self)
+      # Append an unsigned 16-bit Integer.
       def write_uint16(v) = (C::Network.sfPacket_writeUint16(@handle, Integer(v)); self)
+      # Append a signed 32-bit Integer.
       def write_int32(v)  = (C::Network.sfPacket_writeInt32(@handle,  Integer(v)); self)
+      # Append an unsigned 32-bit Integer.
       def write_uint32(v) = (C::Network.sfPacket_writeUint32(@handle, Integer(v)); self)
+      # Append a signed 64-bit Integer.
       def write_int64(v)  = (C::Network.sfPacket_writeInt64(@handle,  Integer(v)); self)
+      # Append an unsigned 64-bit Integer.
       def write_uint64(v) = (C::Network.sfPacket_writeUint64(@handle, Integer(v)); self)
+      # Append a single-precision Float.
       def write_float(v)  = (C::Network.sfPacket_writeFloat(@handle,  Float(v));   self)
+      # Append a double-precision Float.
       def write_double(v) = (C::Network.sfPacket_writeDouble(@handle, Float(v));   self)
 
+      # Append a length-prefixed UTF-8 String.
       def write_string(str)
         C::Network.sfPacket_writeString(@handle, str.to_s)
         self
@@ -83,15 +101,25 @@ module SFML
 
       # ---- typed readers ----
       def read_bool   = C::Network.sfPacket_readBool(@handle)
+      # Returns the read int8.
       def read_int8   = C::Network.sfPacket_readInt8(@handle)
+      # Returns the read uint8.
       def read_uint8  = C::Network.sfPacket_readUint8(@handle)
+      # Returns the read int16.
       def read_int16  = C::Network.sfPacket_readInt16(@handle)
+      # Returns the read uint16.
       def read_uint16 = C::Network.sfPacket_readUint16(@handle)
+      # Returns the read int32.
       def read_int32  = C::Network.sfPacket_readInt32(@handle)
+      # Returns the read uint32.
       def read_uint32 = C::Network.sfPacket_readUint32(@handle)
+      # Returns the read int64.
       def read_int64  = C::Network.sfPacket_readInt64(@handle)
+      # Returns the read uint64.
       def read_uint64 = C::Network.sfPacket_readUint64(@handle)
+      # Returns the read float.
       def read_float  = C::Network.sfPacket_readFloat(@handle)
+      # Returns the read double.
       def read_double = C::Network.sfPacket_readDouble(@handle)
 
       # Read a length-prefixed string. CSFML expects a caller-allocated

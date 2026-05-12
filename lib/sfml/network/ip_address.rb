@@ -53,6 +53,7 @@ module SFML
         other.is_a?(IpAddress) && to_s == other.to_s
       end
       alias eql? ==
+      # Returns the hash.
       def hash = to_s.hash
 
       # @!visibility private

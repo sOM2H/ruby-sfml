@@ -48,6 +48,7 @@ module SFML
 
     attr_reader :texture, :source
 
+    # Returns the frame names.
     def frame_names = @regions.keys
 
     # @return [SFML::Rect] the pixel rect for frame `name`.
@@ -90,6 +91,7 @@ module SFML
     #   walk_frames = atlas.regions.select { |k, _| k.start_with?("walk-") }
     def regions = @regions
 
+    # String representation for debugging.
     def to_s = "#<TextureAtlas #{@regions.size} frames#{@source ? " from #{File.basename(@source)}" : ""}>"
     alias inspect to_s
 

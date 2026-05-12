@@ -28,6 +28,7 @@ module SFML
         outer_gain  == other.outer_gain
     end
     alias eql? ==
+    # Returns the hash.
     def hash = [inner_angle, outer_angle, outer_gain].hash
 
     def to_s

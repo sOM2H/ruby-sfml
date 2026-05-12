@@ -118,6 +118,7 @@ module SFML
     # Width and height shortcuts that always reflect the current
     # window size — matters once the user is allowed to resize.
     def width  = @window.size.x
+    # Returns the height.
     def height = @window.size.y
 
     # Close the window. The main loop exits at the start of the
@@ -160,9 +161,13 @@ module SFML
     # (handy for pause overlays that need to be drawn over a
     # frozen scene).
 
+    # Pause the simulation. `#draw` keeps firing; `#update` doesn't.
     def pause   = (@paused = true)
+    # Resume the simulation.
     def resume  = (@paused = false)
+    # Flip the pause state.
     def toggle_pause = (@paused = !paused?)
+    # `true` while the simulation is paused.
     def paused? = @paused == true
 
     # Fraction of a fixed timestep accumulated since the last

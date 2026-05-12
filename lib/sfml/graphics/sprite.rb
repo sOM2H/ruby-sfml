@@ -28,14 +28,17 @@ module SFML
 
     attr_reader :texture
 
+    # Set the texture.
     def texture=(new_texture)
       raise ArgumentError, "Sprite#texture= requires a SFML::Texture" unless new_texture.is_a?(Texture)
       C::Graphics.sfSprite_setTexture(@handle, new_texture.handle, false)
       @texture = new_texture
     end
 
+    # Returns the color.
     def color = Color.from_native(C::Graphics.sfSprite_getColor(@handle))
 
+    # Set the color.
     def color=(c)
       C::Graphics.sfSprite_setColor(@handle, c.to_native)
     end
@@ -48,6 +51,7 @@ module SFML
       Rect.from_native(C::Graphics.sfSprite_getTextureRect(@handle))
     end
 
+    # Set the texture rect.
     def texture_rect=(rect)
       raise ArgumentError, "Sprite#texture_rect= requires a SFML::Rect" unless rect.is_a?(Rect)
       native = C::Graphics::IntRect.new

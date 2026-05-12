@@ -48,7 +48,9 @@ module SFML
 
     # Convenience accessors that match `SFML::App`'s.
     def window = @app.window
+    # Returns the width.
     def width  = @app.width
+    # Returns the height.
     def height = @app.height
 
     # Switch the host app to a new scene from inside this one.

@@ -125,8 +125,10 @@ module SFML
       C::Graphics.sfTransform_equal(@struct.pointer, other.struct.pointer)
     end
     alias eql? ==
+    # Returns the hash.
     def hash = matrix.hash
 
+    # String representation for debugging.
     def to_s = "Transform(#{matrix.map { |v| v.round(3) }.inspect})"
     alias inspect to_s
 

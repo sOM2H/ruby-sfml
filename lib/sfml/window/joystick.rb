@@ -29,6 +29,7 @@ module SFML
 
     module_function
 
+    # `true` if connected.
     def connected?(joystick)
       C::Window.sfJoystick_isConnected(_id(joystick))
     end
@@ -37,6 +38,7 @@ module SFML
       C::Window.sfJoystick_getButtonCount(_id(joystick))
     end
 
+    # `true` if has axis.
     def has_axis?(joystick, axis)
       C::Window.sfJoystick_hasAxis(_id(joystick), _axis_code(axis))
     end
@@ -48,6 +50,7 @@ module SFML
       C::Window.sfJoystick_getAxisPosition(_id(joystick), _axis_code(axis))
     end
 
+    # `true` if button pressed.
     def button_pressed?(joystick, button)
       C::Window.sfJoystick_isButtonPressed(_id(joystick), Integer(button))
     end

@@ -79,9 +79,13 @@ module SFML
       sb
     end
 
+    # Returns the duration.
     def duration      = Time.from_native(C::Audio.sfSoundBuffer_getDuration(@handle))
+    # Returns the sample rate.
     def sample_rate   = C::Audio.sfSoundBuffer_getSampleRate(@handle)
+    # Returns the channel count.
     def channel_count = C::Audio.sfSoundBuffer_getChannelCount(@handle)
+    # Returns the sample count.
     def sample_count  = C::Audio.sfSoundBuffer_getSampleCount(@handle)
 
     # The decoded 16-bit signed samples as a Ruby Array of

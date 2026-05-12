@@ -43,6 +43,7 @@ module SFML
       self.vsync = opts[:vsync]               unless opts[:vsync].nil?
     end
 
+    # `true` if open.
     def open?
       C::Window.sfWindow_isOpen(@handle)
     end
@@ -71,6 +72,7 @@ module SFML
       self
     end
 
+    # Set the title.
     def title=(value)
       C::Window.sfWindow_setTitle(@handle, value.to_s)
     end
@@ -80,6 +82,7 @@ module SFML
       Vector2.new(v[:x], v[:y])
     end
 
+    # Set the size.
     def size=(value)
       vec = value.is_a?(Vector2) ? value : Vector2.new(*value)
       v = C::System::Vector2u.new
@@ -92,6 +95,7 @@ module SFML
       Vector2.new(v[:x], v[:y])
     end
 
+    # Set the position.
     def position=(value)
       vec = value.is_a?(Vector2) ? value : Vector2.new(*value)
       v = C::System::Vector2i.new
@@ -99,18 +103,22 @@ module SFML
       C::Window.sfWindow_setPosition(@handle, v)
     end
 
+    # Set the visible.
     def visible=(value)
       C::Window.sfWindow_setVisible(@handle, value ? true : false)
     end
 
+    # Set the framerate limit.
     def framerate_limit=(value)
       C::Window.sfWindow_setFramerateLimit(@handle, Integer(value))
     end
 
+    # Set the vsync.
     def vsync=(enabled)
       C::Window.sfWindow_setVerticalSyncEnabled(@handle, enabled ? true : false)
     end
 
+    # Set the key repeat enabled.
     def key_repeat_enabled=(value)
       C::Window.sfWindow_setKeyRepeatEnabled(@handle, value ? true : false)
     end
@@ -119,6 +127,7 @@ module SFML
       C::Window.sfWindow_requestFocus(@handle)
     end
 
+    # `true` if focused.
     def focused?
       C::Window.sfWindow_hasFocus(@handle)
     end
@@ -137,10 +146,12 @@ module SFML
       @cursor = cursor   # keep alive
     end
 
+    # Set the cursor visible.
     def cursor_visible=(visible)
       C::Window.sfWindow_setMouseCursorVisible(@handle, visible ? true : false)
     end
 
+    # Set the cursor grabbed.
     def cursor_grabbed=(grabbed)
       C::Window.sfWindow_setMouseCursorGrabbed(@handle, grabbed ? true : false)
     end
@@ -187,6 +198,7 @@ module SFML
       C::Window.sfWindow_setMinimumSize(@handle, _vec2u_or_nil(value))
     end
 
+    # Set the maximum size.
     def maximum_size=(value)
       C::Window.sfWindow_setMaximumSize(@handle, _vec2u_or_nil(value))
     end

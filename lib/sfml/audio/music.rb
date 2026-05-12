@@ -5,6 +5,9 @@ module SFML
   #   bgm = SFML::Music.load("assets/track.ogg", looping: true, volume: 60)
   #   bgm.play
   class Music
+    # Load a music track from disk. `opts` may include `:volume`,
+    # `:pitch`, and `:looping` — these are applied right after load.
+    # Raises `SFML::LoadError` on missing file or unsupported format.
     def self.load(path, **opts)
       ptr = C::Audio.sfMusic_createFromFile(path.to_s)
       raise LoadError, "Could not load music from #{path.inspect}" if ptr.null?
@@ -56,15 +59,23 @@ module SFML
     end
     private_class_method :_wrap
 
+    # Start playback (resumes from pause, restarts when stopped).
     def play   = C::Audio.sfMusic_play(@handle)
+    # Pause playback — `#play` resumes from here.
     def pause  = C::Audio.sfMusic_pause(@handle)
+    # Stop playback and rewind to the start.
     def stop   = C::Audio.sfMusic_stop(@handle)
 
+    # Playback state — one of `:stopped`, `:paused`, `:playing`.
     def status   = C::Audio::STATUSES[C::Audio.sfMusic_getStatus(@handle)]
+    # Convenience for `status == :playing`.
     def playing? = status == :playing
+    # Convenience for `status == :paused`.
     def paused?  = status == :paused
+    # Convenience for `status == :stopped`.
     def stopped? = status == :stopped
 
+    # Total length of the track as a `SFML::Time`.
     def duration = Time.from_native(C::Audio.sfMusic_getDuration(@handle))
 
     # Current playback head as a SFML::Time. Reads from the underlying
@@ -88,6 +99,7 @@ module SFML
       Vector3.new(v[:x], v[:y], v[:z])
     end
 
+    # Set the 3D velocity — accepts Vector3 or `[x, y, z]`.
     def velocity=(value)
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       packed = C::System::Vector3f.new
@@ -95,14 +107,18 @@ module SFML
       C::Audio.sfMusic_setVelocity(@handle, packed)
     end
 
+    # Per-source Doppler scale. 1.0 realistic, 0 disables.
     def doppler_factor    = C::Audio.sfMusic_getDopplerFactor(@handle)
+    # Set the per-source Doppler scale.
     def doppler_factor=(v) C::Audio.sfMusic_setDopplerFactor(@handle, v.to_f); end
 
+    # The direction the music's cone points.
     def direction
       v = C::Audio.sfMusic_getDirection(@handle)
       Vector3.new(v[:x], v[:y], v[:z])
     end
 
+    # Set the direction vector — accepts Vector3 or `[x, y, z]`.
     def direction=(value)
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       packed = C::System::Vector3f.new
@@ -110,10 +126,13 @@ module SFML
       C::Audio.sfMusic_setDirection(@handle, packed)
     end
 
+    # Directional-attenuation cone — see SFML::SoundCone.
     def cone
       SoundCone.from_native(C::Audio.sfMusic_getCone(@handle))
     end
 
+    # Set the cone. Accepts a `SoundCone` or a Hash with
+    # `inner_angle`, `outer_angle`, `outer_gain`.
     def cone=(value)
       cone =
         case value
@@ -131,24 +150,31 @@ module SFML
       C::Audio.sfMusic_setEffectProcessor(@handle, @effect_cb, nil)
     end
 
+    # `true` if the track restarts after reaching the end (or its
+    # `loop_points` length).
     # Cached on the Ruby side; see Sound#looping? for the why.
     def looping?
       @looping
     end
 
+    # Toggle looping playback.
     def looping=(value)
       @looping = value ? true : false
       C::Audio.sfMusic_setLooping(@handle, @looping)
     end
 
+    # Playback volume in [0, 100] — 100 = unattenuated.
     def volume = C::Audio.sfMusic_getVolume(@handle)
 
+    # Set the playback volume in [0, 100].
     def volume=(value)
       C::Audio.sfMusic_setVolume(@handle, value.to_f)
     end
 
+    # Pitch multiplier. 1.0 = normal, 2.0 = octave up, 0.5 = octave down.
     def pitch = C::Audio.sfMusic_getPitch(@handle)
 
+    # Set the pitch multiplier.
     def pitch=(value)
       C::Audio.sfMusic_setPitch(@handle, value.to_f)
     end
@@ -158,32 +184,41 @@ module SFML
       Vector3.from_native(C::Audio.sfMusic_getPosition(@handle))
     end
 
+    # Set the 3D position — accepts Vector3 or `[x, y, z]`.
     def position=(value)
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       C::Audio.sfMusic_setPosition(@handle, vec.to_native_f)
     end
 
+    # Falloff sharpness with distance — see `Sound#attenuation`.
     def attenuation = C::Audio.sfMusic_getAttenuation(@handle)
 
+    # Set the attenuation.
     def attenuation=(value)
       C::Audio.sfMusic_setAttenuation(@handle, value.to_f)
     end
 
+    # Distance below which volume is not attenuated.
     def min_distance = C::Audio.sfMusic_getMinDistance(@handle)
 
+    # Set the min-distance.
     def min_distance=(value)
       C::Audio.sfMusic_setMinDistance(@handle, value.to_f)
     end
 
+    # `true` if `#position` is interpreted relative to the listener.
     def relative_to_listener? = C::Audio.sfMusic_isRelativeToListener(@handle)
 
+    # Toggle listener-relative positioning.
     def relative_to_listener=(value)
       C::Audio.sfMusic_setRelativeToListener(@handle, value ? true : false)
     end
 
     # ---- Stream introspection ----
 
+    # Number of audio channels (1 = mono, 2 = stereo, ...).
     def channel_count = C::Audio.sfMusic_getChannelCount(@handle)
+    # Sample rate in Hz (e.g. 44_100 for CD-quality).
     def sample_rate   = C::Audio.sfMusic_getSampleRate(@handle)
 
     # The portion of the track that loops when `looping = true`.
@@ -194,6 +229,8 @@ module SFML
       [Time.from_native(span[:offset]), Time.from_native(span[:length])]
     end
 
+    # Set the looping window. Accepts `[offset, length]` of either
+    # `SFML::Time` or numeric seconds.
     def loop_points=(value)
       offset_t, length_t = value
       raise ArgumentError, "expected [offset_time, length_time]" unless offset_t && length_t
@@ -206,40 +243,54 @@ module SFML
 
     # ---- 3D-audio extras (mirror of Sound's) ----
 
+    # Stereo pan in [-1.0, 1.0] — see `Sound#pan`.
     def pan = C::Audio.sfMusic_getPan(@handle)
 
+    # Set the stereo pan.
     def pan=(v)
       C::Audio.sfMusic_setPan(@handle, v.to_f)
     end
 
+    # Lower gain bound — see `Sound#min_gain`.
     def min_gain = C::Audio.sfMusic_getMinGain(@handle)
 
+    # Set the min-gain floor.
     def min_gain=(v)
       C::Audio.sfMusic_setMinGain(@handle, v.to_f)
     end
 
+    # Upper gain bound — see `Sound#max_gain`.
     def max_gain = C::Audio.sfMusic_getMaxGain(@handle)
 
+    # Set the max-gain cap.
     def max_gain=(v)
       C::Audio.sfMusic_setMaxGain(@handle, v.to_f)
     end
 
+    # Distance beyond which the source is fully attenuated.
     def max_distance = C::Audio.sfMusic_getMaxDistance(@handle)
 
+    # Set the max-distance.
     def max_distance=(v)
       C::Audio.sfMusic_setMaxDistance(@handle, v.to_f)
     end
 
+    # `true` if 3D positional / Doppler / cone math is applied at
+    # mix time.
     def spatialization_enabled? = C::Audio.sfMusic_isSpatializationEnabled(@handle)
 
+    # Toggle 3D spatialisation.
     def spatialization_enabled=(v)
       C::Audio.sfMusic_setSpatializationEnabled(@handle, v ? true : false)
     end
 
+    # Multiplier on the Listener's directional attenuation cone —
+    # see `Sound#directional_attenuation_factor`.
     def directional_attenuation_factor
       C::Audio.sfMusic_getDirectionalAttenuationFactor(@handle)
     end
 
+    # Set the directional-attenuation factor.
     def directional_attenuation_factor=(v)
       C::Audio.sfMusic_setDirectionalAttenuationFactor(@handle, v.to_f)
     end

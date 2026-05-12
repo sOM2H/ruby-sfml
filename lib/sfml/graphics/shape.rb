@@ -75,18 +75,23 @@ module SFML
 
     def fill_color = Color.from_native(C::Graphics.sfShape_getFillColor(@handle))
 
+    # Set the fill color.
     def fill_color=(c)
       C::Graphics.sfShape_setFillColor(@handle, c.to_native)
     end
 
+    # Returns the outline color.
     def outline_color = Color.from_native(C::Graphics.sfShape_getOutlineColor(@handle))
 
+    # Set the outline color.
     def outline_color=(c)
       C::Graphics.sfShape_setOutlineColor(@handle, c.to_native)
     end
 
+    # Returns the outline thickness.
     def outline_thickness = C::Graphics.sfShape_getOutlineThickness(@handle)
 
+    # Set the outline thickness.
     def outline_thickness=(t)
       C::Graphics.sfShape_setOutlineThickness(@handle, t.to_f)
     end

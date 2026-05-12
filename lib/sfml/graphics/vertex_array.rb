@@ -23,6 +23,9 @@ module SFML
     PRIMITIVE_TYPES = %i[points lines line_strip triangles triangle_strip triangle_fan].freeze
     PRIMITIVE_INDEX = PRIMITIVE_TYPES.each_with_index.to_h.freeze
 
+    # Build an empty VertexArray. `primitive_type` chooses how
+    # vertices form geometry (see class doc). `vertices` is an
+    # optional initial list — same as calling `#append` after.
     def initialize(primitive_type = :points, vertices = nil)
       ptr = C::Graphics.sfVertexArray_create
       raise GraphicsError, "sfVertexArray_create returned NULL" if ptr.null?
@@ -32,10 +35,13 @@ module SFML
       vertices&.each { |v| append(v) }
     end
 
+    # Current primitive type as a Symbol (one of `PRIMITIVE_TYPES`).
     def primitive_type
       PRIMITIVE_TYPES[C::Graphics.sfVertexArray_getPrimitiveType(@handle)] || :unknown
     end
 
+    # Change the primitive type. Raises `ArgumentError` for unknown
+    # symbols.
     def primitive_type=(type)
       code = PRIMITIVE_INDEX.fetch(type) do
         raise ArgumentError,
@@ -44,22 +50,29 @@ module SFML
       C::Graphics.sfVertexArray_setPrimitiveType(@handle, code)
     end
 
+    # Number of vertices currently in the array.
     def size = C::Graphics.sfVertexArray_getVertexCount(@handle)
     alias length size
     alias count  size
 
+    # `true` if there are no vertices.
     def empty? = size.zero?
 
+    # Remove all vertices. Chainable.
     def clear
       C::Graphics.sfVertexArray_clear(@handle)
       self
     end
 
+    # Resize to exactly `n` vertices, allocating defaults if growing.
+    # Useful when you want to index-assign into the array directly.
     def resize(n)
       C::Graphics.sfVertexArray_resize(@handle, Integer(n))
       self
     end
 
+    # Add a vertex at the end. Returns self so calls can chain
+    # (`va << v1 << v2`).
     def append(vertex)
       C::Graphics.sfVertexArray_append(@handle, vertex.to_native)
       self
@@ -76,6 +89,8 @@ module SFML
       Vertex.from_native(C::Graphics::Vertex.new(ptr))
     end
 
+    # In-place vertex replacement. Bounds-checked on the Ruby side
+    # because CSFML's getter aborts the process for out-of-range.
     def []=(index, vertex)
       i = Integer(index)
       # CSFML's sfVertexArray_getVertex aborts the process on out-of-range
@@ -95,12 +110,15 @@ module SFML
       vertex
     end
 
+    # Yield every vertex in order. Returns an Enumerator without a
+    # block — makes `va.map`, `va.select`, etc. work via Enumerable.
     def each
       return enum_for(:each) unless block_given?
       size.times { |i| yield self[i] }
       self
     end
 
+    # Axis-aligned bounding box of all current vertices, as a Rect.
     def bounds
       Rect.from_native(C::Graphics.sfVertexArray_getBounds(@handle))
     end

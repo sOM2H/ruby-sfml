@@ -120,18 +120,23 @@ module SFML
       Vector2.from_native(C::Graphics.sfTexture_getSize(@handle))
     end
 
+    # `true` if smooth.
     def smooth?  = C::Graphics.sfTexture_isSmooth(@handle)
 
+    # Set the smooth.
     def smooth=(value)
       C::Graphics.sfTexture_setSmooth(@handle, !!value)
     end
 
+    # `true` if repeated.
     def repeated? = C::Graphics.sfTexture_isRepeated(@handle)
 
+    # Set the repeated.
     def repeated=(value)
       C::Graphics.sfTexture_setRepeated(@handle, !!value)
     end
 
+    # `true` if srgb.
     def srgb? = C::Graphics.sfTexture_isSrgb(@handle)
 
     # Generate mipmaps for this texture. Returns `true` if the

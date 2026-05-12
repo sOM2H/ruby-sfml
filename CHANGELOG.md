@@ -10,6 +10,44 @@ HTML API docs: <https://ruby-sfml-doc.netlify.app/>
 
 ## [Unreleased]
 
+## [3.0.0.7] — 2026-05-12
+
+Documentation pass. Every public class / module / method now
+carries at least a one-line RDoc comment — coverage went from
+~36% (`rake rdoc:coverage`) to ~68%. Pair this release with the
+new docs site at <https://ruby-sfml-doc.netlify.app/>.
+
+### Changed — documentation
+
+- Hand-written, context-aware docstrings on the value classes
+  (`Vector2`, `Vector3`, `Color`, `Rect`, `Time`): every operator,
+  every helper, every pattern-match hook.
+- Audio API surface (`Sound`, `Music`, `SoundStream`, `Listener`):
+  every playback method, every property setter/getter, every 3D-
+  audio knob has a real description.
+- Graphics — `Transformable` mixin (`#position` / `#rotation` /
+  `#scale` / `#origin` / `#move` / `#rotate` / `#scale_by`), then
+  `CircleShape` / `RectangleShape` / `ConvexShape` / `Text` /
+  `VertexArray` / `RenderWindow`. Color named-accessors,
+  geometric introspection, fill / outline / texture binding.
+- Network — typed `Packet` reader / writer methods, full FTP
+  surface (`#download` / `#upload` / `#directory_listing` / …).
+- The autodoc pass fills in trivial setter / getter / predicate
+  pairs everywhere else, so the docs site has at least an
+  identifiable signature line on every public method.
+
+### Changed — infra
+
+- `documentation_uri` in the gemspec now points to
+  <https://ruby-sfml-doc.netlify.app/> (was rubydoc.info).
+  rubydoc.info still works as an archive of older releases.
+- `.rdoc_options` ships inside the gem (`gem unpack` exposes it),
+  so the docs-site repo can `rdoc` an unpacked release without
+  re-supplying title / template / markup / exclude config.
+- Added `script/build-docs.sh` — local-only build that renders
+  `../ruby-sfml-doc/public/`. Optional `--check` mode catches
+  "docs out of date with source" in a pre-push hook.
+
 ## [3.0.0.6] — 2026-05-12
 
 Quality-of-life release: the CSFML 3.0 surface was already covered;

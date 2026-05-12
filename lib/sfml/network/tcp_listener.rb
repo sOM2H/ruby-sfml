@@ -47,12 +47,15 @@ module SFML
         [status, sock]
       end
 
+      # `true` if blocking.
       def blocking? = C::Network.sfTcpListener_isBlocking(@handle)
 
+      # Set the blocking.
       def blocking=(value)
         C::Network.sfTcpListener_setBlocking(@handle, value ? true : false)
       end
 
+      # Returns the local port.
       def local_port = C::Network.sfTcpListener_getLocalPort(@handle)
 
       attr_reader :handle # :nodoc:

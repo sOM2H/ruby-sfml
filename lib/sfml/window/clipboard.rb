@@ -26,6 +26,7 @@ module SFML
       codepoints.pack("U*")
     end
 
+    # Set the text.
     def text=(value)
       str = value.to_s.encode("UTF-8")
       cps = str.unpack("U*")

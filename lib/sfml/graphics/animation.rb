@@ -57,6 +57,7 @@ module SFML
     # meaningful for non-looping animations).
     def done? = @done
 
+    # `true` if playing.
     def playing? = !@done
 
     # Advance by `dt` (a `SFML::Time` or seconds Float). Updates
@@ -107,14 +108,23 @@ module SFML
     # Sprite stays accessible via `#sprite` for advanced cases
     # (color, scale_by, custom blend states, etc.).
     def position    = @sprite.position
+    # Set the position.
     def position=(v); @sprite.position = v; end
+    # Returns the rotation.
     def rotation    = @sprite.rotation
+    # Set the rotation.
     def rotation=(v); @sprite.rotation = v; end
+    # Returns the scale.
     def scale       = @sprite.scale
+    # Set the scale.
     def scale=(v);    @sprite.scale = v; end
+    # Returns the origin.
     def origin      = @sprite.origin
+    # Set the origin.
     def origin=(v);   @sprite.origin = v; end
+    # Returns the color.
     def color       = @sprite.color
+    # Set the color.
     def color=(v);    @sprite.color = v; end
   end
 end

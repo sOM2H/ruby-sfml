@@ -48,6 +48,7 @@ module SFML
 
     attr_reader :texture, :cols, :rows, :frame_w, :frame_h
 
+    # Returns the frame count.
     def frame_count = @regions.size
 
     # The pixel Rect for cell `index` (0 = top-left, increases
@@ -82,6 +83,7 @@ module SFML
       )
     end
 
+    # String representation for debugging.
     def to_s = "#<SpriteSheet #{@cols}×#{@rows} (#{@frame_w}×#{@frame_h}px cells)>"
     alias inspect to_s
 

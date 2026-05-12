@@ -39,14 +39,18 @@ module SFML
       Vector2.new(v[:x], v[:y])
     end
 
+    # `true` if smooth.
     def smooth?  = C::Graphics.sfRenderTexture_isSmooth(@handle)
 
+    # Set the smooth.
     def smooth=(value)
       C::Graphics.sfRenderTexture_setSmooth(@handle, !!value)
     end
 
+    # `true` if repeated.
     def repeated? = C::Graphics.sfRenderTexture_isRepeated(@handle)
 
+    # Set the repeated.
     def repeated=(value)
       C::Graphics.sfRenderTexture_setRepeated(@handle, !!value)
     end
@@ -74,8 +78,11 @@ module SFML
     def active=(value)
       C::Graphics.sfRenderTexture_setActive(@handle, value ? true : false)
     end
+    # Returns the push gl states.
     def push_gl_states  = C::Graphics.sfRenderTexture_pushGLStates(@handle)
+    # Returns the pop gl states.
     def pop_gl_states   = C::Graphics.sfRenderTexture_popGLStates(@handle)
+    # Returns the reset gl states.
     def reset_gl_states = C::Graphics.sfRenderTexture_resetGLStates(@handle)
 
     # Pixel-space viewport / scissor for the given view (defaults

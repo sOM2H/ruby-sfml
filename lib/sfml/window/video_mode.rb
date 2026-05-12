@@ -39,8 +39,10 @@ module SFML
       C::Window.sfVideoMode_isValid(to_native)
     end
 
+    # Returns the size.
     def size = Vector2.new(@width, @height)
 
+    # String representation for debugging.
     def to_s = "#<SFML::VideoMode #{@width}x#{@height}@#{@bits_per_pixel}>"
     alias inspect to_s
 

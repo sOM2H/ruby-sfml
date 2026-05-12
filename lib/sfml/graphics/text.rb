@@ -23,6 +23,10 @@ module SFML
       strike_through: 1 << 3,
     }.freeze
 
+    # Build a Text. `font` must be an `SFML::Font`; `string` defaults
+    # to empty. Optional kwargs: `:character_size`, `:fill_color`,
+    # `:outline_color`, `:outline_thickness`, `:style`, plus the
+    # standard transform options.
     def initialize(font, string = "", **opts)
       raise ArgumentError, "Text requires a SFML::Font" unless font.is_a?(Font)
 
@@ -45,6 +49,7 @@ module SFML
 
     attr_reader :font
 
+    # Replace the font used to render this Text.
     def font=(new_font)
       raise ArgumentError, "Text#font= requires a SFML::Font" unless new_font.is_a?(Font)
       C::Graphics.sfText_setFont(@handle, new_font.handle)
@@ -69,6 +74,8 @@ module SFML
       codepoints.pack("U*")
     end
 
+    # Replace the displayed string. Accepts any Ruby String — UTF-8
+    # codepoints are converted to UTF-32 for CSFML internally.
     def string=(value)
       str = value.to_s.encode("UTF-8")
       cps = str.unpack("U*")  # array of integer codepoints
@@ -77,26 +84,34 @@ module SFML
       C::Graphics.sfText_setUnicodeString(@handle, buf)
     end
 
+    # Font size in pixels (e.g. 14, 18, 24).
     def character_size = C::Graphics.sfText_getCharacterSize(@handle)
 
+    # Set the font size.
     def character_size=(value)
       C::Graphics.sfText_setCharacterSize(@handle, Integer(value))
     end
 
+    # Body fill color.
     def fill_color = Color.from_native(C::Graphics.sfText_getFillColor(@handle))
 
+    # Set the fill color.
     def fill_color=(c)
       C::Graphics.sfText_setFillColor(@handle, c.to_native)
     end
 
+    # Outline color (only visible when `#outline_thickness > 0`).
     def outline_color = Color.from_native(C::Graphics.sfText_getOutlineColor(@handle))
 
+    # Set the outline color.
     def outline_color=(c)
       C::Graphics.sfText_setOutlineColor(@handle, c.to_native)
     end
 
+    # Outline thickness in pixels.
     def outline_thickness = C::Graphics.sfText_getOutlineThickness(@handle)
 
+    # Set the outline thickness.
     def outline_thickness=(t)
       C::Graphics.sfText_setOutlineThickness(@handle, t.to_f)
     end
@@ -128,6 +143,7 @@ module SFML
     # default).
     def letter_spacing = C::Graphics.sfText_getLetterSpacing(@handle)
 
+    # Set the letter-spacing multiplier.
     def letter_spacing=(value)
       C::Graphics.sfText_setLetterSpacing(@handle, Float(value))
     end
@@ -135,6 +151,7 @@ module SFML
     # The line-spacing multiplier (1.0 = default).
     def line_spacing = C::Graphics.sfText_getLineSpacing(@handle)
 
+    # Set the line-spacing multiplier.
     def line_spacing=(value)
       C::Graphics.sfText_setLineSpacing(@handle, Float(value))
     end
@@ -153,6 +170,8 @@ module SFML
       C::Graphics.sfText_getTransform(@handle)
     end
 
+    # Inverse of `#transform` — maps world-space coords back to
+    # the Text's local space.
     def inverse_transform
       C::Graphics.sfText_getInverseTransform(@handle)
     end

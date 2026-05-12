@@ -59,6 +59,7 @@ module SFML
       Vector2.from_native(C::Graphics.sfView_getCenter(@handle))
     end
 
+    # Set the center.
     def center=(value)
       C::Graphics.sfView_setCenter(@handle, _vec2(value).to_native_f)
     end
@@ -67,6 +68,7 @@ module SFML
       Vector2.from_native(C::Graphics.sfView_getSize(@handle))
     end
 
+    # Set the size.
     def size=(value)
       C::Graphics.sfView_setSize(@handle, _vec2(value).to_native_f)
     end
@@ -75,6 +77,7 @@ module SFML
       C::Graphics.sfView_getRotation(@handle)
     end
 
+    # Set the rotation.
     def rotation=(degrees)
       C::Graphics.sfView_setRotation(@handle, degrees.to_f)
     end
@@ -86,6 +89,7 @@ module SFML
       Rect.from_native(C::Graphics.sfView_getViewport(@handle))
     end
 
+    # Set the viewport.
     def viewport=(rect)
       raise ArgumentError, "View#viewport= needs a SFML::Rect" unless rect.is_a?(Rect)
       C::Graphics.sfView_setViewport(@handle, _to_floatrect(rect))
@@ -99,6 +103,7 @@ module SFML
       Rect.from_native(C::Graphics.sfView_getScissor(@handle))
     end
 
+    # Set the scissor.
     def scissor=(rect)
       raise ArgumentError, "View#scissor= needs a SFML::Rect" unless rect.is_a?(Rect)
       C::Graphics.sfView_setScissor(@handle, _to_floatrect(rect))

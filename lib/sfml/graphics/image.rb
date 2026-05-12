@@ -94,7 +94,9 @@ module SFML
       Vector2.from_native(C::Graphics.sfImage_getSize(@handle))
     end
 
+    # Returns the width.
     def width  = size.x
+    # Returns the height.
     def height = size.y
 
     # Read the colour of a single pixel.

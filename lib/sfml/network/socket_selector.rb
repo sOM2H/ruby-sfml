@@ -76,6 +76,7 @@ module SFML
         C::Network.sfSocketSelector_wait(@handle, t.to_native)
       end
 
+      # `true` if ready.
       def ready?(socket)
         case socket
         when TcpListener then C::Network.sfSocketSelector_isTcpListenerReady(@handle, socket.handle)

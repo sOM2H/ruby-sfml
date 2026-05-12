@@ -12,6 +12,8 @@ module SFML
     include Graphics::ShapeInspectable
     CSFML_PREFIX = :sfRectangleShape
 
+    # Build a RectangleShape. Required: `size:` (Vector2 or `[w, h]`).
+    # All other styling/transform kwargs match CircleShape.
     def initialize(size:, **opts)
       ptr = C::Graphics.sfRectangleShape_create
       raise GraphicsError, "sfRectangleShape_create returned NULL" if ptr.null?
@@ -29,31 +31,40 @@ module SFML
       self.scale              = opts[:scale]              if opts.key?(:scale)
     end
 
+    # Always 4 — the four corners.
     def point_count = C::Graphics.sfRectangleShape_getPointCount(@handle)
 
+    # Current size as a Vector2.
     def size
       Vector2.from_native(C::Graphics.sfRectangleShape_getSize(@handle))
     end
 
+    # Set the size — accepts Vector2 or `[w, h]`.
     def size=(value)
       vec = value.is_a?(Vector2) ? value : Vector2.new(*value)
       C::Graphics.sfRectangleShape_setSize(@handle, vec.to_native_f)
     end
 
+    # Interior fill color.
     def fill_color = Color.from_native(C::Graphics.sfRectangleShape_getFillColor(@handle))
 
+    # Set the fill color.
     def fill_color=(c)
       C::Graphics.sfRectangleShape_setFillColor(@handle, c.to_native)
     end
 
+    # Outline color (only visible when `#outline_thickness > 0`).
     def outline_color = Color.from_native(C::Graphics.sfRectangleShape_getOutlineColor(@handle))
 
+    # Set the outline color.
     def outline_color=(c)
       C::Graphics.sfRectangleShape_setOutlineColor(@handle, c.to_native)
     end
 
+    # Outline thickness in pixels — negative draws inward.
     def outline_thickness = C::Graphics.sfRectangleShape_getOutlineThickness(@handle)
 
+    # Set the outline thickness.
     def outline_thickness=(t)
       C::Graphics.sfRectangleShape_setOutlineThickness(@handle, t.to_f)
     end

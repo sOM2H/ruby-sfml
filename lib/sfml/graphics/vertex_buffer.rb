@@ -56,6 +56,7 @@ module SFML
       update(vertices) if vertices && !vertices.empty?
     end
 
+    # Returns the count.
     def count = C::Graphics.sfVertexBuffer_getVertexCount(@handle)
     alias size  count
     alias length count
@@ -64,6 +65,7 @@ module SFML
       PRIMITIVE_TYPES[C::Graphics.sfVertexBuffer_getPrimitiveType(@handle)] || :unknown
     end
 
+    # Set the primitive type.
     def primitive_type=(type)
       idx = PRIMITIVE_INDEX.fetch(type) do
         raise ArgumentError, "Unknown primitive type: #{type.inspect}"
@@ -75,6 +77,7 @@ module SFML
       USAGES[C::Graphics.sfVertexBuffer_getUsage(@handle)] || :unknown
     end
 
+    # Set the usage.
     def usage=(value)
       idx = USAGE_INDEX.fetch(value) do
         raise ArgumentError, "Unknown VertexBuffer usage: #{value.inspect}"
@@ -106,6 +109,7 @@ module SFML
       self
     end
 
+    # Returns the native handle.
     def native_handle = C::Graphics.sfVertexBuffer_getNativeHandle(@handle)
 
     # Bind this VBO as the active vertex buffer for the GL pipeline.

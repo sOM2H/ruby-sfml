@@ -10,6 +10,8 @@ module SFML
   class Color
     attr_reader :r, :g, :b, :a
 
+    # Build a Color from individual channel values. Each must be an
+    # Integer in [0, 255]; alpha defaults to 255 (opaque).
     def initialize(r, g, b, a = 255)
       @r = Integer(r)
       @g = Integer(g)
@@ -18,9 +20,18 @@ module SFML
       freeze
     end
 
+    # Opaque RGB constructor — alias for `.new(r, g, b)`.
     def self.rgb(r, g, b)        = new(r, g, b, 255)
+    # RGBA constructor — alias for `.new(r, g, b, a)`.
     def self.rgba(r, g, b, a)    = new(r, g, b, a)
 
+    # Parse a hex color string. Accepts `#RGB` (each digit doubled),
+    # `#RRGGBB` (opaque), or `#RRGGBBAA` (with alpha). The leading
+    # `#` is optional.
+    #
+    #   SFML::Color["#ff6432"]     #=> Color(255, 100, 50, 255)
+    #   SFML::Color["#ff643280"]   #=> Color(255, 100, 50, 128)
+    #   SFML::Color["#abc"]        #=> Color(170, 187, 204, 255)
     def self.[](hex)
       str = hex.to_s.delete_prefix("#")
       case str.length
@@ -35,17 +46,24 @@ module SFML
       end
     end
 
+    # Value equality — all four channels must match.
     def ==(other)
       other.is_a?(Color) && @r == other.r && @g == other.g && @b == other.b && @a == other.a
     end
     alias eql? ==
+    # Hash key support.
     def hash = [@r, @g, @b, @a].hash
 
+    # `[r, g, b, a]`.
     def to_a = [@r, @g, @b, @a]
+    # `{r:, g:, b:, a:}`.
     def to_h = { r: @r, g: @g, b: @b, a: @a }
+    # Pattern-match support for `in [r, g, b, a]`.
     def deconstruct = to_a
+    # Pattern-match support for `in {r:, g:, b:, a:}`.
     def deconstruct_keys(_keys) = to_h
 
+    # String representation for debugging.
     def to_s = "Color(#{@r}, #{@g}, #{@b}, #{@a})"
     alias inspect to_s
 
@@ -75,6 +93,7 @@ module SFML
       self.class.from_native(C::Graphics.sfColor_add(to_native, other.to_native))
     end
 
+    # Saturating channel-wise subtraction — values clamp at 0.
     def -(other)
       raise ArgumentError, "Color -: expected SFML::Color" unless other.is_a?(Color)
       self.class.from_native(C::Graphics.sfColor_subtract(to_native, other.to_native))
@@ -103,16 +122,28 @@ module SFML
     # A nicer default than pure black for empty windows.
     CORNFLOWER_BLUE = new(100, 149, 237)
 
+    # Convenience accessors for the standard named colors, also
+    # available as `Color::BLACK` etc. for use in constants.
     class << self
+      # Returns the BLACK singleton.
       def black           = BLACK
+      # Returns the WHITE singleton.
       def white           = WHITE
+      # Returns the RED singleton.
       def red             = RED
+      # Returns the GREEN singleton.
       def green           = GREEN
+      # Returns the BLUE singleton.
       def blue            = BLUE
+      # Returns the YELLOW singleton.
       def yellow          = YELLOW
+      # Returns the MAGENTA singleton.
       def magenta         = MAGENTA
+      # Returns the CYAN singleton.
       def cyan            = CYAN
+      # Returns the TRANSPARENT singleton (alpha = 0).
       def transparent     = TRANSPARENT
+      # Returns the CORNFLOWER_BLUE singleton — handy default for empty windows.
       def cornflower_blue = CORNFLOWER_BLUE
     end
   end

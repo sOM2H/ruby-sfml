@@ -92,6 +92,7 @@ module SFML
           STATUS_NAMES[status] || status
         end
 
+        # Returns the body.
         def body  = C::Network.sfHttpResponse_getBody(@handle).to_s
         def field(name) = C::Network.sfHttpResponse_getField(@handle, name.to_s)
 

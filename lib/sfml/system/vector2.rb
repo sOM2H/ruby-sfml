@@ -9,8 +9,12 @@ module SFML
   class Vector2
     attr_reader :x, :y
 
+    # Compact constructor: `Vector2[3, 4]` reads naturally as a literal.
     def self.[](x, y) = new(x, y)
-    def self.zero     = new(0, 0)
+
+    # The (0, 0) vector. Reused as a singleton-style fallback (e.g.
+    # `#normalize` returns this for the zero vector).
+    def self.zero = new(0, 0)
 
     def initialize(x = 0, y = 0)
       @x = x
@@ -18,10 +22,15 @@ module SFML
       freeze
     end
 
+    # Component-wise addition.
     def +(other) = Vector2.new(@x + other.x, @y + other.y)
+    # Component-wise subtraction.
     def -(other) = Vector2.new(@x - other.x, @y - other.y)
+    # Multiply both components by `scalar`.
     def *(scalar) = Vector2.new(@x * scalar, @y * scalar)
+    # Divide both components by `scalar`. Always promotes to Float.
     def /(scalar) = Vector2.new(@x / scalar.to_f, @y / scalar.to_f)
+    # Negate both components.
     def -@ = Vector2.new(-@x, -@y)
 
     # Lets Ruby evaluate `2 * vec` as `vec * 2`. Without this, Numeric#*
@@ -31,24 +40,40 @@ module SFML
       [self, other]
     end
 
+    # Value equality — two Vector2s are equal when both components match.
     def ==(other) = other.is_a?(Vector2) && @x == other.x && @y == other.y
     alias eql? ==
+    # Hash key support — Vector2s can be Hash keys / Set members.
     def hash = [@x, @y].hash
 
+    # Euclidean length √(x² + y²). For comparisons prefer `length_sq` —
+    # avoids the square root.
     def length    = Math.sqrt(length_sq)
+    # Squared length (x² + y²) — comparisons can use this without the
+    # `sqrt` call.
     def length_sq = (@x * @x) + (@y * @y)
 
+    # Unit vector pointing the same way as `self`. Returns the zero
+    # vector unchanged (no division by zero).
     def normalize
       len = length
       return Vector2.zero if len.zero?
       self / len
     end
 
+    # Scalar dot product. Positive when both vectors point roughly the
+    # same way, negative when opposite, zero when perpendicular.
     def dot(other)   = (@x * other.x) + (@y * other.y)
+
+    # Scalar 2D cross product (a.k.a. perpendicular dot). Positive when
+    # `other` is counter-clockwise from `self`, negative when clockwise.
     def cross(other) = (@x * other.y) - (@y * other.x)
 
-    # Euclidean distance between two points.
+    # Euclidean distance to `other` — accepts a Vector2 or `[x, y]`.
     def distance(other)    = (self - _coerce(other)).length
+
+    # Squared distance to `other` — skip the `sqrt` if you only need to
+    # compare two distances.
     def distance_sq(other) = (self - _coerce(other)).length_sq
 
     # Angle of this vector relative to +X axis, in radians (-π..π].
@@ -64,6 +89,7 @@ module SFML
     # if you already have radians.
     def rotated(degrees) = rotated_rad(degrees * Math::PI / 180.0)
 
+    # Vector rotated by `radians` counter-clockwise.
     def rotated_rad(radians)
       c, s = Math.cos(radians), Math.sin(radians)
       Vector2.new(@x * c - @y * s, @x * s + @y * c)
@@ -109,15 +135,29 @@ module SFML
       self * (target / len)
     end
 
+    # `true` iff both components are zero.
     def zero?  = @x.zero? && @y.zero?
+
+    # Per-component absolute value.
     def abs    = Vector2.new(@x.abs, @y.abs)
+
+    # Promote to a Vector3 with optional `z` (default 0).
     def to_v3(z = 0.0) = Vector3.new(@x, @y, z)
 
+    # As a 2-element `[x, y]` Array — supports splat destructuring:
+    # `x, y = vec`.
     def to_a = [@x, @y]
+
+    # As a `{x:, y:}` Hash.
     def to_h = { x: @x, y: @y }
+
+    # Pattern-match support for `in [x, y]`.
     def deconstruct = [@x, @y]
+
+    # Pattern-match support for `in {x:, y:}`.
     def deconstruct_keys(_keys) = { x: @x, y: @y }
 
+    # String representation for debugging.
     def to_s = "Vector2(#{@x}, #{@y})"
     alias inspect to_s
 

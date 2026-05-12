@@ -47,6 +47,7 @@ module SFML
         alpha_src == other.alpha_src && alpha_dst == other.alpha_dst && alpha_eq == other.alpha_eq
     end
     alias eql? ==
+    # Returns the hash.
     def hash = [color_src, color_dst, color_eq, alpha_src, alpha_dst, alpha_eq].hash
 
     def to_s

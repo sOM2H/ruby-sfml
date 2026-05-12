@@ -17,14 +17,17 @@ module SFML
       C::Audio.sfListener_getGlobalVolume
     end
 
+    # Set the master volume in [0, 100].
     def global_volume=(value)
       C::Audio.sfListener_setGlobalVolume(value.to_f)
     end
 
+    # The listener's 3D position in world space.
     def position
       Vector3.from_native(C::Audio.sfListener_getPosition)
     end
 
+    # Set the position — accepts Vector3 or `[x, y, z]`.
     def position=(value)
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       C::Audio.sfListener_setPosition(vec.to_native_f)
@@ -36,6 +39,7 @@ module SFML
       Vector3.from_native(C::Audio.sfListener_getDirection)
     end
 
+    # Set the forward direction — accepts Vector3 or `[x, y, z]`.
     def direction=(value)
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       C::Audio.sfListener_setDirection(vec.to_native_f)
@@ -47,6 +51,7 @@ module SFML
       Vector3.from_native(C::Audio.sfListener_getUpVector)
     end
 
+    # Set the up vector — accepts Vector3 or `[x, y, z]`.
     def up_vector=(value)
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       C::Audio.sfListener_setUpVector(vec.to_native_f)
@@ -58,6 +63,7 @@ module SFML
       Vector3.from_native(C::Audio.sfListener_getVelocity)
     end
 
+    # Set the velocity — accepts Vector3 or `[x, y, z]`.
     def velocity=(value)
       vec = value.is_a?(Vector3) ? value : Vector3.new(*value)
       C::Audio.sfListener_setVelocity(vec.to_native_f)
@@ -72,6 +78,7 @@ module SFML
       SoundCone.from_native(C::Audio.sfListener_getCone)
     end
 
+    # Set the cone. Accepts a `SoundCone` or a Hash.
     def cone=(value)
       cone =
         case value

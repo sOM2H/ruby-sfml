@@ -45,6 +45,8 @@ module SFML
         1002 => :connection_closed, 1003 => :invalid_file,
       }.freeze
 
+      # Create a new FTP client. Call `#connect` next to open a
+      # session.
       def initialize
         ptr = C::Network.sfFtp_create
         raise NetworkError, "sfFtp_create returned NULL" if ptr.null?
@@ -61,61 +63,78 @@ module SFML
         Response._take_ownership(C::Network.sfFtp_connect(@handle, addr, Integer(port), t.to_native))
       end
 
+      # Log in as anonymous. Returns a `Response`.
       def login_anonymous
         Response._take_ownership(C::Network.sfFtp_loginAnonymous(@handle))
       end
 
+      # Log in with credentials.
       def login(user, password)
         Response._take_ownership(C::Network.sfFtp_login(@handle, user.to_s, password.to_s))
       end
 
+      # Close the connection.
       def disconnect = Response._take_ownership(C::Network.sfFtp_disconnect(@handle))
+      # Send a no-op to keep the connection alive against server timeouts.
       def keep_alive = Response._take_ownership(C::Network.sfFtp_keepAlive(@handle))
 
+      # Current working directory as a `DirectoryResponse`.
       def working_directory
         DirectoryResponse._take_ownership(C::Network.sfFtp_getWorkingDirectory(@handle))
       end
 
+      # List `directory` (default = current). Returns a `ListingResponse`.
       def directory_listing(directory = "")
         ListingResponse._take_ownership(C::Network.sfFtp_getDirectoryListing(@handle, directory.to_s))
       end
 
+      # `cd` to a directory.
       def change_directory(directory)
         Response._take_ownership(C::Network.sfFtp_changeDirectory(@handle, directory.to_s))
       end
 
+      # `cd ..`.
       def parent_directory
         Response._take_ownership(C::Network.sfFtp_parentDirectory(@handle))
       end
 
+      # `mkdir` — returns a `DirectoryResponse` with the new path.
       def create_directory(name)
         DirectoryResponse._take_ownership(C::Network.sfFtp_createDirectory(@handle, name.to_s))
       end
 
+      # `rmdir`.
       def delete_directory(name)
         Response._take_ownership(C::Network.sfFtp_deleteDirectory(@handle, name.to_s))
       end
 
+      # Rename / move a file on the server.
       def rename_file(file, new_name)
         Response._take_ownership(C::Network.sfFtp_renameFile(@handle, file.to_s, new_name.to_s))
       end
 
+      # Delete a single file.
       def delete_file(name)
         Response._take_ownership(C::Network.sfFtp_deleteFile(@handle, name.to_s))
       end
 
+      # Pull `remote` from the server to local path. `mode` is
+      # `:binary` (default), `:ascii`, or `:ebcdic`.
       def download(remote, local, mode: :binary)
         idx = C::Network::FTP_TRANSFER_MODES.index(mode) ||
           raise(ArgumentError, "Unknown FTP transfer mode: #{mode.inspect}")
         Response._take_ownership(C::Network.sfFtp_download(@handle, remote.to_s, local.to_s, idx))
       end
 
+      # Push `local` to `remote`. `append: true` extends an existing
+      # remote file rather than replacing it.
       def upload(local, remote, mode: :binary, append: false)
         idx = C::Network::FTP_TRANSFER_MODES.index(mode) ||
           raise(ArgumentError, "Unknown FTP transfer mode: #{mode.inspect}")
         Response._take_ownership(C::Network.sfFtp_upload(@handle, local.to_s, remote.to_s, idx, !!append))
       end
 
+      # Send a raw FTP command (e.g. "STAT") and an optional parameter.
       def send_command(command, parameter = "")
         Response._take_ownership(C::Network.sfFtp_sendCommand(@handle, command.to_s, parameter.to_s))
       end
@@ -124,9 +143,13 @@ module SFML
 
       # Generic response: most FTP operations return this.
       class Response
+        # `true` if ok.
         def ok?           = C::Network.sfFtpResponse_isOk(@handle)
+        # Returns the status.
         def status        = C::Network.sfFtpResponse_getStatus(@handle)
+        # Returns the status symbol.
         def status_symbol = STATUS_NAMES[status] || status
+        # Returns the message.
         def message       = C::Network.sfFtpResponse_getMessage(@handle).to_s
         attr_reader :handle # :nodoc:
 
@@ -142,10 +165,15 @@ module SFML
       # Returned by working_directory and create_directory — adds the
       # `#directory` accessor on top of Response.
       class DirectoryResponse
+        # `true` if ok.
         def ok?           = C::Network.sfFtpDirectoryResponse_isOk(@handle)
+        # Returns the status.
         def status        = C::Network.sfFtpDirectoryResponse_getStatus(@handle)
+        # Returns the status symbol.
         def status_symbol = STATUS_NAMES[status] || status
+        # Returns the message.
         def message       = C::Network.sfFtpDirectoryResponse_getMessage(@handle).to_s
+        # Returns the directory.
         def directory     = C::Network.sfFtpDirectoryResponse_getDirectory(@handle).to_s
         attr_reader :handle # :nodoc:
 
@@ -160,13 +188,19 @@ module SFML
 
       # Returned by directory_listing — adds the `#names` array.
       class ListingResponse
+        # `true` if ok.
         def ok?           = C::Network.sfFtpListingResponse_isOk(@handle)
+        # Returns the status.
         def status        = C::Network.sfFtpListingResponse_getStatus(@handle)
+        # Returns the status symbol.
         def status_symbol = STATUS_NAMES[status] || status
+        # Returns the message.
         def message       = C::Network.sfFtpListingResponse_getMessage(@handle).to_s
+        # Returns the count.
         def count         = C::Network.sfFtpListingResponse_getCount(@handle)
         attr_reader :handle # :nodoc:
 
+        # Filenames returned by the listing, as an Array of Strings.
         def names
           Array.new(count) { |i| C::Network.sfFtpListingResponse_getName(@handle, i).to_s }
         end

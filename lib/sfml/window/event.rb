@@ -34,6 +34,7 @@ module SFML
       { type: @type, **@data }
     end
 
+    # `true` if respond to missing.
     def respond_to_missing?(name, _private = false)
       @data.key?(name) || super
     end
@@ -43,6 +44,7 @@ module SFML
       super
     end
 
+    # String representation for debugging.
     def to_s = "#<SFML::Event #{@type} #{@data.inspect}>"
     alias inspect to_s
 

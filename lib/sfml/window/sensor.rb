@@ -22,6 +22,7 @@ module SFML
 
     module_function
 
+    # `true` if available.
     def available?(type)
       C::Window.sfSensor_isAvailable(_index(type))
     end

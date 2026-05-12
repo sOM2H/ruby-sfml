@@ -26,11 +26,13 @@ module SFML
         @search_paths ||= [default_root]
       end
 
+      # Set the search paths.
       def search_paths=(paths)
         @search_paths = Array(paths).map { |p| File.expand_path(p) }
         @cache&.clear
       end
 
+      # Set the root.
       def root=(path)
         self.search_paths = [path]
       end

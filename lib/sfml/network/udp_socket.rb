@@ -80,12 +80,15 @@ module SFML
         [status, pkt, IpAddress.wrap(sender_addr), sender_port.read(:uint16)]
       end
 
+      # `true` if blocking.
       def blocking? = C::Network.sfUdpSocket_isBlocking(@handle)
 
+      # Set the blocking.
       def blocking=(value)
         C::Network.sfUdpSocket_setBlocking(@handle, value ? true : false)
       end
 
+      # Returns the local port.
       def local_port = C::Network.sfUdpSocket_getLocalPort(@handle)
 
       attr_reader :handle # :nodoc:

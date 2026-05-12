@@ -9,7 +9,7 @@ Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [C
 [![CI](https://github.com/sOM2H/ruby-sfml/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sOM2H/ruby-sfml/actions/workflows/ci.yml)
 [![docs](https://img.shields.io/badge/docs-rubydoc.info-blue.svg)](https://www.rubydoc.info/gems/ruby-sfml)
 
-> **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus the higher-level `App` / `Scene` / `Assets` helpers. 410 RSpec examples, 24 runnable example folders.
+> **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus higher-level helpers (`App`, `Scene`, `Assets`, `SpriteSheet`, `Animation`, `TextureAtlas`, `ParticleSystem`, fixed timestep, input-action DSL, vector math). 640 RSpec examples, 35 runnable example folders.
 
 ## Why
 
@@ -156,31 +156,74 @@ to its script. Run from the gem root:
 bundle exec ruby examples/<NN_name>/<name>.rb
 ```
 
+The numbering reflects a rough learning order — earlier examples
+introduce concepts that later ones build on. Pick the section that
+matches what you want to learn first.
+
+### Foundations — window, events, input
+
 | #   | Example                                                                        | What it shows                                                       |
 | --- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
 | 01  | [hello_window](examples/01_hello_window/hello_window.rb)                       | Empty window, manual event loop                                     |
 | 02  | [events_demo](examples/02_events_demo/events_demo.rb)                          | Pattern matching on input events                                    |
-| 03  | [bouncing_ball](examples/03_bouncing_ball/bouncing_ball.rb)                    | dt-based physics, `CircleShape` + `RectangleShape`                  |
-| 04  | [app_class](examples/04_app_class/app_class.rb)                                 | Same idea on top of `SFML::App`                                     |
-| 05  | [mouse_demo](examples/05_mouse_demo/mouse_demo.rb)                             | Polling vs. events; paint with the mouse                            |
-| 06  | [pong](examples/06_pong/pong.rb)                                               | Two-player Pong with in-window score (`Text`) and bounce `Sound`    |
-| 07  | [scrolling_world](examples/07_scrolling_world/scrolling_world.rb)              | `View` as a 2D camera: drag-pan, wheel-zoom around cursor, FPS HUD  |
-| 08  | [joystick_demo](examples/08_joystick_demo/joystick_demo.rb)                    | Live gamepad inspector (axes, buttons, connect/disconnect)          |
-| 09  | [image_viewer](examples/09_image_viewer/image_viewer.rb)                       | Load a PNG, mutate the `Image`, re-upload to `Texture` on a key     |
-| 10  | [pixel_paint](examples/10_pixel_paint/pixel_paint.rb)                          | Paint into a CPU `Image`, blit to GPU `Texture` each dirty frame    |
-| 11  | [particles](examples/11_particles/particles.rb)                                | Thousands of points in one draw call via `VertexArray` + `ConvexShape` ground |
-| 12  | [render_texture](examples/12_render_texture/render_texture.rb)                 | Off-screen `RenderTexture` for trail / motion-blur effects        |
-| 13  | [tilemap](examples/13_tilemap/tilemap.rb)                                      | Textured `VertexArray` tilemap + additive `BlendMode` torch       |
-| 14  | [shader_wave](examples/14_shader_wave/shader_wave.rb)                          | Pure GLSL fragment `Shader` — procedural ripple + plasma          |
+| 03  | [mouse_demo](examples/03_mouse_demo/mouse_demo.rb)                             | Polling vs. events; paint with the mouse                            |
+| 04  | [bouncing_ball](examples/04_bouncing_ball/bouncing_ball.rb)                    | dt-based physics on a manual main loop                              |
+| 05  | [app_class](examples/05_app_class/app_class.rb)                                | Same idea on top of `SFML::App` — see how much boilerplate goes away |
+| 06  | [vector_math](examples/06_vector_math/vector_math.rb)                          | `Vector2` helpers (`#distance` / `#angle_to` / `#rotated` / `#lerp` / `#clamp_length`) in real motion |
+| 07  | [input_actions](examples/07_input_actions/input_actions.rb)                    | `action :name, keys:, scancodes:, mouse_buttons:` DSL + `axis(...)` digital steering |
+
+### Drawing — geometry and assets
+
+| #   | Example                                                                        | What it shows                                                       |
+| --- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 08  | [draw_primitives](examples/08_draw_primitives/draw_primitives.rb)              | Raw `draw_primitives` — line burst rebuilt every frame             |
+| 09  | [custom_shape](examples/09_custom_shape/custom_shape.rb)                       | Abstract `SFML::Shape` subclass — parametric star / heart / gear   |
+| 10  | [image_viewer](examples/10_image_viewer/image_viewer.rb)                       | Load a PNG, mutate the `Image`, re-upload to `Texture` on a key   |
+| 11  | [pixel_paint](examples/11_pixel_paint/pixel_paint.rb)                          | Paint into a CPU `Image`, blit to GPU `Texture` each dirty frame  |
+| 12  | [sprite_animation](examples/12_sprite_animation/sprite_animation.rb)           | Procedural `SpriteSheet` → `Animation` walk cycle                  |
+| 13  | [texture_atlas](examples/13_texture_atlas/texture_atlas.rb)                    | Aseprite-style JSON atlas → 3 named animations with auto-fps       |
+| 14  | [window_icon](examples/14_window_icon/window_icon.rb)                          | Procedural 32×32 icon set as the window/taskbar icon              |
 | 15  | [cursors_clipboard](examples/15_cursors_clipboard/cursors_clipboard.rb)        | All 21 system `Cursor` shapes + `Clipboard` copy/paste            |
-| 16  | [spatial_audio](examples/16_spatial_audio/spatial_audio.rb)                    | 3D positional `Sound` + `Listener` — three drones around the cursor |
-| 17  | [voice_memo](examples/17_voice_memo/voice_memo.rb)                             | Record from microphone via `SoundBufferRecorder`, save + play back |
-| 18  | [draw_primitives](examples/18_draw_primitives/draw_primitives.rb)              | Raw `draw_primitives` — line burst rebuilt every frame             |
-| 19  | [udp_loopback](examples/19_udp_loopback/udp_loopback.rb)                       | UDP send/receive on localhost via `Network::UdpSocket`             |
-| 20  | [bare_window](examples/20_bare_window/bare_window.rb)                          | `SFML::Window` (no 2D batcher) — events for raw-OpenGL apps        |
-| 21  | [window_icon](examples/21_window_icon/window_icon.rb)                          | Procedural 32×32 icon set as the window/taskbar icon              |
-| 22  | [stencil_mask](examples/22_stencil_mask/stencil_mask.rb)                       | Two-pass `StencilMode` masking — cursor spotlight clip            |
-| 23  | [sound_stream](examples/23_sound_stream/sound_stream.rb)                       | Real-time sine synth via `SFML::SoundStream` subclass             |
+
+### Camera, GPU, effects
+
+| #   | Example                                                                        | What it shows                                                       |
+| --- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 16  | [screenshot](examples/16_screenshot/screenshot.rb)                             | `RenderWindow#screenshot(path)` / `#capture_image` for in-memory frames |
+| 17  | [scrolling_world](examples/17_scrolling_world/scrolling_world.rb)              | `View` as a 2D camera: drag-pan, wheel-zoom around cursor, FPS HUD |
+| 18  | [render_texture](examples/18_render_texture/render_texture.rb)                 | Off-screen `RenderTexture` for trail / motion-blur effects        |
+| 19  | [tilemap](examples/19_tilemap/tilemap.rb)                                      | Textured `VertexArray` tilemap + additive `BlendMode` torch       |
+| 20  | [particle_system](examples/20_particle_system/particle_system.rb)              | `SFML::ParticleSystem` fountain — VertexArray-backed pool        |
+| 21  | [particles](examples/21_particles/particles.rb)                                | Same fountain hand-rolled on `VertexArray` + `ConvexShape` ground |
+| 22  | [shader_wave](examples/22_shader_wave/shader_wave.rb)                          | Pure GLSL fragment `Shader` — procedural ripple + plasma          |
+| 23  | [stencil_mask](examples/23_stencil_mask/stencil_mask.rb)                       | Two-pass `StencilMode` masking — cursor spotlight clip            |
+| 24  | [vertex_buffer](examples/24_vertex_buffer/vertex_buffer.rb)                    | 120 K-vertex `VertexBuffer` drawn in one call, animated via `View` only |
+| 25  | [bare_window](examples/25_bare_window/bare_window.rb)                          | `SFML::Window` (no 2D batcher) — events for raw-OpenGL apps      |
+
+### Game-loop polish
+
+| #   | Example                                                                        | What it shows                                                       |
+| --- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 26  | [scenes](examples/26_scenes/scenes.rb)                                         | Title → play → game-over flow with `SFML::Scene`                  |
+| 27  | [fixed_timestep](examples/27_fixed_timestep/fixed_timestep.rb)                 | `fixed_timestep 30` + `interpolation_alpha` for jitter-free physics |
+| 28  | [pong](examples/28_pong/pong.rb)                                               | Two-player Pong with in-window score (`Text`) and bounce `Sound`  |
+| 29  | [joystick_demo](examples/29_joystick_demo/joystick_demo.rb)                    | Live gamepad inspector (axes, buttons, connect/disconnect)        |
+
+### Audio — simple to procedural
+
+| #   | Example                                                                        | What it shows                                                       |
+| --- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 30  | [spatial_audio](examples/30_spatial_audio/spatial_audio.rb)                    | 3D positional `Sound` + `Listener` — three drones around the cursor |
+| 31  | [voice_memo](examples/31_voice_memo/voice_memo.rb)                             | Record from microphone via `SoundBufferRecorder`, save + play back |
+| 32  | [sound_stream](examples/32_sound_stream/sound_stream.rb)                       | Real-time sine synth via `SFML::SoundStream` subclass             |
+| 33  | [procedural_synth](examples/33_procedural_synth/procedural_synth.rb)           | `SoundBuffer.from_samples` mini-piano (Z–M keys, chromatic C4..B4) |
+
+### Networking
+
+| #   | Example                                                                        | What it shows                                                       |
+| --- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 34  | [udp_loopback](examples/34_udp_loopback/udp_loopback.rb)                       | UDP send/receive on localhost via `Network::UdpSocket`             |
+| 35  | [tcp_chat](examples/35_tcp_chat/tcp_chat.rb)                                   | `TcpListener` + `TcpSocket` + typed `Network::Packet` over loopback |
 
 ## Idioms baked in
 

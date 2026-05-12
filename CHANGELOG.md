@@ -79,9 +79,6 @@ on top of it.
 
 ### Added — CI / tooling
 
-- GitHub Actions release workflow (`release.yml`) — tag
-  `vX.Y.Z.W` triggers a gem build + push to RubyGems. Verifies
-  the tag matches `lib/sfml/version.rb` before publishing.
 - CI badge in `README.md`.
 
 ## [3.0.0.5] — 2026-05-11

@@ -6,6 +6,8 @@ versioning is [described in the README](README.md#versioning) — first
 three segments mirror the targeted CSFML release, fourth segment is
 ruby-sfml's own patch level.
 
+HTML API docs: <https://ruby-sfml-doc.netlify.app/>
+
 ## [Unreleased]
 
 ## [3.0.0.6] — 2026-05-12

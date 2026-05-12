@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"]      = spec.homepage
   spec.metadata["source_code_uri"]   = spec.homepage
   spec.metadata["bug_tracker_uri"]   = "#{spec.homepage}/issues"
-  spec.metadata["documentation_uri"] = "https://www.rubydoc.info/gems/#{spec.name}"
+  spec.metadata["documentation_uri"] = "https://ruby-sfml-doc.netlify.app/"
   spec.metadata["changelog_uri"]     = "#{spec.homepage}/blob/main/CHANGELOG.md"
 
   spec.files = Dir[
@@ -25,7 +25,11 @@ Gem::Specification.new do |spec|
     "README.md",
     "CHANGELOG.md",
     "LICENSE.txt",
-    "ruby-sfml.gemspec"
+    "ruby-sfml.gemspec",
+    # Shipping .rdoc_options means the docs site (and anyone running
+    # `rdoc` against the unpacked gem) gets the project's preferred
+    # title, markup dialect, template, and exclude list automatically.
+    ".rdoc_options"
   ]
   spec.require_paths = ["lib"]
   spec.extensions    = ["ext/ruby-sfml/extconf.rb"]

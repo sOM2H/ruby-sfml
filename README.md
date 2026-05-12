@@ -7,7 +7,7 @@ Modern, idiomatic Ruby bindings for [SFML 3.x](https://www.sfml-dev.org/) via [C
 
 [![gem version](https://img.shields.io/gem/v/ruby-sfml.svg)](https://rubygems.org/gems/ruby-sfml)
 [![CI](https://github.com/sOM2H/ruby-sfml/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sOM2H/ruby-sfml/actions/workflows/ci.yml)
-[![docs](https://img.shields.io/badge/docs-rubydoc.info-blue.svg)](https://www.rubydoc.info/gems/ruby-sfml)
+[![docs](https://img.shields.io/badge/docs-ruby--sfml--doc.netlify.app-blue.svg)](https://ruby-sfml-doc.netlify.app/)
 
 > **Status:** API surface complete for SFML 3.0 — system, window, graphics (incl. stencil buffer + VBOs), audio (incl. 3D positional + custom DSP + procedural streams), network (incl. HTTP / FTP / socket selector), input (keyboard, mouse, joystick, touch, sensors), plus higher-level helpers (`App`, `Scene`, `Assets`, `SpriteSheet`, `Animation`, `TextureAtlas`, `ParticleSystem`, fixed timestep, input-action DSL, vector math). 640 RSpec examples, 35 runnable example folders.
 
@@ -46,9 +46,12 @@ Or drop it in directly:
 gem install ruby-sfml
 ```
 
-Hosted on [rubygems.org](https://rubygems.org/gems/ruby-sfml); HTML
-docs auto-generate at
-[rubydoc.info/gems/ruby-sfml](https://www.rubydoc.info/gems/ruby-sfml).
+Hosted on [rubygems.org](https://rubygems.org/gems/ruby-sfml).
+HTML docs (RDoc) live at [**ruby-sfml-doc.netlify.app**](https://ruby-sfml-doc.netlify.app/)
+— built from the source tree of the latest release and served as
+static HTML. RubyGems' auto-generated docs at
+[rubydoc.info/gems/ruby-sfml](https://www.rubydoc.info/gems/ruby-sfml)
+work too as a fallback.
 
 ### How the CSFML check happens
 

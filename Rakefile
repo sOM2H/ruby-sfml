@@ -7,16 +7,13 @@ require_relative "lib/sfml/version"
 RSpec::Core::RakeTask.new(:spec)
 
 RDoc::Task.new do |rdoc|
-  rdoc.main         = "README.md"
-  rdoc.title        = "ruby-sfml #{SFML::VERSION}"
-  rdoc.rdoc_dir     = "doc"
-  rdoc.markup       = "markdown"
-  # Public API only. Skip the FFI plumbing under SFML::C — it's documented
-  # by being mechanical, and RDoc'ing every attach_function would drown the
-  # reader.
-  rdoc.options << "--exclude=lib/sfml/c.rb"
-  rdoc.options << "--exclude=lib/sfml/c/"
-  rdoc.rdoc_files.include("README.md", "LICENSE.txt", "lib/**/*.rb")
+  # Most project-wide knobs (markup, excludes, template, …) live in
+  # `.rdoc_options`, which is ALSO read by the bare `rdoc` CLI that
+  # the docs-site repo invokes. Keep this task minimal — title +
+  # version interpolation can't live in the YAML, the rest can.
+  rdoc.title    = "ruby-sfml #{SFML::VERSION}"
+  rdoc.rdoc_dir = "doc"
+  rdoc.rdoc_files.include("README.md", "CHANGELOG.md", "LICENSE.txt", "lib/**/*.rb")
 end
 
 task default: :spec

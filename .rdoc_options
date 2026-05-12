@@ -1,0 +1,44 @@
+---
+# RDoc project config. Read by both `rake rdoc` (via RDoc::Task) and
+# the standalone `rdoc` CLI — the docs-site repo invokes `rdoc`
+# directly, so all the user-facing knobs live here, not in Rakefile.
+
+# Page rendered as the doc-site root.
+main_page: README.md
+title:     ruby-sfml — modern Ruby bindings for SFML 3.x
+
+# README + LICENSE + CHANGELOG are markdown; assume the same dialect
+# in source-file comments.
+markup:    markdown
+
+# `doc/` matches RDoc's default output dir.
+output:    doc
+
+# Visibility filter: public API only. Internal `_method` helpers and
+# the FFI plumbing under `SFML::C::*` add noise without value.
+visibility: public
+
+# What gets parsed. Skip the C-bindings module entirely; including
+# them would document every `attach_function` and drown the API user.
+exclude:
+  - lib/sfml/c.rb
+  - lib/sfml/c/
+  - ext/
+  - spec/
+  - examples/
+  - pkg/
+  - doc/
+  - vendor/
+
+# Surface non-source pages as a "Pages" sidebar entry.
+files:
+  - README.md
+  - CHANGELOG.md
+  - LICENSE.txt
+  - lib/
+
+# Cosmetic.
+template: darkfish
+charset:  UTF-8
+line_numbers: false
+show_hash: false
